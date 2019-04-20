@@ -81,6 +81,7 @@ I can't, sooo, I guess we should just go-ahead and start with step #1.
 %{.
 close all; clear; clc; rng('shuffle');
 genosdir = fileparts(which('GENOS.m'));
+matlabdir = fileparts(which('MATLABS.m'));
 cd(genosdir);
 
 
@@ -89,10 +90,10 @@ datasetpath = [genosdir filesep 'genosdata'];
 gpath = [genosdir pathsep subfuncpath pathsep datasetpath];
 addpath(gpath)
 
+C:\Users\monakhos\Documents\MATLAB\genosdata
 
-
-which('ADSP_MINI3.mat')
-ADSP = load('ADSP_MINI3.mat');
+which('GENOSDATA.mat')
+ADSP = load('GENOSDATA.mat');
 
 
 

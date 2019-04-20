@@ -12,6 +12,8 @@
 *.xls
 *.xlsx
 *.csv
+*.asv
+.asv
 
 
 # Explicitly ignore some folders
@@ -23,3 +25,4 @@ nn_data
 genosdata
 genosdata/*
 HandNet
+codegen

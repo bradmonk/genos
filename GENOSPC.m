@@ -698,20 +698,25 @@ title('DISTRIBUTION OF REF ALLELES')
 pause(2); close all;
 
 
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP...
-TRCASE TRCTRL TECASE TECTRL
-
-
-
-
-
+clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 
 
 
 %==========================================================================
 %%               COMPUTE FISHER'S P-VALUE
 %==========================================================================
-disp('COMPUTING FISHERS EXACT TEST STATISTICS PER DNA LOCUS')
+clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
+clc; disp('COMPUTING FISHERS EXACT TEST STATISTICS PER DNA LOCUS')
+
+% AAA = LOCI.TRCASEREF(1:100,:);
+% AAB = LOCI.TRCASEALT(1:100,:);
+% AAC = LOCI.TRCTRLREF(1:100,:);
+% AAD = LOCI.TRCTRLALT(1:100,:);
+% [FISHP, FISHOR] = fishp(AAA,AAB,AAC,AAD);
+
+
+
+
 
 
 
@@ -719,9 +724,11 @@ disp('COMPUTING FISHERS EXACT TEST STATISTICS PER DNA LOCUS')
 % ***  PER CHROMOSOME  ***
 %---------------------------
 
+
 % COMPUTE FISHERS STATISTICS FOR THE TRAINING GROUP
-[FISHP, FISHOR] = fishp(LOCI.TRCASEREF,LOCI.TRCASEALT,...
+[FISHP, FISHOR] = fishp_mex(LOCI.TRCASEREF,LOCI.TRCASEALT,...
                             LOCI.TRCTRLREF,LOCI.TRCTRLALT);
+
 
 LOCI.TRFISHP  = FISHP;
 LOCI.TRFISHOR = FISHOR;
@@ -730,39 +737,11 @@ LOCI.TRFISHOR = FISHOR;
 
 
 % COMPUTE FISHERS STATISTICS FOR THE TRAINING GROUP
-[FISHP, FISHOR] = fishp(LOCI.TECASEREF, LOCI.TECASEALT,...
+[FISHP, FISHOR] = fishp_mex(LOCI.TECASEREF, LOCI.TECASEALT,...
                             LOCI.TECTRLREF, LOCI.TECTRLALT);
 
 LOCI.TEFISHP  = FISHP;
 LOCI.TEFISHOR = FISHOR;
-
-
-
-
-
-%------------------------------------------------------------------------
-% ***  PER PERSON  ***
-%-----------------------
-% 
-% % COMPUTE FISHERS STATISTICS FOR THE TRAINING GROUP
-% [PPFISHP, PPFISHOR] = fishp_mex(LOCI.PPTRCASEREF,LOCI.PPTRCASEALT,...
-%                             LOCI.PPTRCTRLREF,LOCI.PPTRCTRLALT);
-% 
-% LOCI.PPTRFISHP  = PPFISHP;
-% LOCI.PPTRFISHOR = PPFISHOR;
-% 
-% 
-% 
-% % COMPUTE FISHERS STATISTICS FOR THE TRAINING GROUP
-% [PPFISHP, PPFISHOR] = fishp_mex(LOCI.PPTECASEREF, LOCI.PPTECASEALT,...
-%                             LOCI.PPTECTRLREF, LOCI.PPTECTRLALT);
-% 
-% LOCI.PPTEFISHP  = PPFISHP;
-% LOCI.PPTEFISHOR = PPFISHOR;
-%------------------------------------------------------------------------
-
-
-
 
 
 
@@ -1232,10 +1211,10 @@ cb04.Label.Rotation = -90;
 colormap(fh01,PH)
 
 %------------------------------------------%
-pause(1)
-set(gcf, 'PaperPositionMode', 'auto');
-dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['/Users/bradleymonk/Desktop/APOE33_4G_' dt '.png']);
+% pause(1)
+% set(gcf, 'PaperPositionMode', 'auto');
+% dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
+% saveas(gcf, ['/Users/bradleymonk/Desktop/APOE33_4G_' dt '.png']);
 pause(1)
 %------------------------------------------%
 
@@ -1327,10 +1306,10 @@ cb02.Label.Rotation = -90;
 colormap(fh01,PH)
 
 %------------------------------------------%
-pause(1)
-set(gcf, 'PaperPositionMode', 'auto');
-dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['/Users/bradleymonk/Desktop/APOE33_2G_' dt '.png']);
+% pause(1)
+% set(gcf, 'PaperPositionMode', 'auto');
+% dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
+% saveas(gcf, ['/Users/bradleymonk/Desktop/APOE33_2G_' dt '.png']);
 pause(1)
 %------------------------------------------%
 

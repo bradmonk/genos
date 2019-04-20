@@ -1,0 +1,141 @@
+function [TRAINMX,TRAINL,TESTMX,TESTL] = makeTRAINTESTMX(tR,ADNN,COHORTS,TrainOn)
+%% makeTRAINTESTMX.m
+
+% tR : ratio to train
+
+% Choose a ratio to train (and ratio for holdout testing)
+TRAIN_RATIO = tR;
+TEST_RATIO  = 1-TRAIN_RATIO;
+
+
+
+caMX = ADNN(2:end,4:end);
+coMX = ADNN(2:end,4:end);
+caMX(ADNN(2:end,2)==0,:) = [];
+coMX(ADNN(2:end,2)==1,:) = [];
+
+
+CASE_N = size(caMX,1);
+CTRL_N = size(coMX,1);
+TRAIN_N_CASE = round(CASE_N * TRAIN_RATIO);
+TRAIN_N_CTRL = round(CTRL_N * TRAIN_RATIO);
+TRAINING_CASES = randperm(CASE_N,TRAIN_N_CASE)';
+TRAINING_CTRLS = randperm(CTRL_N,TRAIN_N_CTRL)';
+
+
+NNID = ADNN(2:end,1:2);
+NNIDCASE = NNID(NNID(:,2)==1,:);
+NNIDCTRL = NNID(NNID(:,2)==0,:);
+NNIDCASE(:,3) = zeros(size(NNIDCASE,1),1);
+NNIDCTRL(:,3) = zeros(size(NNIDCTRL,1),1);
+NNIDCASE(TRAINING_CASES,3) = 1;
+NNIDCTRL(TRAINING_CTRLS,3) = 1;
+
+
+CASEPHE = COHORTS;
+CTRLPHE = COHORTS;
+
+
+[C,i,j]  = intersect( NNIDCASE(:,1) , CASEPHE.SRR );
+NNIDCASE = NNIDCASE(i,:);
+caMX     = caMX(i,:);
+CASEPHE  = CASEPHE(j,:);
+
+
+[C,i,j]  = intersect( NNIDCTRL(:,1) , CTRLPHE.SRR );
+NNIDCTRL = NNIDCTRL(i,:);
+coMX     = coMX(i,:);
+CTRLPHE  = CTRLPHE(j,:);
+
+
+
+
+
+% CREATE FINAL TRAINING AND TESTING MATRICES
+TRAIN_ADNET =  [caMX(NNIDCASE(:,3)==1,:) ; coMX(NNIDCTRL(:,3)==1,:)];
+TEST_ADNET  =  [caMX(NNIDCASE(:,3)==0,:) ; coMX(NNIDCTRL(:,3)==0,:)];
+
+
+
+%% WHAT DO YOU WANT TO TRAIN?  CHOOSE TRAINING LABELS
+
+
+if strcmp(TrainOn,'STUDY')
+
+    TRAIN_LABELS =  [CASEPHE.COHORTNUM(NNIDCASE(:,3)==1) ; CTRLPHE.COHORTNUM(NNIDCTRL(:,3)==1)];
+    TEST_LABELS  =  [CASEPHE.COHORTNUM(NNIDCASE(:,3)==0) ; CTRLPHE.COHORTNUM(NNIDCTRL(:,3)==0)];
+
+    % UNCOMMENT TO TRAIN SEX
+    % TRAIN_LABELS =  [CASEPHE.SEX(NNIDCASE(:,3)==1) ; CTRLPHE.SEX(NNIDCTRL(:,3)==1)];
+    % TEST_LABELS  =  [CASEPHE.SEX(NNIDCASE(:,3)==0) ; CTRLPHE.SEX(NNIDCTRL(:,3)==0)];
+
+    L = unique(TRAIN_LABELS);
+    TRAINLABIS = repmat( TRAIN_LABELS , 1, numel(L) );
+    for nn = 1:numel(L)
+        TRAINLABIS( TRAINLABIS(:,nn) ~= L(nn) , nn) = -1;
+        TRAINLABIS( TRAINLABIS(:,nn) == L(nn) , nn) = 1;
+    end
+    TRAINLABIS(TRAINLABIS==-1) = 0;
+    TRAIN_LABELS = TRAINLABIS;
+
+    L = unique(TEST_LABELS);
+    TESTLABIS = repmat( TEST_LABELS , 1, numel(L) );
+    for nn = 1:numel(L)
+        TESTLABIS( TESTLABIS(:,nn) ~= L(nn) , nn) = -1;
+        TESTLABIS( TESTLABIS(:,nn) == L(nn) , nn) = 1;
+    end
+    TESTLABIS(TESTLABIS==-1) = 0;
+    TEST_LABELS = TESTLABIS;
+
+
+elseif strcmp(TrainOn,'AD')
+
+
+    TRAIN_LABELS =  [CASEPHE.AD(NNIDCASE(:,3)==1) ; CTRLPHE.AD(NNIDCTRL(:,3)==1)];
+    TEST_LABELS  =  [CASEPHE.AD(NNIDCASE(:,3)==0) ; CTRLPHE.AD(NNIDCTRL(:,3)==0)];
+
+
+
+    % CREATE TRAININ AND TESTING LABEL MATRICES
+    TX = zeros(size(TRAIN_LABELS,1), 2)-1;
+
+    TX(:,1) = TRAIN_LABELS==1;
+    TX(:,2) = TRAIN_LABELS==0;
+    TRAIN_LABELS = TX;
+    clear TX
+
+    TX = zeros(size(TEST_LABELS,1), 2)-1;
+    TX(:,1) = TEST_LABELS==1;
+    TX(:,2) = TEST_LABELS==0;
+    TEST_LABELS = TX;
+    clear TX
+
+
+
+end
+
+
+% sum(TRAIN_LABELS==0)
+
+
+
+% clearvars -except ADMX SNPCASE SNPCTRL PHE CASEID CTRLID CASEMX CTRLMX IDVX...
+% ASYMX ASYCASE ASYCTRL ADNN caMX coMX COHORTS ...
+% NNIDCASE CASEPHE NNIDCTRL CTRLPHE ...
+% TRAIN_ADNET TEST_ADNET TRAIN_LABELS TEST_LABELS
+
+
+
+SHUFFLED_ORDER_TRAIN = randperm(size(TRAIN_ADNET,1));
+SHUFFLED_ORDER_TEST  = randperm(size(TEST_ADNET,1));
+
+
+
+TRAINMX = TRAIN_ADNET(SHUFFLED_ORDER_TRAIN,:);
+TRAINL = TRAIN_LABELS(SHUFFLED_ORDER_TRAIN,:);
+
+TESTMX  = TEST_ADNET(SHUFFLED_ORDER_TEST,:);
+TESTL  = TEST_LABELS(SHUFFLED_ORDER_TEST,:);
+
+
+end

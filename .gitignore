@@ -1,0 +1,25 @@
+# OS X temporary files
+*~*
+.DS_Store
+*.m~
+*.mat
+*.aux
+*.log
+*.out
+*.exe
+*.txt
+*.vcf
+*.xls
+*.xlsx
+*.csv
+
+
+# Explicitly ignore some folders
+archive
+sparse
+data
+txt
+nn_data
+genosdata
+genosdata/*
+HandNet

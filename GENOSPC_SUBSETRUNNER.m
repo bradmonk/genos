@@ -143,7 +143,7 @@ clearvars -except FILES MATDAT IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TE
 %------------------------------------------%
 % pause(1)
 % dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-% save(['F:\ML\genosdatasets\APOE4x2x_' dt '.mat'],...
+% save(['F:\ML\genosdatasets\APOE2x3x4x_' dt '.mat'],...
 %     'LOCI','PHEN','TRCASE','TRCTRL','TECASE','TECTRL');
 % pause(1)
 %------------------------------------------%
@@ -168,7 +168,7 @@ clearvars -except FILES MATDAT IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TE
 clearvars -except FILES MATDAT IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 
 
-MATDIR = 'F:\ML\genosdatasets\';
+MATDIR = 'F:\ML\genosdat\APOE2x3x4x';
 FILES.w = what(MATDIR);
 FILES.w.mat
 
@@ -612,14 +612,14 @@ end
 %------------------------------------------%
 pause(1)
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-save(['F:\ML\genosdat\genosloopdata\APOE4x2x_LOOPDATA.mat'],'LOOPDATA');
+save(['F:\ML\genosdat\genosloopdata\APOE2x3x4x_LOOPDATA.mat'],'LOOPDATA');
 pause(1)
 %------------------------------------------%
 
 
 %% LOAD LOOP DATA
 
-load(['F:\ML\genosdat\genosloopdata\APOE4x2x_LOOPDATA.mat'],'LOOPDATA');
+load(['F:\ML\genosdat\genosloopdata\APOE2x3x4x_LOOPDATA.mat'],'LOOPDATA');
 
 %==========================================================================
 %% GET MEAN & STDEV & SEM STATS FOR LOOP

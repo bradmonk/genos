@@ -798,7 +798,7 @@ clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 %------------------------------------------%
 pause(1)
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-save(['F:\ML\genosdatasets\APOE4x2x_' dt '.mat'],...
+save(['F:\ML\genosdat\APOE2x3x4x_' dt '.mat'],...
     'LOCI','PHEN','TRCASE','TRCTRL','TECASE','TECTRL');
 pause(1)
 %------------------------------------------%

@@ -1,4 +1,4 @@
-# OS X temporary files
+# IGNORED FILE TYPES
 *~*
 .DS_Store
 *.m~
@@ -13,16 +13,9 @@
 *.xlsx
 *.csv
 *.asv
-.asv
 
 
-# Explicitly ignore some folders
-archive
-sparse
-data
-txt
-nn_data
-genosdata
-genosdata/*
-HandNet
+# IGNORED FOLDERS
+genos_archive
+genos_genosdata
 codegen

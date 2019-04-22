@@ -88,36 +88,35 @@
 %==========================================================================
 %% STEP-1: LOAD THE DATASET
 %==========================================================================
-
+%{.
 close all; clear; clc; rng('shuffle');
-
-genosdir = fileparts(which('GENOS_RM1.m'));
+genosdir = fileparts(which('GENOS.m'));
+matlabdir = fileparts(which('MATLABS.m'));
 cd(genosdir);
+
+
 subfuncpath = [genosdir filesep 'genosfunctions'];
-datasetpath = [genosdir filesep 'genosdata'];
+datasetpath = [matlabdir filesep 'genosdata'];
 gpath = [genosdir pathsep subfuncpath pathsep datasetpath];
 addpath(gpath)
 
-diary on;
-difi = ['BRADLAB-' char(datetime('now','Format','yyy-MM-dd'))];
-diary(difi)
-get(0,'Diary')
 
-
-
-    which('GENOSDATA.mat')
-    disp('Loading GENOSDATA.mat please wait...')
+which('GENOSDATA.mat')
 ADSP = load('GENOSDATA.mat');
-    disp('GENOSDATA.mat loaded.')
 
 
 
+disp('dataset loaded')
+clearvars -except IJ ADSP
+
+%}
 
 
+%==========================================================================
+%%   START MAIN LOOP
+%==========================================================================
 
-clearvars -except ADSP
-
-
+for IJ = 1:50
 
 
 %==========================================================================
@@ -139,7 +138,7 @@ USNP = ADSP.USNP;
 PHEN = ADSP.PHEN;
 
 
-clc; clearvars -except ADSP PHEN LOCI CASE CTRL USNP
+clc; clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP
 head(PHEN)
 head(LOCI)
 
@@ -158,10 +157,9 @@ head(LOCI)
 % 
 % 3. The rest of the people from the keeper cohorts can be used to
 %    increase the size of the NN test group.
-% 
-% 
+%  
 
-clc; clearvars -except ADSP PHEN LOCI CASE CTRL USNP
+clc; clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP
 
 
 
@@ -197,7 +195,7 @@ COHSET = COHSET(sum(COHSET.COHORTNUM == USECOHORTS , 2)>0,:);
 % COHSET(COHSET.APOE == 44,:) = [];
 % COHSET(COHSET.APOE == 24,:) = [];
 % COHSET(COHSET.APOE == 34,:) = [];
-% COHSET(COHSET.APOE == 33,:) = [];
+COHSET(COHSET.APOE == 33,:) = [];
 % COHSET(COHSET.APOE == 23,:) = [];
 % COHSET(COHSET.APOE == 22,:) = [];
 
@@ -225,7 +223,7 @@ COHSET = COHSET(randperm(size(COHSET,1)),:);
 % response = fig2plotly(gcf, 'filename', 'matlab-grouped-bar', 'strip', false);
 % plotly_url = response.url;
 
-clc; clearvars -except ADSP PHEN LOCI CASE CTRL USNP COHSET
+clc; clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP COHSET
 
 
 % close all; 
@@ -267,7 +265,7 @@ clc; clearvars -except ADSP PHEN LOCI CASE CTRL USNP COHSET
 % WE BREAK SOME OF THAT PERFECT SYMMETRY, OTHERWISE THERE
 % JUST ISN'T ENOUGH TRAINING DATA...
 
-clc; clearvars -except ADSP PHEN LOCI CASE CTRL USNP COHSET
+clc; clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP COHSET
 
 
 
@@ -402,7 +400,7 @@ cohcounts(PHETRCASE,PHETRCTRL,PHETECASE,PHETECTRL)
 
 
 
-clearvars -except ADSP PHEN LOCI CASE CTRL USNP COHSET...
+clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP COHSET...
 PHETRCASE PHETRCTRL PHETECASE PHETECTRL
 
 
@@ -456,7 +454,7 @@ cohcounts(PHETRCASE,PHETRCTRL,PHETECASE,PHETECTRL)
 
 
 
-clearvars -except ADSP PHEN LOCI CASE CTRL USNP COHSET...
+clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP COHSET...
 PHETRCASE PHETRCTRL PHETECASE PHETECTRL
 
 
@@ -469,7 +467,7 @@ PHETRCASE PHETRCTRL PHETECASE PHETECTRL
 %==========================================================================
 %%   REMOVE CASE & CTRL PARTICIPANTS BASED ON AGE
 %==========================================================================
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP...
+clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP...
 PHETRCASE PHETRCTRL PHETECASE PHETECTRL
 
 
@@ -499,7 +497,7 @@ cohcounts(PHETRCASE,PHETRCTRL,PHETECASE,PHETECTRL)
 
 
 
-clearvars -except ADSP PHEN LOCI CASE CTRL USNP COHSET...
+clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP COHSET...
 PHETRCASE PHETRCTRL PHETECASE PHETECTRL
 
 
@@ -521,7 +519,7 @@ PHETRCASE PHETRCTRL PHETECASE PHETECTRL
 % Here we will use the per-person counts already performed and
 % dismiss the individuals on either extreme.
 
-clearvars -except ADSP PHEN LOCI CASE CTRL USNP COHSET...
+clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP COHSET...
 PHETRCASE PHETRCTRL PHETECASE PHETECTRL
 
 
@@ -567,7 +565,7 @@ pause(1)
 
 
 
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP...
+clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP...
 TRCASE TRCTRL TECASE TECTRL
 
 
@@ -578,7 +576,7 @@ TRCASE TRCTRL TECASE TECTRL
 %% DISCARD VARIANT LOCI WITH KNOWN ULTRA-RARE ALT ALLELE COUNTS
 %==========================================================================
 
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP...
+clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP...
 TRCASE TRCTRL TECASE TECTRL
 
 
@@ -592,7 +590,7 @@ CTRL  = CTRL(PASS);
 USNP  = USNP(PASS);
 
 
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP...
+clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP...
 TRCASE TRCTRL TECASE TECTRL
 
 
@@ -707,20 +705,25 @@ title('DISTRIBUTION OF REF ALLELES')
 pause(2); close all;
 
 
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP...
-TRCASE TRCTRL TECASE TECTRL
-
-
-
-
-
+clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 
 
 
 %==========================================================================
 %%               COMPUTE FISHER'S P-VALUE
 %==========================================================================
-disp('COMPUTING FISHERS EXACT TEST STATISTICS PER DNA LOCUS')
+clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
+clc; disp('COMPUTING FISHERS EXACT TEST STATISTICS PER DNA LOCUS')
+
+% AAA = LOCI.TRCASEREF(1:100,:);
+% AAB = LOCI.TRCASEALT(1:100,:);
+% AAC = LOCI.TRCTRLREF(1:100,:);
+% AAD = LOCI.TRCTRLALT(1:100,:);
+% [FISHP, FISHOR] = fishp(AAA,AAB,AAC,AAD);
+
+
+
+
 
 
 
@@ -728,9 +731,11 @@ disp('COMPUTING FISHERS EXACT TEST STATISTICS PER DNA LOCUS')
 % ***  PER CHROMOSOME  ***
 %---------------------------
 
+
 % COMPUTE FISHERS STATISTICS FOR THE TRAINING GROUP
 [FISHP, FISHOR] = fishp_mex(LOCI.TRCASEREF,LOCI.TRCASEALT,...
                             LOCI.TRCTRLREF,LOCI.TRCTRLALT);
+
 
 LOCI.TRFISHP  = FISHP;
 LOCI.TRFISHOR = FISHOR;
@@ -744,34 +749,6 @@ LOCI.TRFISHOR = FISHOR;
 
 LOCI.TEFISHP  = FISHP;
 LOCI.TEFISHOR = FISHOR;
-
-
-
-
-
-%------------------------------------------------------------------------
-% ***  PER PERSON  ***
-%-----------------------
-% 
-% % COMPUTE FISHERS STATISTICS FOR THE TRAINING GROUP
-% [PPFISHP, PPFISHOR] = fishp_mex(LOCI.PPTRCASEREF,LOCI.PPTRCASEALT,...
-%                             LOCI.PPTRCTRLREF,LOCI.PPTRCTRLALT);
-% 
-% LOCI.PPTRFISHP  = PPFISHP;
-% LOCI.PPTRFISHOR = PPFISHOR;
-% 
-% 
-% 
-% % COMPUTE FISHERS STATISTICS FOR THE TRAINING GROUP
-% [PPFISHP, PPFISHOR] = fishp_mex(LOCI.PPTECASEREF, LOCI.PPTECASEALT,...
-%                             LOCI.PPTECTRLREF, LOCI.PPTECTRLALT);
-% 
-% LOCI.PPTEFISHP  = PPFISHP;
-% LOCI.PPTEFISHOR = PPFISHOR;
-%------------------------------------------------------------------------
-
-
-
 
 
 
@@ -815,789 +792,21 @@ title('TESTING SET quantile(-log(FISHP),[.001 .999])')
 pause(2); close all;
 
 
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP...
-TRCASE TRCTRL TECASE TECTRL
+clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 
-
-
-%==========================================================================
-%==========================================================================
-%==========================================================================
-%%
-%
-% PREPARE DATA FOR NEURAL NET CLASSIFIER SUPERVISED LEARNING
-%
-%==========================================================================
-%==========================================================================
-%==========================================================================
-% LOAD THE DATASET
-%{
-close all; clear; clc; rng('shuffle');
-
-genosdir = fileparts(which('GENOS_RM1.m'));
-cd(genosdir);
-subfuncpath = [genosdir filesep 'genosfunctions'];
-datasetpath = [genosdir filesep 'genosdata'];
-gpath = [genosdir pathsep subfuncpath pathsep datasetpath];
-addpath(gpath)
-
-diary on;
-difi = ['BRADLAB-' char(datetime('now','Format','yyy-MM-dd'))];
-diary(difi)
-get(0,'Diary')
-
-
-
-    which('GENOSDATAFISH.mat')
-    disp('Loading GENOSDATA.mat please wait...')
-ADSP = load('GENOS_COH-BRAAK_APOE-ALL.mat','LOCI','CASE','CTRL','PHEN','USNP','TRCASE','TRCTRL','TECASE','TECTRL')
-    disp('GENOSDATAFISH.mat loaded.')
-
-
-% save('GOODCOH_BRAAKCOH_APOEALL.mat','LOCI','CASE','CTRL','PHEN','USNP','TRCASE','TRCTRL','TECASE','TECTRL')
-
-
-
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP...
-TRCASE TRCTRL TECASE TECTRL
-%}
-
-
-%==========================================================================
-%% STORE VARIABLES FOR NEURAL NETWORK TRAINING AS 'VLOCI'
-%==========================================================================
-clc; clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
-
-VLOCI     = LOCI;
-VCASE     = CASE;
-VCTRL     = CTRL;
-VUSNP     = USNP;
-VTRCASE   = TRCASE;
-VTRCTRL   = TRCTRL;
-VTECASE   = TECASE;
-VTECTRL   = TECTRL;
-
-
-% SET MAIN FISHP TO TRAINING GROUP FISHP
-VLOCI.FISHP      = VLOCI.TRFISHP;
-VLOCI.FISHOR     = VLOCI.TRFISHOR;
-VLOCI.CASEREF    = VLOCI.TRCASEREF;
-VLOCI.CASEALT    = VLOCI.TRCASEALT;
-VLOCI.CTRLREF    = VLOCI.TRCTRLREF;
-VLOCI.CTRLALT    = VLOCI.TRCTRLALT;
-
-
-
-% SORT VARIANTS BY EITHER TRFISHP|CHRPOS
-% [~,i]  = sort(VLOCI.TRFISHP);
-[~,i]  = sort(VLOCI.CHRPOS);
-VLOCI  = VLOCI(i,:);
-VCASE  = VCASE(i);
-VCTRL  = VCTRL(i);
-VUSNP  = VUSNP(i);
-
-
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-
-
-
-
-%==========================================================================
-% REMOVE SELECT GENES BY NAME
-%==========================================================================
-%{
-
-% ALZGENES = string({"APOE";"BIN1";"CLU";"ABCA7";"CR1";...
-%                    "PICALM";"MS4A6A";"CD33";"MS4A4E";"CD2AP"});
-% 
-% for nn = 1:numel(ALZGENES)
-% 
-%     x = strcmp(VLOCI.GENE,ALZGENES{nn});
-%     sum(x)
-% 
-%     VLOCI(x,:) = [];
-%     VCASE(x) = [];
-%     VCTRL(x) = [];
-% 
-% end
-% VLOCI.VID  = (1:size(VLOCI,1))';
-
-
-
-% ALZGENES = string({"APOE"});
-% 
-% for nn = 1:numel(ALZGENES)
-% 
-%     x = strcmp(VLOCI.GENE,ALZGENES{nn});
-%     sum(x)
-% 
-%     VLOCI(x,:) = [];
-%     VCASE(x) = [];
-%     VCTRL(x) = [];
-% 
-% end
-% VLOCI.VID  = (1:size(VLOCI,1))';
-% 
-% clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
-% VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-%}
-
-
-
-
-
-
-%==========================================================================
-%% LOOP OVER 1:N NUMBER OF VARIANTS
-%==========================================================================
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-
-TRMEAN = zeros(1,200);
-TRPOPU = zeros(1,200);
-TRHIMU = zeros(1,200);
-HOMEAN = zeros(1,200);
-HOPOPU = zeros(1,200);
-HOHIMU = zeros(1,200);
-
-
-
-VI = fliplr(1:200);
-
-for vi = 1:200
-GRPn = 1;
-
-% REMOVE VARS FROM HIGH-TO-LOW P-VALUE
-HI2LOW = 1;
-SNPn = VI(vi);
-SNPi = 1:SNPn;
-
-
-% REMOVE VARS FROM LOW-TO-HIGH P-VALUE
-% HI2LOW = 0;
-% SNPn = vi;
-% SNPi = SNPn:200;
-
-
-
-VLOCI     = LOCI;
-VCASE     = CASE;
-VCTRL     = CTRL;
-VUSNP     = USNP;
-VTRCASE   = TRCASE;
-VTRCTRL   = TRCTRL;
-VTECASE   = TECASE;
-VTECTRL   = TECTRL;
-
-
-% SET MAIN FISHP TO TRAINING GROUP FISHP
-VLOCI.FISHP      = VLOCI.TRFISHP;
-VLOCI.FISHOR     = VLOCI.TRFISHOR;
-VLOCI.CASEREF    = VLOCI.TRCASEREF;
-VLOCI.CASEALT    = VLOCI.TRCASEALT;
-VLOCI.CTRLREF    = VLOCI.TRCTRLREF;
-VLOCI.CTRLALT    = VLOCI.TRCTRLALT;
-
-%==========================================================================
-% TAKE THE TOP N or P<x GENES FOR NEURAL NET CLASSIFIER TRAINING
-%==========================================================================
-
-
-% SORT VARIANTS BY EITHER TRFISHP|CHRPOS
-[~,j]  = sort(VLOCI.TRFISHP);
-VLOCI  = VLOCI(j,:);
-VCASE  = VCASE(j);
-VCTRL  = VCTRL(j);
-VUSNP  = VUSNP(j);
-
-
-% EXTRACT TOP-N NUMBER OF VARIANTS
-VLOCI  = VLOCI(SNPi,:);
-VCASE  = VCASE(SNPi);
-VCTRL  = VCTRL(SNPi);
-VUSNP  = VUSNP(SNPi);
-
-
-
-
-%==========================================================================
-%      MAKE  RECTANGLE  NEURAL NET  VARIANT MATRIX
-%==========================================================================
-
-TRPHE = [VTRCASE; VTRCTRL];
-TEPHE = [VTECASE; VTECTRL];
-
-
-
-% SCRAMBLE TRAINING PHENOTYPE ORDER
-NVARS  = size(TRPHE,1);         % Total number of people
-k      = randperm(NVARS)';      % Get N random ints in range 1:N
-TRPHE  = TRPHE(k,:);            % Scramble Phenotype table
-
-% SCRAMBLE TESTING PHENOTYPE ORDER
-NVARS  = size(TEPHE,1);         % Total number of people
-k      = randperm(NVARS)';      % Get N random ints in range 1:N
-TEPHE  = TEPHE(k,:);            % Scramble Phenotype table
-
-
-
-
-% MAKE THE NEURAL NET TRAINING & TESTING MATRICES
-[VTRX, TRX, TRL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TRPHE,[-1 -0 1 3]);
-[VTEX, TEX, TEL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TEPHE,[-1 -0 1 3]);
-
-
-
-%==========================================================================
-%                  LOGISTIC REGRESSION 
-%==========================================================================
-
-
-TXX = VTRX(:,7:end);
-HXX = VTEX(:,7:end);
-TX = [ones(size(TXX,1),1) TXX]; % ADD AN INTERCEPT COLUMN
-HX = [ones(size(HXX,1),1) HXX]; % ADD AN INTERCEPT COLUMN
-
-
-TL = VTRX(:,2);
-HL = VTEX(:,2);
-
-
-
-
-% PERFORM THE SO-CALLED MACHINE LEARNING STEP
-BETA = pinv(TX' * TX) * (TX' * TL);
-
-fprintf('\n Solved GLM OLS for %0.f beta coefficients. \n\n',size(BETA,1));  
-
-
-
-
-% GET TRAINED LINEAR MODEL PREDICTIONS (ACTIVATIONS)
-TRfx = nansum( TX .* BETA' ,2);
-HOfx = nansum( HX .* BETA' ,2);
-
-
-% DESCRETIZE PREDICTIONS
-TRy = round(TRfx);
-HOy = round(HOfx);
-
-
-% GRADE THE PREDICTIONS
-TRmu = nanmean(TRy == TL);
-HOmu = nanmean(HOy == HL);
-
-
-
-
-% [TRAINED] HIGH CONFIDENCE PREDICTIONS
-TRhi = (TRfx>.8) | (TRfx<.2);
-TRhiN  = TRy(TRhi) == TL(TRhi);
-TRhiMu = nanmean(TRhiN);
-TRhiPop = nanmean(TRhi);
-
-
-% [HOLDOUT] HIGH CONFIDENCE PREDICTIONS
-HOhi = (HOfx>.8) | (HOfx<.2);
-HOhiN  = HOy(HOhi) == HL(HOhi);
-HOhiMu = nanmean(HOhiN);
-HOhiPop = nanmean(HOhi);
-
-
-
-
-TRMEAN(vi) = TRmu;
-TRHIMU(vi) = TRhiMu;
-TRPOPU(vi) = TRhiPop;
-HOMEAN(vi) = HOmu;
-HOHIMU(vi) = HOhiMu;
-HOPOPU(vi) = HOhiPop;
-
-
-
-disp('----------  TRAINING SET  ----------')
-fprintf('TRAIN correct %0.0f%% overall(pop:100%%)\n' ,(TRmu .* 100))
-fprintf('TRAIN correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',TRhiMu.*100,TRhiPop.*100)
-
-disp('----------  TESTING SET  ----------')
-fprintf('TEST correct %0.0f%% overall(pop:100%%)\n' ,(HOmu .* 100))
-fprintf('TEST correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',HOhiMu.*100,HOhiPop.*100)
-pause(.1)
-
-
-end
-
-
-% FILL IN NAN VALUES WIHT NANMEAN
-
-TRMEAN(isnan(TRMEAN)) = nanmean(TRMEAN);
-TRHIMU(isnan(TRHIMU)) = nanmean(TRHIMU);
-TRPOPU(isnan(TRPOPU)) = nanmean(TRPOPU);
-HOMEAN(isnan(HOMEAN)) = nanmean(HOMEAN);
-HOHIMU(isnan(HOHIMU)) = nanmean(HOHIMU);
-HOPOPU(isnan(HOPOPU)) = nanmean(HOPOPU);
-
-
-%==========================================================================
-%% 4-PACK GRAPHS TRAINING & HOLDOUT PROPORTION CORRECT x N-VARIANT LOCI
-%  LOOSE AXES LIMITS
-%==========================================================================
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL HI2LOW...
-NVARS TRmu TRhiPop HOmu HOhiPop TRMEAN TRHIMU TRPOPU HOMEAN HOHIMU HOPOPU
-
-
-
-%################   FOUR PACK   ################
-close all
-fh01 = figure('Units','normalized','OuterPosition',[.01 .05 .95 .88],'Color','w');
-ax01 = axes('Position',[.06 .56 .4 .4],'Color','none');
-ax02 = axes('Position',[.56 .56 .4 .4],'Color','none');
-ax03 = axes('Position',[.06 .06 .4 .4],'Color','none');
-ax04 = axes('Position',[.56 .06 .4 .4],'Color','none');
-
-pk = pink;
-pi = pk(15,:);
-PAR = flipud(parula); HOT = hot;
-PH = [flipud(HOT(end-5:end,:)); PAR(1:end-5,:)];
-
-NVARS = fliplr(1:200);
-
-
-axes(ax01);
-ph01 = scatter(NVARS,TRMEAN,500,'k.'); hold on;
-ph01 = scatter(NVARS,TRMEAN,300,[.05 .2 .6],'.');
-% ax01.YLim = [.3 1];
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('TRAINING SUBSET (ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-
-
-
-axes(ax02);
-ph02 = scatter(NVARS,HOMEAN,500,'k.'); hold on;
-ph02 = scatter(NVARS,HOMEAN,300,[.05 .2 .6],'.');
-% ax02.YLim = [.3 1]; 
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('HOLDOUT SUBSET (ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-
-
-
-axes(ax03);
-ph03 = scatter(NVARS,TRHIMU,100,'k.'); hold on;
-ph03 = scatter(NVARS,TRHIMU,400,TRPOPU,'.');
-% ax03.YLim = [.3 1];
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('TRAINED SUBSET (HIGH CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb03 = colorbar;
-cb03.Label.String = 'Proportion of Sample';
-cb03.Label.FontSize = 12;
-cb03.Label.HorizontalAlignment = 'center';
-cb03.Label.VerticalAlignment = 'bottom';
-cb03.Label.Rotation = -90;
-
-
-axes(ax04);
-ph04 = scatter(NVARS,HOHIMU,100,'k.'); hold on;
-ph04 = scatter(NVARS,HOHIMU,400,HOPOPU,'.');
-% ax03.YLim = [.3 1];
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('HOLDOUT SUBSET (HIGH CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb04 = colorbar;
-cb04.Label.String = 'Proportion of Sample';
-cb04.Label.FontSize = 12;
-cb04.Label.HorizontalAlignment = 'center';
-cb04.Label.VerticalAlignment = 'bottom';
-cb04.Label.Rotation = -90;
-
-
-
-colormap(fh01,PH)
 
 %------------------------------------------%
 pause(1)
-set(gcf, 'PaperPositionMode', 'auto');
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['/Users/bradleymonk/Desktop/APOE33_4G_' dt '.png']);
+save(['F:\ML\genosdat\APOE2x3x4x_' dt '.mat'],...
+    'LOCI','PHEN','TRCASE','TRCTRL','TECASE','TECTRL');
 pause(1)
 %------------------------------------------%
-
-
-
-
-
-
-
-
-
-
-
-
-
-%==========================================================================
-% 2-PACK GRAPHS TRAINING & HOLDOUT PROPORTION CORRECT x N-VARIANT LOCI
-%  STRICT AXES LIMITS
-%==========================================================================
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL HI2LOW...
-NVARS TRmu TRhiPop HOmu HOhiPop TRMEAN TRHIMU TRPOPU HOMEAN HOHIMU HOPOPU
-
-
-
-%################   TWO PACK   ################
-close all
-fh01 = figure('Units','normalized','OuterPosition',[.01 .06 .8 .7],'Color','w');
-ax01 = axes('Position',[.05 .11 .42 .81],'Color','none');
-ax02 = axes('Position',[.55 .11 .42 .81],'Color','none');
-
-pk = pink;
-pi = pk(15,:);
-PAR = flipud(parula); HOT = hot;
-PH = [flipud(HOT(end-5:end,:)); PAR(1:end-5,:)];
-
-NVARS = fliplr(1:200);
-
-
-
-
-axes(ax01);
-ph01 = scatter(NVARS,TRMEAN,500,'k.'); hold on;
-ph01 = scatter(NVARS,TRMEAN,500,[.01 .1 .5],'.'); hold on;
-hold on;
-ph03 = scatter(NVARS,TRHIMU,100,'k.'); hold on;
-ph03 = scatter(NVARS,TRHIMU,400,TRPOPU,'.');
-ax01.YLim = [.3 1];
-line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('TRAINING SUBSET (HIGH & ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb01 = colorbar;
-cb01.Label.String = 'Proportion of Sample';
-cb01.Label.FontSize = 12;
-cb01.Label.HorizontalAlignment = 'center';
-cb01.Label.VerticalAlignment = 'bottom';
-cb01.Label.Rotation = -90;
-
-
-
-axes(ax02);
-ph02 = scatter(NVARS,HOMEAN,500,'k.'); hold on;
-ph02 = scatter(NVARS,HOMEAN,300,[.01 .1 .5],'.');
-ax02.YLim = [.3 1];
-hold on;
-ph04 = scatter(NVARS,HOHIMU,100,'k.'); hold on;
-ph04 = scatter(NVARS,HOHIMU,400,HOPOPU,'.');
-ax02.YLim = [.3 1];
-line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('HOLDOUT SUBSET (HIGH & ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb02 = colorbar;
-cb02.Label.String = 'Proportion of Sample';
-cb02.Label.FontSize = 12;
-cb02.Label.HorizontalAlignment = 'center';
-cb02.Label.VerticalAlignment = 'bottom';
-cb02.Label.Rotation = -90;
-
-colormap(fh01,PH)
-
-%------------------------------------------%
-pause(1)
-set(gcf, 'PaperPositionMode', 'auto');
-dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['/Users/bradleymonk/Desktop/APOE33_2G_' dt '.png']);
-pause(1)
-%------------------------------------------%
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-return
-%==========================================================================
-%
-%%                ARTIFICIAL NEURAL NETWORKS (MATLAB BUILT-IN)
-%
-%==========================================================================
-rng('shuffle');
-
-
-
-
-
-
-%==========================================================================
-%% LOOP OVER 1:N NUMBER OF VARIANTS
-%==========================================================================
-clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL HI2LOW...
-NVARS TRmu TRhiPop HOmu HOhiPop TRMEAN TRHIMU TRPOPU HOMEAN HOHIMU HOPOPU
-
-
-TRMEAN = zeros(1,200);
-TRPOPU = zeros(1,200);
-TRHIMU = zeros(1,200);
-HOMEAN = zeros(1,200);
-HOPOPU = zeros(1,200);
-HOHIMU = zeros(1,200);
-
-
-
-VI = fliplr(1:200);
-
-for vi = 1:1
-GRPn = 1;
-
-% REMOVE VARS FROM HIGH-TO-LOW P-VALUE
-HI2LOW = 1;
-SNPn = VI(vi);
-SNPi = 1:SNPn;
-
-
-% REMOVE VARS FROM LOW-TO-HIGH P-VALUE
-% HI2LOW = 0;
-% SNPn = vi;
-% SNPi = SNPn:200;
-
-
-VLOCI     = LOCI;
-VCASE     = CASE;
-VCTRL     = CTRL;
-VUSNP     = USNP;
-VTRCASE   = TRCASE;
-VTRCTRL   = TRCTRL;
-VTECASE   = TECASE;
-VTECTRL   = TECTRL;
-
-
-% SET MAIN FISHP TO TRAINING GROUP FISHP
-VLOCI.FISHP      = VLOCI.TRFISHP;
-VLOCI.FISHOR     = VLOCI.TRFISHOR;
-VLOCI.CASEREF    = VLOCI.TRCASEREF;
-VLOCI.CASEALT    = VLOCI.TRCASEALT;
-VLOCI.CTRLREF    = VLOCI.TRCTRLREF;
-VLOCI.CTRLALT    = VLOCI.TRCTRLALT;
-
-%==========================================================================
-% TAKE THE TOP N or P<x GENES FOR NEURAL NET CLASSIFIER TRAINING
-%==========================================================================
-
-
-% SORT VARIANTS BY EITHER TRFISHP|CHRPOS
-[~,j]  = sort(VLOCI.TRFISHP);
-VLOCI  = VLOCI(j,:);
-VCASE  = VCASE(j);
-VCTRL  = VCTRL(j);
-VUSNP  = VUSNP(j);
-
-
-% EXTRACT TOP-N NUMBER OF VARIANTS
-VLOCI  = VLOCI(SNPi,:);
-VCASE  = VCASE(SNPi);
-VCTRL  = VCTRL(SNPi);
-VUSNP  = VUSNP(SNPi);
-
-
-%==========================================================================
-%      MAKE  RECTANGLE  NEURAL NET  VARIANT MATRIX
-%==========================================================================
-
-TRPHE = [VTRCASE; VTRCTRL];
-TEPHE = [VTECASE; VTECTRL];
-
-
-
-% SCRAMBLE TRAINING PHENOTYPE ORDER
-NVARS  = size(TRPHE,1);         % Total number of people
-k      = randperm(NVARS)';      % Get N random ints in range 1:N
-TRPHE  = TRPHE(k,:);            % Scramble Phenotype table
-
-% SCRAMBLE TESTING PHENOTYPE ORDER
-NVARS  = size(TEPHE,1);         % Total number of people
-k      = randperm(NVARS)';      % Get N random ints in range 1:N
-TEPHE  = TEPHE(k,:);            % Scramble Phenotype table
-
-
-
-
-% MAKE THE NEURAL NET TRAINING & TESTING MATRICES
-[VTRX, TRX, TRL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TRPHE,[-1 0 1 3]);
-[VTEX, TEX, TEL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TEPHE,[-1 0 1 3]);
-
-
-%==========================================================================
-%                  TRAIN NEURAL NETS
-%==========================================================================
-
-
-TXX = VTRX(:,7:end);
-HXX = VTEX(:,7:end);
-TX = [ones(size(TXX,1),1) TXX]; % ADD AN INTERCEPT COLUMN
-HX = [ones(size(HXX,1),1) HXX]; % ADD AN INTERCEPT COLUMN
-
-
-TL = VTRX(:,2);
-HL = VTEX(:,2);
-TL = dummyvar(categorical(VTRX(:,2)==1))'; 
-HL = dummyvar(categorical(VTEX(:,2)==1))';
-
-
-% ESTABLISH PATTERNNET PARAMETERS
-NN = patternnet([200 70 40]);
-NN.trainFcn = 'trainscg';
-NN.trainParam.max_fail = 40;
-NN.divideFcn = 'dividerand';
-
-
-
-
-% MACHINE LEARNING: TRAIN THE NEURAL NET CLASSIFIER
-net = train(NN, TX , TL );
-
-
-
-
-
-
-
-
 
 end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-%% EVALUATE TRAINED NEURAL NETWORK PERFORMANCE
-
-
-TRAINED_CONF = net(TX);
-HOLDOUT_CONF = net(HX);
-
-TRAINED_GUESS = vec2ind(TRAINED_CONF);
-HOLDOUT_GUESS = vec2ind(HOLDOUT_CONF);
-
-
-TRAINED_LABELS = vec2ind(TL);
-HOLDOUT_LABELS = vec2ind(HL);
-
-
-TRAINED_PCTALL = mean(TRAINED_GUESS == TRAINED_LABELS);
-HOLDOUT_PCTALL = mean(HOLDOUT_GUESS == HOLDOUT_LABELS);
-
-
-TRC = abs(TRAINED_CONF-.5); TRC = TRC(1,:);
-HOC = abs(HOLDOUT_CONF-.5); HOC = HOC(1,:);
-
-TRHI = TRC > .3;
-HOHI = HOC > .3;
-
-TRAINED_PHICON = mean(TRAINED_GUESS(TRHI) == TRAINED_LABELS(TRHI));
-HOLDOUT_PHICON = mean(HOLDOUT_GUESS(HOHI) == HOLDOUT_LABELS(HOHI));
-
-
-
-clc
-fprintf('[TRAINED] PERCENT CORRECT OVERALL: '); disp(TRAINED_PCTALL);
-
-fprintf('[HOLDOUT] PERCENT CORRECT OVERALL: '); disp(HOLDOUT_PCTALL);
-
-fprintf('[TRAINED] PERCENT CORRECT HIGHCON: '); disp(TRAINED_PHICON);
-
-fprintf('[HOLDOUT] PERCENT CORRECT HIGHCON: '); disp(HOLDOUT_PHICON);
 
 
 

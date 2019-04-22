@@ -194,7 +194,7 @@ COHSET = COHSET(sum(COHSET.COHORTNUM == USECOHORTS , 2)>0,:);
 %-------------------------------------------------------------
 % COHSET(COHSET.APOE == 44,:) = [];
 % COHSET(COHSET.APOE == 24,:) = [];
-% COHSET(COHSET.APOE == 34,:) = [];
+COHSET(COHSET.APOE == 34,:) = [];
 COHSET(COHSET.APOE == 33,:) = [];
 % COHSET(COHSET.APOE == 23,:) = [];
 % COHSET(COHSET.APOE == 22,:) = [];
@@ -798,7 +798,7 @@ clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 %------------------------------------------%
 pause(1)
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-save(['F:\ML\genosdat\APOE2x3x4x_' dt '.mat'],...
+save(['F:\ML\genosdat\APOE3x\APOE3x_' dt '.mat'],...
     'LOCI','PHEN','TRCASE','TRCTRL','TECASE','TECTRL');
 pause(1)
 %------------------------------------------%

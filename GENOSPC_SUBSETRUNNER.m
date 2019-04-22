@@ -123,7 +123,6 @@ clearvars -except FILES MATDAT IJ ADSP
 % here, by running this segment of code, rather than having to import the
 % data from the .mat file in the section above.
 
-
 LOCI = ADSP.LOCI;
 CASE = ADSP.CASE;
 CTRL = ADSP.CTRL;
@@ -134,24 +133,6 @@ PHEN = ADSP.PHEN;
 clc; clearvars -except FILES MATDAT IJ ADSP PHEN LOCI CASE CTRL USNP
 head(PHEN)
 head(LOCI)
-
-
-%% GET ALL .MAT FILE PATHS IN FOLDER
-
-clearvars -except FILES MATDAT IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
-
-%------------------------------------------%
-% pause(1)
-% dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-% save(['F:\ML\genosdatasets\APOE2x3x4x_' dt '.mat'],...
-%     'LOCI','PHEN','TRCASE','TRCTRL','TECASE','TECTRL');
-% pause(1)
-%------------------------------------------%
-
-
-
-
-
 
 
 
@@ -168,81 +149,38 @@ clearvars -except FILES MATDAT IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TE
 clearvars -except FILES MATDAT IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 
 
-MATDIR = 'F:\ML\genosdat\APOE2x3x4x';
+MATDIR = 'F:\ML\genosdat\APOE3x\APOE33_SUBSAM50_FISHP';
+% MATDIR = 'F:\ML\genosdat\APOE3x\APOE33e34_SUBSAM50_FISHP';
+% MATDIR = 'F:\ML\genosdat\APOE2x4x\APOE2x4x_SUBSAM50_FISHP';
+% MATDIR = 'F:\ML\genosdat\APOE2x3x4x\APOE2x3x4x_SUBSAM50_FISHP';
 FILES.w = what(MATDIR);
 FILES.w.mat
 
 
 
-
-
-
-
-LOOPDATA.HILO_TRMEAN = zeros(200,50);
-LOOPDATA.HILO_TRHIMU = zeros(200,50);
-LOOPDATA.HILO_TRPOPU = zeros(200,50);
-LOOPDATA.HILO_HOMEAN = zeros(200,50);
-LOOPDATA.HILO_HOHIMU = zeros(200,50);
-LOOPDATA.HILO_HOPOPU = zeros(200,50);
-LOOPDATA.LOHI_TRMEAN = zeros(200,50);
-LOOPDATA.LOHI_TRHIMU = zeros(200,50);
-LOOPDATA.LOHI_TRPOPU = zeros(200,50);
-LOOPDATA.LOHI_HOMEAN = zeros(200,50);
-LOOPDATA.LOHI_HOHIMU = zeros(200,50);
-LOOPDATA.LOHI_HOPOPU = zeros(200,50);
+LOOPDATA.HILO_TRMEAN = zeros(200,10);
+LOOPDATA.HILO_TRHIMU = zeros(200,10);
+LOOPDATA.HILO_TRPOPU = zeros(200,10);
+LOOPDATA.HILO_HOMEAN = zeros(200,10);
+LOOPDATA.HILO_HOHIMU = zeros(200,10);
+LOOPDATA.HILO_HOPOPU = zeros(200,10);
+LOOPDATA.LOHI_TRMEAN = zeros(200,10);
+LOOPDATA.LOHI_TRHIMU = zeros(200,10);
+LOOPDATA.LOHI_TRPOPU = zeros(200,10);
+LOOPDATA.LOHI_HOMEAN = zeros(200,10);
+LOOPDATA.LOHI_HOHIMU = zeros(200,10);
+LOOPDATA.LOHI_HOPOPU = zeros(200,10);
 
 
 %==========================================================================
 %% RUN MAIN LOOP
 %==========================================================================
 for IJ = 1:50
-    
-    
-    disp('LOOP:'); disp(IJ);
-
-    
-    
-    MATDAT = load([FILES.w.path filesep FILES.w.mat{IJ}]);
-    
-    
-
-
-  
+clearvars -except LOOPDATA FILES MATDAT ADSP LOCI PHEN CASE CTRL USNP IJ
 
 
 
-
-%==========================================================================
-%%                               HILO
-%==========================================================================
-clearvars -except LOHI_LOOPDATA HILO_LOOPDATA FILES MATDAT IJ ADSP LOCI...
-CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
-vi VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-
-    TRMEAN = zeros(200,1);
-    TRHIMU = zeros(200,1);
-    TRPOPU = zeros(200,1);
-    HOMEAN = zeros(200,1);
-    HOHIMU = zeros(200,1);
-    HOPOPU = zeros(200,1);
-    
-    
-
-VI = fliplr(1:200);
-for vi = 1:200
-GRPn = 1;
-
-% REMOVE VARS FROM HIGH-TO-LOW P-VALUE
-HI2LOW = 1;
-SNPn = VI(vi);
-SNPi = 1:SNPn;
-
-
-% REMOVE VARS FROM LOW-TO-HIGH P-VALUE
-% HI2LOW = 0;
-% SNPn = vi;
-% SNPi = SNPn:200;
+MATDAT = load([FILES.w.path filesep FILES.w.mat{IJ}]);
 
 
 
@@ -273,13 +211,30 @@ VCTRL  = VCTRL(j);
 VUSNP  = VUSNP(j);
 
 
+%==========================================================================
+%%                               HILO
+%==========================================================================
+hiloTRMEAN = zeros(200,1);
+hiloTRHIMU = zeros(200,1);
+hiloTRPOPU = zeros(200,1);
+hiloHOMEAN = zeros(200,1);
+hiloHOHIMU = zeros(200,1);
+hiloHOPOPU = zeros(200,1);
+%==========================================================================
+for vi = 1:200
+
+% REMOVE VARS FROM HIGH-TO-LOW P-VALUE
+VI = fliplr(1:200);
+HI2LOW = 1;
+SNPn = VI(vi);
+SNPi = 1:SNPn;
+
+
 % EXTRACT TOP-N NUMBER OF VARIANTS
-VLOCI  = VLOCI(SNPi,:);
-VCASE  = VCASE(SNPi);
-VCTRL  = VCTRL(SNPi);
-VUSNP  = VUSNP(SNPi);
-
-
+XLOCI  = VLOCI(SNPi,:);
+XCASE  = VCASE(SNPi);
+XCTRL  = VCTRL(SNPi);
+XUSNP  = VUSNP(SNPi);
 
 
 %==========================================================================
@@ -303,12 +258,16 @@ TEPHE  = TEPHE(k,:);            % Scramble Phenotype table
 
 
 
-
 % MAKE THE NEURAL NET TRAINING & TESTING MATRICES
-[VTRX, TRX, TRL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TRPHE,[-1 -0 1 3]);
-[VTEX, TEX, TEL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TEPHE,[-1 -0 1 3]);
+VTRX = mlmx_mex(XCASE,XCTRL,XUSNP,...
+    TRPHE.SRR,TRPHE.AD,TRPHE.COHORTNUM,TRPHE.AGE,TRPHE.APOE,TRPHE.BRAAK);
+
+VTEX = mlmx_mex(XCASE,XCTRL,XUSNP,...
+    TEPHE.SRR,TEPHE.AD,TEPHE.COHORTNUM,TEPHE.AGE,TEPHE.APOE,TEPHE.BRAAK);
 
 
+% [VTRX, TRX, TRL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TRPHE,[-1 -0 1 3]);
+% [VTEX, TEX, TEL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TEPHE,[-1 -0 1 3]);
 
 %==========================================================================
 %                  LOGISTIC REGRESSION 
@@ -328,7 +287,8 @@ HL = VTEX(:,2);
 
 
 % PERFORM THE SO-CALLED MACHINE LEARNING STEP
-BETA = pinv(TX' * TX) * (TX' * TL);
+BETA = normaleq_mex(TX,TL);
+%BETA = pinv(TX' * TX) * (TX' * TL);
 
 fprintf('\n Solved GLM OLS for %0.f beta coefficients. \n\n',size(BETA,1));  
 
@@ -368,15 +328,18 @@ HOhiPop = nanmean(HOhi);
 
 
 
-TRMEAN(vi) = TRmu;
-TRHIMU(vi) = TRhiMu;
-TRPOPU(vi) = TRhiPop;
-HOMEAN(vi) = HOmu;
-HOHIMU(vi) = HOhiMu;
-HOPOPU(vi) = HOhiPop;
+hiloTRMEAN(vi) = TRmu;
+hiloTRHIMU(vi) = TRhiMu;
+hiloTRPOPU(vi) = TRhiPop;
+hiloHOMEAN(vi) = HOmu;
+hiloHOHIMU(vi) = HOhiMu;
+hiloHOPOPU(vi) = HOhiPop;
 
 
-
+clc;
+disp('%=================================================================');
+disp('IJ | vi | min(SNPi) | max(SNPi) | numel(BETA):'); 
+disp([IJ vi min(SNPi) max(SNPi) numel(BETA)]);
 disp('----------  TRAINING SET  ----------')
 fprintf('TRAIN correct %0.0f%% overall(pop:100%%)\n' ,(TRmu .* 100))
 fprintf('TRAIN correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',TRhiMu.*100,TRhiPop.*100)
@@ -384,112 +347,51 @@ fprintf('TRAIN correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',TRhiMu.*100,TRhiPop.*1
 disp('----------  TESTING SET  ----------')
 fprintf('TEST correct %0.0f%% overall(pop:100%%)\n' ,(HOmu .* 100))
 fprintf('TEST correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',HOhiMu.*100,HOhiPop.*100)
-pause(.1)
+disp('%=================================================================');
+
 
 
 end
 %===========================================
 
 % FILL IN NAN VALUES WIHT NANMEAN
-TRMEAN(isnan(TRMEAN)) = nanmean(TRMEAN);
-TRHIMU(isnan(TRHIMU)) = nanmean(TRHIMU);
-TRPOPU(isnan(TRPOPU)) = nanmean(TRPOPU);
-HOMEAN(isnan(HOMEAN)) = nanmean(HOMEAN);
-HOHIMU(isnan(HOHIMU)) = nanmean(HOHIMU);
-HOPOPU(isnan(HOPOPU)) = nanmean(HOPOPU);
-
-
-LOOPDATA.HILO_TRMEAN(1:200,IJ) = TRMEAN;
-LOOPDATA.HILO_TRHIMU(1:200,IJ) = TRHIMU;
-LOOPDATA.HILO_TRPOPU(1:200,IJ) = TRPOPU;
-LOOPDATA.HILO_HOMEAN(1:200,IJ) = HOMEAN;
-LOOPDATA.HILO_HOHIMU(1:200,IJ) = HOHIMU;
-LOOPDATA.HILO_HOPOPU(1:200,IJ) = HOPOPU;
-
-
-
-
-
-
+hiloTRMEAN(isnan(hiloTRMEAN)) = nanmean(hiloTRMEAN);
+hiloTRHIMU(isnan(hiloTRHIMU)) = nanmean(hiloTRHIMU);
+hiloTRPOPU(isnan(hiloTRPOPU)) = nanmean(hiloTRPOPU);
+hiloHOMEAN(isnan(hiloHOMEAN)) = nanmean(hiloHOMEAN);
+hiloHOHIMU(isnan(hiloHOHIMU)) = nanmean(hiloHOHIMU);
+hiloHOPOPU(isnan(hiloHOPOPU)) = nanmean(hiloHOPOPU);
 
 %==========================================================================
 %%                               LOHI
 %==========================================================================
-clearvars -except LOHI_LOOPDATA HILO_LOOPDATA FILES MATDAT IJ ADSP LOCI...
-CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
-vi VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-    TRMEAN = zeros(200,1);
-    TRHIMU = zeros(200,1);
-    TRPOPU = zeros(200,1);
-    HOMEAN = zeros(200,1);
-    HOHIMU = zeros(200,1);
-    HOPOPU = zeros(200,1);
-
-
-
+lohiTRMEAN = zeros(200,1);
+lohiTRHIMU = zeros(200,1);
+lohiTRPOPU = zeros(200,1);
+lohiHOMEAN = zeros(200,1);
+lohiHOHIMU = zeros(200,1);
+lohiHOPOPU = zeros(200,1);
 %==========================================================================
-VI = fliplr(1:200);
 for vi = 1:200
-GRPn = 1;
-
-% REMOVE VARS FROM HIGH-TO-LOW P-VALUE
-% HI2LOW = 1;
-% SNPn = VI(vi);
-% SNPi = 1:SNPn;
-
 
 % REMOVE VARS FROM LOW-TO-HIGH P-VALUE
+VI = fliplr(1:200);
 HI2LOW = 0;
 SNPn = vi;
 SNPi = SNPn:200;
 
-
-
-VLOCI     = MATDAT.LOCI;
-VCASE     = CASE;
-VCTRL     = CTRL;
-VUSNP     = USNP;
-VTRCASE   = MATDAT.TRCASE;
-VTRCTRL   = MATDAT.TRCTRL;
-VTECASE   = MATDAT.TECASE;
-VTECTRL   = MATDAT.TECTRL;
-
-
-% SET MAIN FISHP TO TRAINING GROUP FISHP
-VLOCI.FISHP      = VLOCI.TRFISHP;
-VLOCI.FISHOR     = VLOCI.TRFISHOR;
-VLOCI.CASEREF    = VLOCI.TRCASEREF;
-VLOCI.CASEALT    = VLOCI.TRCASEALT;
-VLOCI.CTRLREF    = VLOCI.TRCTRLREF;
-VLOCI.CTRLALT    = VLOCI.TRCTRLALT;
-
-
-% SORT VARIANTS BY EITHER TRFISHP|CHRPOS
-[~,i]  = sort(VLOCI.TRFISHP);
-VLOCI  = VLOCI(i,:);
-VCASE  = VCASE(i);
-VCTRL  = VCTRL(i);
-VUSNP  = VUSNP(i);
-
-
 % EXTRACT TOP-N NUMBER OF VARIANTS
-VLOCI  = VLOCI(SNPi,:);
-VCASE  = VCASE(SNPi);
-VCTRL  = VCTRL(SNPi);
-VUSNP  = VUSNP(SNPi);
-
-
+XLOCI  = VLOCI(SNPi,:);
+XCASE  = VCASE(SNPi);
+XCTRL  = VCTRL(SNPi);
+XUSNP  = VUSNP(SNPi);
 
 
 %==========================================================================
 %      MAKE  RECTANGLE  NEURAL NET  VARIANT MATRIX
 %==========================================================================
-
 TRPHE = [VTRCASE; VTRCTRL];
 TEPHE = [VTECASE; VTECTRL];
-
-
 
 % SCRAMBLE TRAINING PHENOTYPE ORDER
 NVARS  = size(TRPHE,1);         % Total number of people
@@ -503,10 +405,15 @@ TEPHE  = TEPHE(k,:);            % Scramble Phenotype table
 
 
 
-
 % MAKE THE NEURAL NET TRAINING & TESTING MATRICES
-[VTRX, TRX, TRL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TRPHE,[-1 -0 1 3]);
-[VTEX, TEX, TEL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TEPHE,[-1 -0 1 3]);
+% [VTRX, TRX, TRL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TRPHE,[-1 -0 1 3]);
+% [VTEX, TEX, TEL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TEPHE,[-1 -0 1 3]);
+
+VTRX = mlmx_mex(XCASE,XCTRL,XUSNP,...
+    TRPHE.SRR,TRPHE.AD,TRPHE.COHORTNUM,TRPHE.AGE,TRPHE.APOE,TRPHE.BRAAK);
+
+VTEX = mlmx_mex(XCASE,XCTRL,XUSNP,...
+    TEPHE.SRR,TEPHE.AD,TEPHE.COHORTNUM,TEPHE.AGE,TEPHE.APOE,TEPHE.BRAAK);
 
 
 
@@ -528,8 +435,8 @@ HL = VTEX(:,2);
 
 
 % PERFORM THE SO-CALLED MACHINE LEARNING STEP
-BETA = pinv(TX' * TX) * (TX' * TL);
-
+% BETA = pinv(TX' * TX) * (TX' * TL);
+BETA = normaleq_mex(TX,TL);
 fprintf('\n Solved GLM OLS for %0.f beta coefficients. \n\n',size(BETA,1));  
 
 
@@ -568,15 +475,18 @@ HOhiPop = nanmean(HOhi);
 
 
 
-TRMEAN(vi) = TRmu;
-TRHIMU(vi) = TRhiMu;
-TRPOPU(vi) = TRhiPop;
-HOMEAN(vi) = HOmu;
-HOHIMU(vi) = HOhiMu;
-HOPOPU(vi) = HOhiPop;
+lohiTRMEAN(vi) = TRmu;
+lohiTRHIMU(vi) = TRhiMu;
+lohiTRPOPU(vi) = TRhiPop;
+lohiHOMEAN(vi) = HOmu;
+lohiHOHIMU(vi) = HOhiMu;
+lohiHOPOPU(vi) = HOhiPop;
 
 
-
+clc;
+disp('%=================================================================');
+disp('IJ | vi | min(SNPi) | max(SNPi) | numel(BETA):'); 
+disp([IJ vi min(SNPi) max(SNPi) numel(BETA)]);
 disp('----------  TRAINING SET  ----------')
 fprintf('TRAIN correct %0.0f%% overall(pop:100%%)\n' ,(TRmu .* 100))
 fprintf('TRAIN correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',TRhiMu.*100,TRhiPop.*100)
@@ -584,27 +494,40 @@ fprintf('TRAIN correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',TRhiMu.*100,TRhiPop.*1
 disp('----------  TESTING SET  ----------')
 fprintf('TEST correct %0.0f%% overall(pop:100%%)\n' ,(HOmu .* 100))
 fprintf('TEST correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',HOhiMu.*100,HOhiPop.*100)
-pause(.1)
+disp('%=================================================================');
 
 
 end
 
 
 % FILL IN NAN VALUES WIHT NANMEAN
-TRMEAN(isnan(TRMEAN)) = nanmean(TRMEAN);
-TRHIMU(isnan(TRHIMU)) = nanmean(TRHIMU);
-TRPOPU(isnan(TRPOPU)) = nanmean(TRPOPU);
-HOMEAN(isnan(HOMEAN)) = nanmean(HOMEAN);
-HOHIMU(isnan(HOHIMU)) = nanmean(HOHIMU);
-HOPOPU(isnan(HOPOPU)) = nanmean(HOPOPU);
+lohiTRMEAN(isnan(lohiTRMEAN)) = nanmean(lohiTRMEAN);
+lohiTRHIMU(isnan(lohiTRHIMU)) = nanmean(lohiTRHIMU);
+lohiTRPOPU(isnan(lohiTRPOPU)) = nanmean(lohiTRPOPU);
+lohiHOMEAN(isnan(lohiHOMEAN)) = nanmean(lohiHOMEAN);
+lohiHOHIMU(isnan(lohiHOHIMU)) = nanmean(lohiHOHIMU);
+lohiHOPOPU(isnan(lohiHOPOPU)) = nanmean(lohiHOPOPU);
 
 
-LOOPDATA.LOHI_TRMEAN(1:200,IJ) = TRMEAN;
-LOOPDATA.LOHI_TRHIMU(1:200,IJ) = TRHIMU;
-LOOPDATA.LOHI_TRPOPU(1:200,IJ) = TRPOPU;
-LOOPDATA.LOHI_HOMEAN(1:200,IJ) = HOMEAN;
-LOOPDATA.LOHI_HOHIMU(1:200,IJ) = HOHIMU;
-LOOPDATA.LOHI_HOPOPU(1:200,IJ) = HOPOPU;
+%==========================================================================
+%%                               HILO-LOHI SAVER
+%==========================================================================
+
+
+
+LOOPDATA.HILO_TRMEAN(1:200,IJ) = hiloTRMEAN;
+LOOPDATA.HILO_TRHIMU(1:200,IJ) = hiloTRHIMU;
+LOOPDATA.HILO_TRPOPU(1:200,IJ) = hiloTRPOPU;
+LOOPDATA.HILO_HOMEAN(1:200,IJ) = hiloHOMEAN;
+LOOPDATA.HILO_HOHIMU(1:200,IJ) = hiloHOHIMU;
+LOOPDATA.HILO_HOPOPU(1:200,IJ) = hiloHOPOPU;
+
+LOOPDATA.LOHI_TRMEAN(1:200,IJ) = lohiTRMEAN;
+LOOPDATA.LOHI_TRHIMU(1:200,IJ) = lohiTRHIMU;
+LOOPDATA.LOHI_TRPOPU(1:200,IJ) = lohiTRPOPU;
+LOOPDATA.LOHI_HOMEAN(1:200,IJ) = lohiHOMEAN;
+LOOPDATA.LOHI_HOHIMU(1:200,IJ) = lohiHOHIMU;
+LOOPDATA.LOHI_HOPOPU(1:200,IJ) = lohiHOPOPU;
 
 end
 %% SAVE LOOP DATA
@@ -612,748 +535,7 @@ end
 %------------------------------------------%
 pause(1)
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-save(['F:\ML\genosdat\genosloopdata\APOE2x3x4x_LOOPDATA.mat'],'LOOPDATA');
+save(['F:\ML\genosdat\APOE33_P01P50_ML.mat'],'LOOPDATA','FILES');
+disp('File Saved.')
 pause(1)
 %------------------------------------------%
-
-
-%% LOAD LOOP DATA
-
-load(['F:\ML\genosdat\genosloopdata\APOE2x3x4x_LOOPDATA.mat'],'LOOPDATA');
-
-%==========================================================================
-%% GET MEAN & STDEV & SEM STATS FOR LOOP
-%==========================================================================
-clearvars -except LOHI_LOOPDATA HILO_LOOPDATA FILES MATDAT IJ ADSP LOCI...
-CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL LOOPDATA...
-vi VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-
-
-
-HILO.muHILO_TRMEAN = mean(LOOPDATA.HILO_TRMEAN,2);
-HILO.muHILO_TRHIMU = mean(LOOPDATA.HILO_TRHIMU,2);
-HILO.muHILO_TRPOPU = mean(LOOPDATA.HILO_TRPOPU,2);
-HILO.muHILO_HOMEAN = mean(LOOPDATA.HILO_HOMEAN,2);
-HILO.muHILO_HOHIMU = mean(LOOPDATA.HILO_HOHIMU,2);
-HILO.muHILO_HOPOPU = mean(LOOPDATA.HILO_HOPOPU,2);
-HILO.muLOHI_TRMEAN = mean(LOOPDATA.LOHI_TRMEAN,2);
-HILO.muLOHI_TRHIMU = mean(LOOPDATA.LOHI_TRHIMU,2);
-HILO.muLOHI_TRPOPU = mean(LOOPDATA.LOHI_TRPOPU,2);
-HILO.muLOHI_HOMEAN = mean(LOOPDATA.LOHI_HOMEAN,2);
-HILO.muLOHI_HOHIMU = mean(LOOPDATA.LOHI_HOHIMU,2);
-HILO.muLOHI_HOPOPU = mean(LOOPDATA.LOHI_HOPOPU,2);
-
-HILO.sdHILO_TRMEAN = std(LOOPDATA.HILO_TRMEAN,[],2);
-HILO.sdHILO_TRHIMU = std(LOOPDATA.HILO_TRHIMU,[],2);
-HILO.sdHILO_TRPOPU = std(LOOPDATA.HILO_TRPOPU,[],2);
-HILO.sdHILO_HOMEAN = std(LOOPDATA.HILO_HOMEAN,[],2);
-HILO.sdHILO_HOHIMU = std(LOOPDATA.HILO_HOHIMU,[],2);
-HILO.sdHILO_HOPOPU = std(LOOPDATA.HILO_HOPOPU,[],2);
-HILO.sdLOHI_TRMEAN = std(LOOPDATA.LOHI_TRMEAN,[],2);
-HILO.sdLOHI_TRHIMU = std(LOOPDATA.LOHI_TRHIMU,[],2);
-HILO.sdLOHI_TRPOPU = std(LOOPDATA.LOHI_TRPOPU,[],2);
-HILO.sdLOHI_HOMEAN = std(LOOPDATA.LOHI_HOMEAN,[],2);
-HILO.sdLOHI_HOHIMU = std(LOOPDATA.LOHI_HOHIMU,[],2);
-HILO.sdLOHI_HOPOPU = std(LOOPDATA.LOHI_HOPOPU,[],2);
-
-
-HILO.seHILO_TRMEAN = sdHILO_TRMEAN ./ sqrt(50);
-HILO.seHILO_TRHIMU = sdHILO_TRHIMU ./ sqrt(50);
-HILO.seHILO_TRPOPU = sdHILO_TRPOPU ./ sqrt(50);
-HILO.seHILO_HOMEAN = sdHILO_HOMEAN ./ sqrt(50);
-HILO.seHILO_HOHIMU = sdHILO_HOHIMU ./ sqrt(50);
-HILO.seHILO_HOPOPU = sdHILO_HOPOPU ./ sqrt(50);
-HILO.seLOHI_TRMEAN = sdLOHI_TRMEAN ./ sqrt(50);
-HILO.seLOHI_TRHIMU = sdLOHI_TRHIMU ./ sqrt(50);
-HILO.seLOHI_TRPOPU = sdLOHI_TRPOPU ./ sqrt(50);
-HILO.seLOHI_HOMEAN = sdLOHI_HOMEAN ./ sqrt(50);
-HILO.seLOHI_HOHIMU = sdLOHI_HOHIMU ./ sqrt(50);
-HILO.seLOHI_HOPOPU = sdLOHI_HOPOPU ./ sqrt(50);
-
-
-clearvars -except LOHI_LOOPDATA HILO_LOOPDATA FILES MATDAT IJ ADSP LOCI...
-CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL LOOPDATA...
-HILO VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-
-%==========================================================================
-%==========================================================================
-%==========================================================================
-%%                              HILO  4-PACK
-%==========================================================================
-clearvars -except LOHI_LOOPDATA HILO_LOOPDATA FILES MATDAT IJ ADSP LOCI...
-CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL LOOPDATA...
-HILO VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-
-
-%################   FOUR PACK   ################
-close all
-fh01 = figure('Units','normalized','OuterPosition',[.01 .05 .95 .88],'Color','w');
-ax01 = axes('Position',[.06 .56 .4 .4],'Color','none');
-ax02 = axes('Position',[.56 .56 .4 .4],'Color','none');
-ax03 = axes('Position',[.06 .06 .4 .4],'Color','none');
-ax04 = axes('Position',[.56 .06 .4 .4],'Color','none');
-
-pk = pink;
-pi = pk(15,:);
-PAR = flipud(parula); HOT = hot;
-PH = [flipud(HOT(end-5:end,:)); PAR(1:end-5,:)];
-NVARS = fliplr(1:200);
-HI2LOW = 1;
-
-
-axes(ax01);
-ph01 = errorbar(NVARS,HILO.muHILO_TRMEAN,HILO.seHILO_TRMEAN,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-%ph02 = scatter(NVARS,HILO.muHILO_TRMEAN,500,'k.'); hold on;
-ph01 = scatter(NVARS,HILO.muHILO_TRMEAN,400,[.05 .2 .6],'.');
-% ax01.YLim = [.3 1];
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('TRAINING SUBSET (ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-
-
-
-axes(ax02);
-ph02 = errorbar(NVARS,HILO.muHILO_HOMEAN,HILO.seHILO_HOMEAN,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-%ph02 = scatter(NVARS,HILO.muHILO_HOMEAN,500,'k.'); hold on;
-ph02 = scatter(NVARS,HILO.muHILO_HOMEAN,400,[.05 .2 .6],'.');
-% ax02.YLim = [.3 1]; 
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('HOLDOUT SUBSET (ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-
-
-
-axes(ax03);
-ph03 = errorbar(NVARS,HILO.muHILO_TRHIMU,HILO.seHILO_TRHIMU,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph03 = scatter(NVARS,HILO.muHILO_TRHIMU,100,'k.'); hold on;
-ph03 = scatter(NVARS,HILO.muHILO_TRHIMU,400,HILO.muHILO_TRPOPU,'.');
-% ax03.YLim = [.3 1];
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('TRAINED SUBSET (HIGH CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb03 = colorbar;
-cb03.Label.String = 'Proportion of Sample';
-cb03.Label.FontSize = 12;
-cb03.Label.HorizontalAlignment = 'center';
-cb03.Label.VerticalAlignment = 'bottom';
-cb03.Label.Rotation = -90;
-
-
-axes(ax04);
-ph04 = errorbar(NVARS,HILO.muHILO_HOHIMU,HILO.seHILO_HOHIMU,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph04 = scatter(NVARS,HILO.muHILO_HOHIMU,100,'k.'); hold on;
-ph04 = scatter(NVARS,HILO.muHILO_HOHIMU,400,HILO.muHILO_HOPOPU,'.');
-% ax03.YLim = [.3 1];
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('HOLDOUT SUBSET (HIGH CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb04 = colorbar;
-cb04.Label.String = 'Proportion of Sample';
-cb04.Label.FontSize = 12;
-cb04.Label.HorizontalAlignment = 'center';
-cb04.Label.VerticalAlignment = 'bottom';
-cb04.Label.Rotation = -90;
-colormap(fh01,PH)
-
-%------------------------------------------%
-pause(1)
-set(gcf, 'PaperPositionMode', 'auto');
-dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['APOE4x2x_HILO4PACK_' dt '.png']);
-pause(1)
-%------------------------------------------%
-
-
-
-%==========================================================================
-% 2-PACK GRAPHS TRAINING & HOLDOUT PROPORTION CORRECT x N-VARIANT LOCI
-%  STRICT AXES LIMITS
-%==========================================================================
-clearvars -except LOHI_LOOPDATA HILO_LOOPDATA FILES MATDAT IJ ADSP LOCI...
-CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL LOOPDATA...
-HILO VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-
-
-%################   TWO PACK   ################
-close all
-fh01 = figure('Units','normalized','OuterPosition',[.01 .06 .8 .7],'Color','w');
-ax01 = axes('Position',[.05 .11 .42 .81],'Color','none');
-ax02 = axes('Position',[.55 .11 .42 .81],'Color','none');
-
-pk = pink;
-pi = pk(15,:);
-PAR = flipud(parula); HOT = hot;
-PH = [flipud(HOT(end-5:end,:)); PAR(1:end-5,:)];
-NVARS = fliplr(1:200);
-HI2LOW = 1;
-
-
-
-axes(ax01);
-ph01 = errorbar(NVARS,HILO.muHILO_TRMEAN,HILO.seHILO_TRMEAN,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph01 = scatter(NVARS,HILO.muHILO_TRMEAN,500,'k.'); hold on;
-ph01 = scatter(NVARS,HILO.muHILO_TRMEAN,400,[.01 .1 .5],'.'); hold on;
-hold on;
-ph03 = errorbar(NVARS,HILO.muHILO_TRHIMU,HILO.seHILO_TRHIMU,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph03 = scatter(NVARS,HILO.muHILO_TRHIMU,100,'k.'); hold on;
-ph03 = scatter(NVARS,HILO.muHILO_TRHIMU,400,HILO.muHILO_TRPOPU,'.');
-ax01.YLim = [.3 1];
-line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('TRAINING SUBSET (HIGH & ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb01 = colorbar;
-cb01.Label.String = 'Proportion of Sample';
-cb01.Label.FontSize = 12;
-cb01.Label.HorizontalAlignment = 'center';
-cb01.Label.VerticalAlignment = 'bottom';
-cb01.Label.Rotation = -90;
-
-
-
-axes(ax02);
-ph02 = errorbar(NVARS,HILO.muHILO_HOMEAN,HILO.seHILO_HOMEAN,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph02 = scatter(NVARS,HILO.muHILO_HOMEAN,500,'k.'); hold on;
-ph02 = scatter(NVARS,HILO.muHILO_HOMEAN,400,[.01 .1 .5],'.');
-ax02.YLim = [.3 1];
-hold on;
-ph04 = errorbar(NVARS,HILO.muHILO_HOHIMU,HILO.seHILO_HOHIMU,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph04 = scatter(NVARS,HILO.muHILO_HOHIMU,100,'k.'); hold on;
-ph04 = scatter(NVARS,HILO.muHILO_HOHIMU,400,HILO.muHILO_HOPOPU,'.');
-ax02.YLim = [.3 1];
-line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('HOLDOUT SUBSET (HIGH & ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb02 = colorbar;
-cb02.Label.String = 'Proportion of Sample';
-cb02.Label.FontSize = 12;
-cb02.Label.HorizontalAlignment = 'center';
-cb02.Label.VerticalAlignment = 'bottom';
-cb02.Label.Rotation = -90;
-colormap(fh01,PH)
-
-%------------------------------------------%
-pause(1)
-set(gcf, 'PaperPositionMode', 'auto');
-dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['APOE4x2x_HILO2PACK_' dt '.png']);
-pause(1)
-%------------------------------------------%
-%==========================================================================
-%==========================================================================
-%==========================================================================
-
-
-%==========================================================================
-%==========================================================================
-%==========================================================================
-%%                          LOHI  4-PACK
-%==========================================================================
-clearvars -except LOHI_LOOPDATA HILO_LOOPDATA FILES MATDAT IJ ADSP LOCI...
-CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL LOOPDATA...
-HILO VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-
-
-%################   FOUR PACK   ################
-close all
-fh01 = figure('Units','normalized','OuterPosition',[.01 .05 .95 .88],'Color','w');
-ax01 = axes('Position',[.06 .56 .4 .4],'Color','none');
-ax02 = axes('Position',[.56 .56 .4 .4],'Color','none');
-ax03 = axes('Position',[.06 .06 .4 .4],'Color','none');
-ax04 = axes('Position',[.56 .06 .4 .4],'Color','none');
-
-pk = pink;
-pi = pk(15,:);
-PAR = flipud(parula); HOT = hot;
-PH = [flipud(HOT(end-5:end,:)); PAR(1:end-5,:)];
-NVARS = fliplr(1:200);
-HI2LOW = 0;
-
-axes(ax01);
-ph01 = errorbar(NVARS,HILO.muHILO_TRMEAN,HILO.seHILO_TRMEAN,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph01 = scatter(NVARS,HILO.muHILO_TRMEAN,500,'k.'); hold on;
-ph01 = scatter(NVARS,HILO.muHILO_TRMEAN,400,[.05 .2 .6],'.');
-% ax01.YLim = [.3 1];
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('TRAINING SUBSET (ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-
-
-
-axes(ax02);
-ph02 = errorbar(NVARS,HILO.muHILO_HOMEAN,HILO.seHILO_HOMEAN,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph02 = scatter(NVARS,HILO.muHILO_HOMEAN,500,'k.'); hold on;
-ph02 = scatter(NVARS,HILO.muHILO_HOMEAN,400,[.05 .2 .6],'.');
-% ax02.YLim = [.3 1]; 
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('HOLDOUT SUBSET (ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-
-
-
-axes(ax03);
-ph03 = errorbar(NVARS,HILO.muHILO_TRHIMU,HILO.seHILO_TRHIMU,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph03 = scatter(NVARS,HILO.muHILO_TRHIMU,100,'k.'); hold on;
-ph03 = scatter(NVARS,HILO.muHILO_TRHIMU,400,HILO.muHILO_TRPOPU,'.');
-% ax03.YLim = [.3 1];
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('TRAINED SUBSET (HIGH CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb03 = colorbar;
-cb03.Label.String = 'Proportion of Sample';
-cb03.Label.FontSize = 12;
-cb03.Label.HorizontalAlignment = 'center';
-cb03.Label.VerticalAlignment = 'bottom';
-cb03.Label.Rotation = -90;
-
-
-axes(ax04);
-ph04 = errorbar(NVARS,HILO.muHILO_HOHIMU,HILO.seHILO_HOHIMU,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph04 = scatter(NVARS,HILO.muHILO_HOHIMU,100,'k.'); hold on;
-ph04 = scatter(NVARS,HILO.muHILO_HOHIMU,400,HILO.muHILO_HOPOPU,'.');
-% ax03.YLim = [.3 1];
-% line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('HOLDOUT SUBSET (HIGH CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb04 = colorbar;
-cb04.Label.String = 'Proportion of Sample';
-cb04.Label.FontSize = 12;
-cb04.Label.HorizontalAlignment = 'center';
-cb04.Label.VerticalAlignment = 'bottom';
-cb04.Label.Rotation = -90;
-colormap(fh01,PH)
-
-%------------------------------------------%
-pause(1)
-set(gcf, 'PaperPositionMode', 'auto');
-dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['APOE4x2x_LOHI4PACK_' dt '.png']);
-pause(1)
-%------------------------------------------%
-
-
-
-%==========================================================================
-% 2-PACK GRAPHS TRAINING & HOLDOUT PROPORTION CORRECT x N-VARIANT LOCI
-%  STRICT AXES LIMITS
-%==========================================================================
-clearvars -except LOHI_LOOPDATA HILO_LOOPDATA FILES MATDAT IJ ADSP LOCI...
-CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL LOOPDATA...
-HILO VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
-
-
-
-%################   TWO PACK   ################
-close all
-fh01 = figure('Units','normalized','OuterPosition',[.01 .06 .8 .7],'Color','w');
-ax01 = axes('Position',[.05 .11 .42 .81],'Color','none');
-ax02 = axes('Position',[.55 .11 .42 .81],'Color','none');
-
-pk = pink;
-pi = pk(15,:);
-PAR = flipud(parula); HOT = hot;
-PH = [flipud(HOT(end-5:end,:)); PAR(1:end-5,:)];
-NVARS = fliplr(1:200);
-HI2LOW = 1;
-
-
-
-axes(ax01);
-ph01 = errorbar(NVARS,HILO.muHILO_TRMEAN,HILO.seHILO_TRMEAN,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph01 = scatter(NVARS,HILO.muHILO_TRMEAN,500,'k.'); hold on;
-ph01 = scatter(NVARS,HILO.muHILO_TRMEAN,400,[.01 .1 .5],'.'); hold on;
-hold on;
-ph03 = errorbar(NVARS,HILO.muHILO_TRHIMU,HILO.seHILO_TRHIMU,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph03 = scatter(NVARS,HILO.muHILO_TRHIMU,100,'k.'); hold on;
-ph03 = scatter(NVARS,HILO.muHILO_TRHIMU,400,HILO.muHILO_TRPOPU,'.');
-ax01.YLim = [.3 1];
-line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('TRAINING SUBSET (HIGH & ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb01 = colorbar;
-cb01.Label.String = 'Proportion of Sample';
-cb01.Label.FontSize = 12;
-cb01.Label.HorizontalAlignment = 'center';
-cb01.Label.VerticalAlignment = 'bottom';
-cb01.Label.Rotation = -90;
-
-
-
-axes(ax02);
-ph02 = errorbar(NVARS,HILO.muHILO_HOMEAN,HILO.seHILO_HOMEAN,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph02 = scatter(NVARS,HILO.muHILO_HOMEAN,500,'k.'); hold on;
-ph02 = scatter(NVARS,HILO.muHILO_HOMEAN,400,[.01 .1 .5],'.');
-ax02.YLim = [.3 1];
-hold on;
-ph04 = errorbar(NVARS,HILO.muHILO_HOHIMU,HILO.seHILO_HOHIMU,...
-    '.k','MarkerSize',400,'LineStyle','none','CapSize',2); hold on;
-% ph04 = scatter(NVARS,HILO.muHILO_HOHIMU,100,'k.'); hold on;
-ph04 = scatter(NVARS,HILO.muHILO_HOHIMU,400,HILO.muHILO_HOPOPU,'.');
-ax02.YLim = [.3 1];
-line([0 200],[.5 .5],'Color','k','LineStyle','--','LineWidth',1);
-title('HOLDOUT SUBSET (HIGH & ALL CONFIDENCE)')
-if HI2LOW == 1
-xlabel('N loci of top 200 (removed from HIGH-to-LOW P-value)')
-else
-xlabel('N loci of top 200 (removed from LOW-to-HIGH P-value)')
-end
-ylabel('Proportion correct')
-cb02 = colorbar;
-cb02.Label.String = 'Proportion of Sample';
-cb02.Label.FontSize = 12;
-cb02.Label.HorizontalAlignment = 'center';
-cb02.Label.VerticalAlignment = 'bottom';
-cb02.Label.Rotation = -90;
-colormap(fh01,PH)
-
-%------------------------------------------%
-pause(1)
-set(gcf, 'PaperPositionMode', 'auto');
-dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['APOE4x2x_LOHI2PACK_' dt '.png']);
-pause(1)
-%------------------------------------------%
-%==========================================================================
-%==========================================================================
-%==========================================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-return
-%==========================================================================
-%
-%%                ARTIFICIAL NEURAL NETWORKS (MATLAB BUILT-IN)
-%
-%==========================================================================
-rng('shuffle');
-
-
-
-
-
-
-%==========================================================================
-%% LOOP OVER 1:N NUMBER OF VARIANTS
-%==========================================================================
-clearvars -except FILES MATDAT IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL HI2LOW LOOPDATA...
-NVARS TRmu TRhiPop HOmu HOhiPop TRMEAN TRHIMU TRPOPU HOMEAN HOHIMU HOPOPU
-
-
-TRMEAN = zeros(1,200);
-TRPOPU = zeros(1,200);
-TRHIMU = zeros(1,200);
-HOMEAN = zeros(1,200);
-HOPOPU = zeros(1,200);
-HOHIMU = zeros(1,200);
-
-
-
-VI = fliplr(1:200);
-
-for vi = 1:1
-GRPn = 1;
-
-% REMOVE VARS FROM HIGH-TO-LOW P-VALUE
-HI2LOW = 1;
-SNPn = VI(vi);
-SNPi = 1:SNPn;
-
-
-% REMOVE VARS FROM LOW-TO-HIGH P-VALUE
-% HI2LOW = 0;
-% SNPn = vi;
-% SNPi = SNPn:200;
-
-
-VLOCI     = LOCI;
-VCASE     = CASE;
-VCTRL     = CTRL;
-VUSNP     = USNP;
-VTRCASE   = TRCASE;
-VTRCTRL   = TRCTRL;
-VTECASE   = TECASE;
-VTECTRL   = TECTRL;
-
-
-% SET MAIN FISHP TO TRAINING GROUP FISHP
-VLOCI.FISHP      = VLOCI.TRFISHP;
-VLOCI.FISHOR     = VLOCI.TRFISHOR;
-VLOCI.CASEREF    = VLOCI.TRCASEREF;
-VLOCI.CASEALT    = VLOCI.TRCASEALT;
-VLOCI.CTRLREF    = VLOCI.TRCTRLREF;
-VLOCI.CTRLALT    = VLOCI.TRCTRLALT;
-
-%==========================================================================
-% TAKE THE TOP N or P<x GENES FOR NEURAL NET CLASSIFIER TRAINING
-%==========================================================================
-
-
-% SORT VARIANTS BY EITHER TRFISHP|CHRPOS
-[~,j]  = sort(VLOCI.TRFISHP);
-VLOCI  = VLOCI(j,:);
-VCASE  = VCASE(j);
-VCTRL  = VCTRL(j);
-VUSNP  = VUSNP(j);
-
-
-% EXTRACT TOP-N NUMBER OF VARIANTS
-VLOCI  = VLOCI(SNPi,:);
-VCASE  = VCASE(SNPi);
-VCTRL  = VCTRL(SNPi);
-VUSNP  = VUSNP(SNPi);
-
-
-%==========================================================================
-%      MAKE  RECTANGLE  NEURAL NET  VARIANT MATRIX
-%==========================================================================
-
-TRPHE = [VTRCASE; VTRCTRL];
-TEPHE = [VTECASE; VTECTRL];
-
-
-
-% SCRAMBLE TRAINING PHENOTYPE ORDER
-NVARS  = size(TRPHE,1);         % Total number of people
-k      = randperm(NVARS)';      % Get N random ints in range 1:N
-TRPHE  = TRPHE(k,:);            % Scramble Phenotype table
-
-% SCRAMBLE TESTING PHENOTYPE ORDER
-NVARS  = size(TEPHE,1);         % Total number of people
-k      = randperm(NVARS)';      % Get N random ints in range 1:N
-TEPHE  = TEPHE(k,:);            % Scramble Phenotype table
-
-
-
-
-% MAKE THE NEURAL NET TRAINING & TESTING MATRICES
-[VTRX, TRX, TRL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TRPHE,[-1 0 1 3]);
-[VTEX, TEX, TEL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TEPHE,[-1 0 1 3]);
-
-
-%==========================================================================
-%                  TRAIN NEURAL NETS
-%==========================================================================
-
-
-TXX = VTRX(:,7:end);
-HXX = VTEX(:,7:end);
-TX = [ones(size(TXX,1),1) TXX]; % ADD AN INTERCEPT COLUMN
-HX = [ones(size(HXX,1),1) HXX]; % ADD AN INTERCEPT COLUMN
-
-
-TL = VTRX(:,2);
-HL = VTEX(:,2);
-TL = dummyvar(categorical(VTRX(:,2)==1))'; 
-HL = dummyvar(categorical(VTEX(:,2)==1))';
-
-
-% ESTABLISH PATTERNNET PARAMETERS
-NN = patternnet([200 70 40]);
-NN.trainFcn = 'trainscg';
-NN.trainParam.max_fail = 40;
-NN.divideFcn = 'dividerand';
-
-
-
-
-% MACHINE LEARNING: TRAIN THE NEURAL NET CLASSIFIER
-net = train(NN, TX , TL );
-
-
-
-
-
-
-
-
-
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-%% EVALUATE TRAINED NEURAL NETWORK PERFORMANCE
-
-
-TRAINED_CONF = net(TX);
-HOLDOUT_CONF = net(HX);
-
-TRAINED_GUESS = vec2ind(TRAINED_CONF);
-HOLDOUT_GUESS = vec2ind(HOLDOUT_CONF);
-
-
-TRAINED_LABELS = vec2ind(TL);
-HOLDOUT_LABELS = vec2ind(HL);
-
-
-TRAINED_PCTALL = mean(TRAINED_GUESS == TRAINED_LABELS);
-HOLDOUT_PCTALL = mean(HOLDOUT_GUESS == HOLDOUT_LABELS);
-
-
-TRC = abs(TRAINED_CONF-.5); TRC = TRC(1,:);
-HOC = abs(HOLDOUT_CONF-.5); HOC = HOC(1,:);
-
-TRHI = TRC > .3;
-HOHI = HOC > .3;
-
-TRAINED_PHICON = mean(TRAINED_GUESS(TRHI) == TRAINED_LABELS(TRHI));
-HOLDOUT_PHICON = mean(HOLDOUT_GUESS(HOHI) == HOLDOUT_LABELS(HOHI));
-
-
-
-clc
-fprintf('[TRAINED] PERCENT CORRECT OVERALL: '); disp(TRAINED_PCTALL);
-
-fprintf('[HOLDOUT] PERCENT CORRECT OVERALL: '); disp(HOLDOUT_PCTALL);
-
-fprintf('[TRAINED] PERCENT CORRECT HIGHCON: '); disp(TRAINED_PHICON);
-
-fprintf('[HOLDOUT] PERCENT CORRECT HIGHCON: '); disp(HOLDOUT_PHICON);
-
-
-
-
-
-
-
-
-
-
-
-

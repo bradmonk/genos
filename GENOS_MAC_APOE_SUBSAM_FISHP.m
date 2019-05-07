@@ -88,28 +88,22 @@
 %==========================================================================
 %% STEP-1: LOAD THE DATASET
 %==========================================================================
-%{.
 close all; clear; clc; rng('shuffle');
-genosdir = fileparts(which('GENOS.m'));
+genosdir = fileparts(which('GENOS.m')); cd(genosdir);
 matlabdir = fileparts(which('MATLABS.m'));
-cd(genosdir);
-
-
-subfuncpath = [genosdir filesep 'genosfunctions'];
-datasetpath = [matlabdir filesep 'genosdata'];
-gpath = [genosdir pathsep subfuncpath pathsep datasetpath];
+p1 = [genosdir filesep 'genos_functions'];
+p2 = [genosdir filesep 'genosfunctions'];
+p3 = [p1 filesep 'genos_main_functions'];
+p4 = [genosdir filesep 'genos_other'];
+gpath = [p1 pathsep p2 pathsep p3 pathsep p4];
 addpath(gpath)
 
 
 which('GENOSDATA.mat')
 ADSP = load('GENOSDATA.mat');
 
-
-
 disp('dataset loaded')
 clearvars -except IJ ADSP
-
-%}
 
 
 %==========================================================================
@@ -180,7 +174,10 @@ COHSET = PHEN;
 % THE COHORTS YOU WANT TO USE THIS RUN
 GOODCOHORTS = [1 2 6 7 9 10 11 12 13 19 20 23 24];
 BRAKCOHORTS = [1 6 9 10 11 12 13 14 16 17 18 19 23];
-USECOHORTS  = unique([GOODCOHORTS BRAKCOHORTS]);
+
+%USECOHORTS  = unique([GOODCOHORTS BRAKCOHORTS]);
+USECOHORTS  = unique(GOODCOHORTS);
+
 
 COHSET = COHSET(sum(COHSET.COHORTNUM == USECOHORTS , 2)>0,:);
 
@@ -194,12 +191,13 @@ COHSET = COHSET(sum(COHSET.COHORTNUM == USECOHORTS , 2)>0,:);
 %-------------------------------------------------------------
 % COHSET(COHSET.APOE == 44,:) = [];
 % COHSET(COHSET.APOE == 24,:) = [];
-COHSET(COHSET.APOE == 34,:) = [];
-COHSET(COHSET.APOE == 33,:) = [];
+% COHSET(COHSET.APOE == 34,:) = [];
+% COHSET(COHSET.APOE == 33,:) = [];
 % COHSET(COHSET.APOE == 23,:) = [];
 % COHSET(COHSET.APOE == 22,:) = [];
 
-
+% KEEP APOE33 PEOPLE ONLY
+COHSET = COHSET(COHSET.APOE == 33,:);
 
 
 

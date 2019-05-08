@@ -1005,67 +1005,12 @@
     </unset>
     <fileset.entrypoints>
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\mlmx.m">
-        <Marker>1555838295716</Marker>
+        <Marker>1555961965152</Marker>
       </file>
     </fileset.entrypoints>
     <fileset.testbench />
     <fileset.inputtypes>
-      <file custom-data-expanded="false" value="${PROJECT_ROOT}\mlmx.m">
-        <Inputs fileName="mlmx.m" functionName="mlmx" nargout="1">
-          <Input Name="CA" typeId="0">
-            <Field Name="{:}" typeId="1" />
-          </Input>
-          <Input Name="CO" typeId="0">
-            <Field Name="{:}" typeId="1" />
-          </Input>
-          <Input Name="UC" typeId="0">
-            <Field Name="{:}" typeId="2" />
-          </Input>
-          <Input Name="SRR" typeId="3" />
-          <Input Name="AD" typeId="3" />
-          <Input Name="COH" typeId="3" />
-          <Input Name="AGE" typeId="3" />
-          <Input Name="APOE" typeId="3" />
-          <Input Name="BRAAK" typeId="3" />
-          <idpTable>
-            <type typeId="0">
-              <Class>cell</Class>
-              <Size>:200 x 1</Size>
-              <Value />
-              <InitialValue />
-              <UserDefined>true</UserDefined>
-              <Homogeneous>true</Homogeneous>
-            </type>
-            <type typeId="1">
-              <Class>double</Class>
-              <Size>:inf x :2</Size>
-              <Value />
-              <InitialValue />
-              <UserDefined>true</UserDefined>
-              <Complex>false</Complex>
-              <Sparse>false</Sparse>
-            </type>
-            <type typeId="2">
-              <Class>double</Class>
-              <Size>:inf x :1</Size>
-              <Value />
-              <InitialValue />
-              <UserDefined>true</UserDefined>
-              <Complex>false</Complex>
-              <Sparse>false</Sparse>
-            </type>
-            <type typeId="3">
-              <Class>double</Class>
-              <Size>:inf x 1</Size>
-              <Value />
-              <InitialValue />
-              <UserDefined>false</UserDefined>
-              <Complex>false</Complex>
-              <Sparse>false</Sparse>
-            </type>
-          </idpTable>
-        </Inputs>
-      </file>
+      <file custom-data-expanded="false" value="${PROJECT_ROOT}\mlmx.m" />
     </fileset.inputtypes>
     <build-deliverables>
       <file location="C:\Users\monakhos\Documents\GitHub\genos\genosfunctions" name="mlmx_mex.mexw64" optional="false">C:\Users\monakhos\Documents\GitHub\genos\genosfunctions\mlmx_mex.mexw64</file>

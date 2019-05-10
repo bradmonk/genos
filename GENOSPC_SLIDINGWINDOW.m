@@ -85,14 +85,13 @@
 %% STEP-1: LOAD THE DATASET
 %==========================================================================
 close all; clear; clc; rng('shuffle');
-genosdir = fileparts(which('GENOS.m')); cd(genosdir);
-matlabdir = fileparts(which('MATLABS.m'));
-p1 = [genosdir filesep 'genos_functions'];
-p2 = [genosdir filesep 'genosfunctions'];
-p3 = [p1 filesep 'genos_main_functions'];
-p4 = [genosdir filesep 'genos_other'];
-gpath = [p1 pathsep p2 pathsep p3 pathsep p4];
-addpath(gpath)
+P.home = fileparts(which('GENOS.m')); cd(P.home);
+P.P1 = [P.home filesep 'genos_functions'];
+P.P3 = [P.P1 filesep 'genos_main_functions'];
+P.P2 = [P.home filesep 'genosfunctions'];
+P.P4 = [P.home filesep 'genos_other'];
+addpath(join(string(struct2cell(P)),pathsep,1))
+cd(P.home)
 
 
 
@@ -110,12 +109,12 @@ P.Nloops = 25;
 P.Nvars = 500;
 P.windowSize = 50;
 P.Ndots = P.Nvars-P.windowSize+1;
-P.Lo2Hi = 1>0;
+P.Lo2Hi = 1>0; %YES
 
 
 P.mainmatfile = which('GENOSDATA.mat');
-P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS\APOE_22_23_24_34_44';
-P.importdir = [P.basedir '\APOE_22_23_24_34_44_FISHP_V2'];
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS\APOE_22_23_24_33_34_44';
+P.importdir = [P.basedir '\APOE_22_23_24_33_34_44_FISHP_V0'];
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
 P.savepathfile = [P.basedir '\SLIDEWIN50V_' dt '.mat'];
 
@@ -171,12 +170,35 @@ head(LOCI)
 %==========================================================================
 clearvars -except P ADSP PHEN LOCI CASE CTRL USNP
 
-LOOPDATA.HILO_TRMEAN = zeros(P.Ndots,P.Nloops);
-LOOPDATA.HILO_TRHIMU = zeros(P.Ndots,P.Nloops);
-LOOPDATA.HILO_TRPOPU = zeros(P.Ndots,P.Nloops);
-LOOPDATA.HILO_HOMEAN = zeros(P.Ndots,P.Nloops);
-LOOPDATA.HILO_HOHIMU = zeros(P.Ndots,P.Nloops);
-LOOPDATA.HILO_HOPOPU = zeros(P.Ndots,P.Nloops);
+% CASES
+%----------------------------------------
+LOOPDATA.CATRMEAN = zeros(P.Ndots,P.Nloops);
+LOOPDATA.CATRLOMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.CATRHIMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.CATRLOPO = zeros(P.Ndots,P.Nloops);
+LOOPDATA.CATRHIPO = zeros(P.Ndots,P.Nloops);
+
+LOOPDATA.CAHOMEAN = zeros(P.Ndots,P.Nloops);
+LOOPDATA.CAHOLOMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.CAHOHIMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.CAHOLOPO = zeros(P.Ndots,P.Nloops);
+LOOPDATA.CAHOHIPO = zeros(P.Ndots,P.Nloops);
+
+
+% CTRLS
+%----------------------------------------
+LOOPDATA.COTRMEAN = zeros(P.Ndots,P.Nloops);
+LOOPDATA.COTRLOMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.COTRHIMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.COTRLOPO = zeros(P.Ndots,P.Nloops);
+LOOPDATA.COTRHIPO = zeros(P.Ndots,P.Nloops);
+
+LOOPDATA.COHOMEAN = zeros(P.Ndots,P.Nloops);
+LOOPDATA.COHOLOMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.COHOHIMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.COHOLOPO = zeros(P.Ndots,P.Nloops);
+LOOPDATA.COHOHIPO = zeros(P.Ndots,P.Nloops);
+
 
 %==========================================================================
 %% RUN MAIN LOOP
@@ -220,12 +242,36 @@ VUSNP  = VUSNP(j);
 %==========================================================================
 %%                               HILO
 %==========================================================================
-hiloTRMEAN = zeros(P.Ndots,1);
-hiloTRHIMU = zeros(P.Ndots,1);
-hiloTRPOPU = zeros(P.Ndots,1);
-hiloHOMEAN = zeros(P.Ndots,1);
-hiloHOHIMU = zeros(P.Ndots,1);
-hiloHOPOPU = zeros(P.Ndots,1);
+
+
+% CASES
+%----------------------------------------
+CATRMEAN = zeros(P.Ndots,1);
+CATRLOMU = zeros(P.Ndots,1);
+CATRHIMU = zeros(P.Ndots,1);
+CATRLOPO = zeros(P.Ndots,1);
+CATRHIPO = zeros(P.Ndots,1);
+
+CAHOMEAN = zeros(P.Ndots,1);
+CAHOLOMU = zeros(P.Ndots,1);
+CAHOHIMU = zeros(P.Ndots,1);
+CAHOLOPO = zeros(P.Ndots,1);
+CAHOHIPO = zeros(P.Ndots,1);
+
+
+% CTRLS
+%----------------------------------------
+COTRMEAN = zeros(P.Ndots,1);
+COTRLOMU = zeros(P.Ndots,1);
+COTRHIMU = zeros(P.Ndots,1);
+COTRLOPO = zeros(P.Ndots,1);
+COTRHIPO = zeros(P.Ndots,1);
+
+COHOMEAN = zeros(P.Ndots,1);
+COHOLOMU = zeros(P.Ndots,1);
+COHOHIMU = zeros(P.Ndots,1);
+COHOLOPO = zeros(P.Ndots,1);
+COHOHIPO = zeros(P.Ndots,1);
 
 
 %==========================================================================
@@ -322,30 +368,120 @@ TRmu = nanmean(TRy == TL);
 HOmu = nanmean(HOy == HL);
 
 
+keyboard
+
+% CASES
+%----------------------------------------
+% CASE: GET PREDICTIONS
+CATRfx = TRfx(TL==1);
+CAHOfx = HOfx(HL==1);
+
+% CASE: GRADE ALL PREDICTIONS
+case_tr_mu = nanmean(CATRfx > .5);
+case_ho_mu = nanmean(CAHOfx > .5);
+
+% CASE: GRADE HI CONF PREDICTIONS
+QTR  = quantile(TRfx,[.2 .8]);
+case_tr_lo_mu  = nanmean(CATRfx(CATRfx<QTR(1)));
+case_tr_hi_mu  = nanmean(CATRfx(CATRfx>QTR(2)));
+case_tr_lo_pop = nanmean(CATRfx(CATRfx<QTR(1)));
+case_tr_hi_pop = nanmean(CATRfx(CATRfx>QTR(2)));
+case_ho_lo_mu  = nanmean(CAHOfx(CAHOfx<QTR(1)));
+case_ho_hi_mu  = nanmean(CAHOfx(CAHOfx>QTR(2)));
+case_ho_lo_pop = nanmean(CAHOfx(CAHOfx<QTR(1)));
+case_ho_hi_pop = nanmean(CAHOfx(CAHOfx>QTR(2)));
+
+
+% CTRLS
+%----------------------------------------
+% CTRL: GET PREDICTIONS
+COTRfx = TRfx(TL==0);
+COHOfx = HOfx(HL==0);
+
+% CTRL: GRADE ALL PREDICTIONS
+ctrl_tr_mu = nanmean(COTRfx > .5);
+ctrl_ho_mu = nanmean(COHOfx > .5);
+
+% CTRL: GRADE HI CONF PREDICTIONS
+QTR  = quantile(TRfx,[.2 .8]);
+ctrl_tr_lo_mu  = nanmean(COTRfx(COTRfx<QTR(1)));
+ctrl_tr_hi_mu  = nanmean(COTRfx(COTRfx>QTR(2)));
+ctrl_tr_lo_pop = nanmean(COTRfx(COTRfx<QTR(1)));
+ctrl_tr_hi_pop = nanmean(COTRfx(COTRfx>QTR(2)));
+ctrl_ho_lo_mu  = nanmean(COHOfx(COHOfx<QTR(1)));
+ctrl_ho_hi_mu  = nanmean(COHOfx(COHOfx>QTR(2)));
+ctrl_ho_lo_pop = nanmean(COHOfx(COHOfx<QTR(1)));
+ctrl_ho_hi_pop = nanmean(COHOfx(COHOfx>QTR(2)));
+
+
+
+
+
+
+
+
+
+
+
 
 
 % [TRAINED] HIGH CONFIDENCE PREDICTIONS
-TRhi = (rescale(TRfx)>.8) | (rescale(TRfx)<.2);
+QTR    = quantile(TRfx,[.2 .8]);
+TRlo   = HOfx<QHO(1);
+TRhi   = HOfx>QHO(2);
+TRhilo = TRlo | TRhi;
+TRloN  = TRy(TRlo) == TL(TRlo);
 TRhiN  = TRy(TRhi) == TL(TRhi);
-TRhiMu = nanmean(TRhiN);
+TRloMu  = nanmean(TRloN);
+TRhiMu  = nanmean(TRhiN);
+TRloPop = nanmean(TRlo);
 TRhiPop = nanmean(TRhi);
 
 
 % [HOLDOUT] HIGH CONFIDENCE PREDICTIONS
-HOhi = (rescale(HOfx)>.8) | (rescale(HOfx)<.2);
-HOhiN  = HOy(HOhi) == HL(HOhi);
-HOhiMu = nanmean(HOhiN);
+QHO = quantile(HOfx,[.2 .8]);
+HOlo = HOfx<QHO(1);
+HOhi = HOfx>QHO(2);
+HOhilo = HOlo | HOhi;
+HOloN  = HOy(HOlo) == TL(HOlo);
+HOhiN  = HOy(HOhi) == TL(HOhi);
+HOloMu  = nanmean(HOloN);
+HOhiMu  = nanmean(HOhiN);
+HOloPop = nanmean(HOlo);
 HOhiPop = nanmean(HOhi);
 
 
 
 
-hiloTRMEAN(vi) = TRmu;
-hiloTRHIMU(vi) = TRhiMu;
-hiloTRPOPU(vi) = TRhiPop;
-hiloHOMEAN(vi) = HOmu;
-hiloHOHIMU(vi) = HOhiMu;
-hiloHOPOPU(vi) = HOhiPop;
+% CTRLS
+%----------------------------------------
+CATRMEAN(vi) = case_tr_mu;
+CATRLOMU(vi) = case_tr_lo_mu;
+CATRHIMU(vi) = case_tr_hi_mu;
+CATRLOPO(vi) = case_tr_lo_pop;
+CATRHIPO(vi) = case_tr_hi_pop;
+
+CAHOMEAN(vi) = case_ho_mu;
+CAHOLOMU(vi) = case_ho_lo_mu;
+CAHOHIMU(vi) = case_ho_hi_mu;
+CAHOLOPO(vi) = case_ho_lo_pop;
+CAHOHIPO(vi) = case_ho_hi_pop;
+
+
+% CTRLS
+%----------------------------------------
+COTRMEAN(vi) = ctrl_tr_mu;
+COTRLOMU(vi) = ctrl_tr_lo_mu;
+COTRHIMU(vi) = ctrl_tr_lo_mu;
+COTRLOPO(vi) = ctrl_tr_lo_mu;
+COTRHIPO(vi) = ctrl_tr_lo_mu;
+
+COHOMEAN(vi) = ctrl_ho_mu;
+COHOLOMU(vi) = ctrl_ho_lo_mu;
+COHOHIMU(vi) = ctrl_ho_lo_mu;
+COHOLOPO(vi) = ctrl_ho_lo_mu;
+COHOHIPO(vi) = ctrl_ho_lo_mu;
+
 
 
 clc;
@@ -354,10 +490,12 @@ disp('IJ | vi | min(SNPi) | max(SNPi) | numel(BETA):');
 disp([IJ vi min(SNPi) max(SNPi) numel(BETA)]);
 disp('----------  TRAINING SET  ----------')
 fprintf('TRAIN correct %0.0f%% overall(pop:100%%)\n' ,(TRmu .* 100))
+fprintf('TRAIN correct %0.0f%% locon  (pop: %0.0f%%)\n\n',TRloMu.*100,TRloPop.*100)
 fprintf('TRAIN correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',TRhiMu.*100,TRhiPop.*100)
 
 disp('----------  TESTING SET  ----------')
 fprintf('TEST correct %0.0f%% overall(pop:100%%)\n' ,(HOmu .* 100))
+fprintf('TEST correct %0.0f%% locon  (pop: %0.0f%%)\n\n',HOloMu.*100,HOloPop.*100)
 fprintf('TEST correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',HOhiMu.*100,HOhiPop.*100)
 disp('%=================================================================');
 
@@ -366,23 +504,70 @@ end
 %===========================================
 
 % FILL IN NAN VALUES WIHT NANMEAN
-hiloTRMEAN(isnan(hiloTRMEAN)) = nanmean(hiloTRMEAN);
-hiloTRHIMU(isnan(hiloTRHIMU)) = nanmean(hiloTRHIMU);
-hiloTRPOPU(isnan(hiloTRPOPU)) = nanmean(hiloTRPOPU);
-hiloHOMEAN(isnan(hiloHOMEAN)) = nanmean(hiloHOMEAN);
-hiloHOHIMU(isnan(hiloHOHIMU)) = nanmean(hiloHOHIMU);
-hiloHOPOPU(isnan(hiloHOPOPU)) = nanmean(hiloHOPOPU);
+% CASES
+%----------------------------------------
+CATRMEAN(isnan(CATRMEAN)) = nanmean(CATRMEAN);
+CATRLOMU(isnan(CATRLOMU)) = nanmean(CATRLOMU);
+CATRHIMU(isnan(CATRHIMU)) = nanmean(CATRHIMU);
+CATRLOPO(isnan(CATRLOPO)) = nanmean(CATRLOPO);
+CATRHIPO(isnan(CATRHIPO)) = nanmean(CATRHIPO);
+
+CAHOMEAN(isnan(CAHOMEAN)) = nanmean(CAHOMEAN);
+CAHOLOMU(isnan(CAHOLOMU)) = nanmean(CAHOLOMU);
+CAHOHIMU(isnan(CAHOHIMU)) = nanmean(CAHOHIMU);
+CAHOLOPO(isnan(CAHOLOPO)) = nanmean(CAHOLOPO);
+CAHOHIPO(isnan(CAHOHIPO)) = nanmean(CAHOHIPO);
+
+
+% CTRLS
+%----------------------------------------
+COTRMEAN(isnan(COTRMEAN)) = nanmean(COTRMEAN);
+COTRLOMU(isnan(COTRLOMU)) = nanmean(COTRLOMU);
+COTRHIMU(isnan(COTRHIMU)) = nanmean(COTRHIMU);
+COTRLOPO(isnan(COTRLOPO)) = nanmean(COTRLOPO);
+COTRHIPO(isnan(COTRHIPO)) = nanmean(COTRHIPO);
+
+COHOMEAN(isnan(COHOMEAN)) = nanmean(COHOMEAN);
+COHOLOMU(isnan(COHOLOMU)) = nanmean(COHOLOMU);
+COHOHIMU(isnan(COHOHIMU)) = nanmean(COHOHIMU);
+COHOLOPO(isnan(COHOLOPO)) = nanmean(COHOLOPO);
+COHOHIPO(isnan(COHOHIPO)) = nanmean(COHOHIPO);
+
 
 %==========================================================================
 %%                               HILO-LOHI SAVER
 %==========================================================================
 
-LOOPDATA.HILO_TRMEAN(1:P.Ndots,IJ) = hiloTRMEAN;
-LOOPDATA.HILO_TRHIMU(1:P.Ndots,IJ) = hiloTRHIMU;
-LOOPDATA.HILO_TRPOPU(1:P.Ndots,IJ) = hiloTRPOPU;
-LOOPDATA.HILO_HOMEAN(1:P.Ndots,IJ) = hiloHOMEAN;
-LOOPDATA.HILO_HOHIMU(1:P.Ndots,IJ) = hiloHOHIMU;
-LOOPDATA.HILO_HOPOPU(1:P.Ndots,IJ) = hiloHOPOPU;
+
+% CASES
+%----------------------------------------
+LOOPDATA.CATRMEAN(1:P.Ndots,IJ) = CATRMEAN;
+LOOPDATA.CATRLOMU(1:P.Ndots,IJ) = CATRLOMU;
+LOOPDATA.CATRHIMU(1:P.Ndots,IJ) = CATRHIMU;
+LOOPDATA.CATRLOPO(1:P.Ndots,IJ) = CATRLOPO;
+LOOPDATA.CATRHIPO(1:P.Ndots,IJ) = CATRHIPO;
+
+LOOPDATA.CAHOMEAN(1:P.Ndots,IJ) = CAHOMEAN;
+LOOPDATA.CAHOLOMU(1:P.Ndots,IJ) = CAHOLOMU;
+LOOPDATA.CAHOHIMU(1:P.Ndots,IJ) = CAHOHIMU;
+LOOPDATA.CAHOLOPO(1:P.Ndots,IJ) = CAHOLOPO;
+LOOPDATA.CAHOHIPO(1:P.Ndots,IJ) = CAHOHIPO;
+
+
+% CTRLS
+%----------------------------------------
+LOOPDATA.COTRMEAN(1:P.Ndots,IJ) = COTRMEAN;
+LOOPDATA.COTRLOMU(1:P.Ndots,IJ) = COTRLOMU;
+LOOPDATA.COTRHIMU(1:P.Ndots,IJ) = COTRHIMU;
+LOOPDATA.COTRLOPO(1:P.Ndots,IJ) = COTRLOPO;
+LOOPDATA.COTRHIPO(1:P.Ndots,IJ) = COTRHIPO;
+
+LOOPDATA.COHOMEAN(1:P.Ndots,IJ) = COHOMEAN;
+LOOPDATA.COHOLOMU(1:P.Ndots,IJ) = COHOLOMU;
+LOOPDATA.COHOHIMU(1:P.Ndots,IJ) = COHOHIMU;
+LOOPDATA.COHOLOPO(1:P.Ndots,IJ) = COHOLOPO;
+LOOPDATA.COHOHIPO(1:P.Ndots,IJ) = COHOHIPO;
+
 
 
 end
@@ -392,7 +577,7 @@ end
 %------------------------------------------%
 pause(1)
 % dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-save(ADSP.savepathfile,'LOOPDATA','P');
+save(P.savepathfile,'LOOPDATA','P');
 disp('File Saved.')
 pause(1)
 %------------------------------------------%

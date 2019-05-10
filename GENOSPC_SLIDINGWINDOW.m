@@ -113,10 +113,10 @@ P.Lo2Hi = 1>0; %YES
 
 
 P.mainmatfile = which('GENOSDATA.mat');
-P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS\APOE_22_23_24_33_34_44';
-P.importdir = [P.basedir '\APOE_22_23_24_33_34_44_FISHP_V0'];
+P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
+P.importdir = [P.basedir '/APOE_22_23_24_33_34_44/APOE_22_23_24_33_34_44_FISHP_V0'];
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-P.savepathfile = [P.basedir '\SLIDEWIN50V_' dt '.mat'];
+P.savepathfile = [P.basedir '\SLIDEWIN_' dt '.mat'];
 
 P.FILES.w = what(P.importdir);
 P.Nmatfiles = numel(P.FILES.w.mat);
@@ -317,15 +317,8 @@ TEPHE  = TEPHE(k,:);            % Scramble Phenotype table
 
 
 
-% MAKE THE NEURAL NET TRAINING & TESTING MATRICES
-% VTRX = mlmx_mex(XCASE,XCTRL,XUSNP,...
-%     TRPHE.SRR,TRPHE.AD,TRPHE.COHORTNUM,TRPHE.AGE,TRPHE.APOE,TRPHE.BRAAK);
-% 
-% VTEX = mlmx_mex(XCASE,XCTRL,XUSNP,...
-%     TEPHE.SRR,TEPHE.AD,TEPHE.COHORTNUM,TEPHE.AGE,TEPHE.APOE,TEPHE.BRAAK);
-
-[VTRX, ~, ~] = mkmx(XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
-[VTEX, ~, ~] = mkmx(XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
+[VTRX, ~, ~] = mkmxwin(XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
+[VTEX, ~, ~] = mkmxwin(XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
 
 
 %==========================================================================
@@ -345,8 +338,8 @@ HL = VTEX(:,2);
 
 
 % PERFORM THE SO-CALLED MACHINE LEARNING STEP
-BETA = normaleq_mex(TX,TL);
-%BETA = pinv(TX' * TX) * (TX' * TL);
+% BETA = normaleq_mex(TX,TL);
+BETA = pinv(TX' * TX) * (TX' * TL);
 
 fprintf('\n Solved GLM OLS for %0.f beta coefficients. \n\n',size(BETA,1));  
 
@@ -354,133 +347,76 @@ fprintf('\n Solved GLM OLS for %0.f beta coefficients. \n\n',size(BETA,1));
 
 
 % GET TRAINED LINEAR MODEL PREDICTIONS (ACTIVATIONS)
-TRfx = nansum( TX .* BETA' ,2);
-HOfx = nansum( HX .* BETA' ,2);
+TRfx = nansum( TX .* BETA' ,2) - .5;
+HOfx = nansum( HX .* BETA' ,2) - .5;
 
 
-% DESCRETIZE PREDICTIONS
-TRy = round(TRfx);
-HOy = round(HOfx);
+% ALL: SPLIT PREDICTIONS FOR CASES AND CONTROLS
+ACT_TR_CASE = TRfx(TL==1) .*  1;
+ACT_TR_CTRL = TRfx(TL==0) .* -1;
+ACT_HO_CASE = HOfx(HL==1) .*  1;
+ACT_HO_CTRL = HOfx(HL==0) .* -1;
 
 
-% GRADE THE PREDICTIONS
-TRmu = nanmean(TRy == TL);
-HOmu = nanmean(HOy == HL);
+% ALL: DESCRETIZE PREDICTIONS
+TF_TR_CASE = ACT_TR_CASE >= 0;
+TF_TR_CTRL = ACT_TR_CTRL >  0;
+TF_HO_CASE = ACT_HO_CASE >= 0;
+TF_HO_CTRL = ACT_HO_CTRL >  0;
 
 
-keyboard
+% ALL: PROPORTION CORRECT
+MU_TR_CASE = nanmean(TF_TR_CASE);
+MU_TR_CTRL = nanmean(TF_TR_CTRL);
+MU_HO_CASE = nanmean(TF_HO_CASE);
+MU_HO_CTRL = nanmean(TF_HO_CTRL);
 
-% CASES
+
+
+% ALL/HIGH: HAS HIGH ACTIVATION?
+ISHI_TR_CASE = abs(ACT_TR_CASE) > .25;
+ISHI_TR_CTRL = abs(ACT_TR_CTRL) > .25;
+ISHI_HO_CASE = abs(ACT_HO_CASE) > .25;
+ISHI_HO_CTRL = abs(ACT_HO_CTRL) > .25;
+
+
+% HIGH: PROPORTION CORRECT
+HIMU_TR_CASE = mean(ACT_TR_CASE(ISHI_TR_CASE) > 0);
+HIMU_TR_CTRL = mean(ACT_TR_CTRL(ISHI_TR_CTRL) > 0);
+HIMU_HO_CASE = mean(ACT_HO_CASE(ISHI_HO_CASE) > 0);
+HIMU_HO_CTRL = mean(ACT_HO_CTRL(ISHI_HO_CTRL) > 0);
+
+
+% HIGH: PROPORTION POPULATION
+HIPO_TR_CASE = mean((ISHI_TR_CASE) );
+HIPO_TR_CTRL = mean((ISHI_TR_CTRL) );
+HIPO_HO_CASE = mean((ISHI_HO_CASE) );
+HIPO_HO_CTRL = mean((ISHI_HO_CTRL) );
+
+
+
+
+% CASE
 %----------------------------------------
-% CASE: GET PREDICTIONS
-CATRfx = TRfx(TL==1);
-CAHOfx = HOfx(HL==1);
+CATRMEAN(vi) = MU_TR_CASE;
+CATRHIMU(vi) = HIMU_TR_CASE;
+CATRHIPO(vi) = HIPO_TR_CASE;
 
-% CASE: GRADE ALL PREDICTIONS
-case_tr_mu = nanmean(CATRfx > .5);
-case_ho_mu = nanmean(CAHOfx > .5);
-
-% CASE: GRADE HI CONF PREDICTIONS
-QTR  = quantile(TRfx,[.2 .8]);
-case_tr_lo_mu  = nanmean(CATRfx(CATRfx<QTR(1)));
-case_tr_hi_mu  = nanmean(CATRfx(CATRfx>QTR(2)));
-case_tr_lo_pop = nanmean(CATRfx(CATRfx<QTR(1)));
-case_tr_hi_pop = nanmean(CATRfx(CATRfx>QTR(2)));
-case_ho_lo_mu  = nanmean(CAHOfx(CAHOfx<QTR(1)));
-case_ho_hi_mu  = nanmean(CAHOfx(CAHOfx>QTR(2)));
-case_ho_lo_pop = nanmean(CAHOfx(CAHOfx<QTR(1)));
-case_ho_hi_pop = nanmean(CAHOfx(CAHOfx>QTR(2)));
+CAHOMEAN(vi) = MU_HO_CASE;
+CAHOHIMU(vi) = HIMU_HO_CASE;
+CAHOHIPO(vi) = HIPO_HO_CASE;
 
 
-% CTRLS
+% CTRL
 %----------------------------------------
-% CTRL: GET PREDICTIONS
-COTRfx = TRfx(TL==0);
-COHOfx = HOfx(HL==0);
+COTRMEAN(vi) = MU_TR_CTRL;
+COTRHIMU(vi) = HIMU_TR_CTRL;
+COTRHIPO(vi) = HIPO_TR_CTRL;
 
-% CTRL: GRADE ALL PREDICTIONS
-ctrl_tr_mu = nanmean(COTRfx > .5);
-ctrl_ho_mu = nanmean(COHOfx > .5);
+COHOMEAN(vi) = MU_HO_CTRL;
+COHOHIMU(vi) = HIMU_HO_CTRL;
+COHOHIPO(vi) = HIPO_HO_CTRL;
 
-% CTRL: GRADE HI CONF PREDICTIONS
-QTR  = quantile(TRfx,[.2 .8]);
-ctrl_tr_lo_mu  = nanmean(COTRfx(COTRfx<QTR(1)));
-ctrl_tr_hi_mu  = nanmean(COTRfx(COTRfx>QTR(2)));
-ctrl_tr_lo_pop = nanmean(COTRfx(COTRfx<QTR(1)));
-ctrl_tr_hi_pop = nanmean(COTRfx(COTRfx>QTR(2)));
-ctrl_ho_lo_mu  = nanmean(COHOfx(COHOfx<QTR(1)));
-ctrl_ho_hi_mu  = nanmean(COHOfx(COHOfx>QTR(2)));
-ctrl_ho_lo_pop = nanmean(COHOfx(COHOfx<QTR(1)));
-ctrl_ho_hi_pop = nanmean(COHOfx(COHOfx>QTR(2)));
-
-
-
-
-
-
-
-
-
-
-
-
-
-% [TRAINED] HIGH CONFIDENCE PREDICTIONS
-QTR    = quantile(TRfx,[.2 .8]);
-TRlo   = HOfx<QHO(1);
-TRhi   = HOfx>QHO(2);
-TRhilo = TRlo | TRhi;
-TRloN  = TRy(TRlo) == TL(TRlo);
-TRhiN  = TRy(TRhi) == TL(TRhi);
-TRloMu  = nanmean(TRloN);
-TRhiMu  = nanmean(TRhiN);
-TRloPop = nanmean(TRlo);
-TRhiPop = nanmean(TRhi);
-
-
-% [HOLDOUT] HIGH CONFIDENCE PREDICTIONS
-QHO = quantile(HOfx,[.2 .8]);
-HOlo = HOfx<QHO(1);
-HOhi = HOfx>QHO(2);
-HOhilo = HOlo | HOhi;
-HOloN  = HOy(HOlo) == TL(HOlo);
-HOhiN  = HOy(HOhi) == TL(HOhi);
-HOloMu  = nanmean(HOloN);
-HOhiMu  = nanmean(HOhiN);
-HOloPop = nanmean(HOlo);
-HOhiPop = nanmean(HOhi);
-
-
-
-
-% CTRLS
-%----------------------------------------
-CATRMEAN(vi) = case_tr_mu;
-CATRLOMU(vi) = case_tr_lo_mu;
-CATRHIMU(vi) = case_tr_hi_mu;
-CATRLOPO(vi) = case_tr_lo_pop;
-CATRHIPO(vi) = case_tr_hi_pop;
-
-CAHOMEAN(vi) = case_ho_mu;
-CAHOLOMU(vi) = case_ho_lo_mu;
-CAHOHIMU(vi) = case_ho_hi_mu;
-CAHOLOPO(vi) = case_ho_lo_pop;
-CAHOHIPO(vi) = case_ho_hi_pop;
-
-
-% CTRLS
-%----------------------------------------
-COTRMEAN(vi) = ctrl_tr_mu;
-COTRLOMU(vi) = ctrl_tr_lo_mu;
-COTRHIMU(vi) = ctrl_tr_lo_mu;
-COTRLOPO(vi) = ctrl_tr_lo_mu;
-COTRHIPO(vi) = ctrl_tr_lo_mu;
-
-COHOMEAN(vi) = ctrl_ho_mu;
-COHOLOMU(vi) = ctrl_ho_lo_mu;
-COHOHIMU(vi) = ctrl_ho_lo_mu;
-COHOLOPO(vi) = ctrl_ho_lo_mu;
-COHOHIPO(vi) = ctrl_ho_lo_mu;
 
 
 
@@ -488,15 +424,27 @@ clc;
 disp('%=================================================================');
 disp('IJ | vi | min(SNPi) | max(SNPi) | numel(BETA):'); 
 disp([IJ vi min(SNPi) max(SNPi) numel(BETA)]);
-disp('----------  TRAINING SET  ----------')
-fprintf('TRAIN correct %0.0f%% overall(pop:100%%)\n' ,(TRmu .* 100))
-fprintf('TRAIN correct %0.0f%% locon  (pop: %0.0f%%)\n\n',TRloMu.*100,TRloPop.*100)
-fprintf('TRAIN correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',TRhiMu.*100,TRhiPop.*100)
 
-disp('----------  TESTING SET  ----------')
-fprintf('TEST correct %0.0f%% overall(pop:100%%)\n' ,(HOmu .* 100))
-fprintf('TEST correct %0.0f%% locon  (pop: %0.0f%%)\n\n',HOloMu.*100,HOloPop.*100)
-fprintf('TEST correct %0.0f%% hicon  (pop: %0.0f%%)\n\n',HOhiMu.*100,HOhiPop.*100)
+
+disp(' ');disp(' '); disp('TRAINING'); disp('---------------------------');
+fprintf('OVERALL PERFORMANCE... \n  CASE: %0.0f%% \n  CTRL: %0.0f%% \n\n' ,...
+    MU_TR_CASE.*100, MU_TR_CTRL.*100)
+
+fprintf(['HIGH-ACT PERFORMANCE... \n'...
+         '  CASE: %0.0f%% (pop: %0.0f%%) \n  CTRL: %0.0f%% (pop: %0.0f%%)\n\n'],...
+    HIMU_TR_CASE.*100,HIPO_TR_CASE.*100,HIMU_TR_CTRL.*100,HIPO_TR_CTRL.*100)
+
+
+disp(' ');disp(' '); disp('HOLDOUT'); disp('---------------------------');
+fprintf('OVERALL PERFORMANCE... \n  CASE: %0.0f%% \n  CTRL: %0.0f%% \n\n' ,...
+    MU_TR_CASE.*100, MU_TR_CTRL.*100)
+
+fprintf(['HIGH-ACT PERFORMANCE... \n'...
+         '  CASE: %0.0f%% (pop: %0.0f%%) \n  CTRL: %0.0f%% (pop: %0.0f%%)\n\n'],...
+    HIMU_TR_CASE.*100,HIPO_TR_CASE.*100,HIMU_TR_CTRL.*100,HIPO_TR_CTRL.*100)
+
+
+disp(' ');
 disp('%=================================================================');
 
 
@@ -507,30 +455,22 @@ end
 % CASES
 %----------------------------------------
 CATRMEAN(isnan(CATRMEAN)) = nanmean(CATRMEAN);
-CATRLOMU(isnan(CATRLOMU)) = nanmean(CATRLOMU);
 CATRHIMU(isnan(CATRHIMU)) = nanmean(CATRHIMU);
-CATRLOPO(isnan(CATRLOPO)) = nanmean(CATRLOPO);
 CATRHIPO(isnan(CATRHIPO)) = nanmean(CATRHIPO);
 
 CAHOMEAN(isnan(CAHOMEAN)) = nanmean(CAHOMEAN);
-CAHOLOMU(isnan(CAHOLOMU)) = nanmean(CAHOLOMU);
 CAHOHIMU(isnan(CAHOHIMU)) = nanmean(CAHOHIMU);
-CAHOLOPO(isnan(CAHOLOPO)) = nanmean(CAHOLOPO);
 CAHOHIPO(isnan(CAHOHIPO)) = nanmean(CAHOHIPO);
 
 
 % CTRLS
 %----------------------------------------
 COTRMEAN(isnan(COTRMEAN)) = nanmean(COTRMEAN);
-COTRLOMU(isnan(COTRLOMU)) = nanmean(COTRLOMU);
 COTRHIMU(isnan(COTRHIMU)) = nanmean(COTRHIMU);
-COTRLOPO(isnan(COTRLOPO)) = nanmean(COTRLOPO);
 COTRHIPO(isnan(COTRHIPO)) = nanmean(COTRHIPO);
 
 COHOMEAN(isnan(COHOMEAN)) = nanmean(COHOMEAN);
-COHOLOMU(isnan(COHOLOMU)) = nanmean(COHOLOMU);
 COHOHIMU(isnan(COHOHIMU)) = nanmean(COHOHIMU);
-COHOLOPO(isnan(COHOLOPO)) = nanmean(COHOLOPO);
 COHOHIPO(isnan(COHOHIPO)) = nanmean(COHOHIPO);
 
 
@@ -542,30 +482,22 @@ COHOHIPO(isnan(COHOHIPO)) = nanmean(COHOHIPO);
 % CASES
 %----------------------------------------
 LOOPDATA.CATRMEAN(1:P.Ndots,IJ) = CATRMEAN;
-LOOPDATA.CATRLOMU(1:P.Ndots,IJ) = CATRLOMU;
 LOOPDATA.CATRHIMU(1:P.Ndots,IJ) = CATRHIMU;
-LOOPDATA.CATRLOPO(1:P.Ndots,IJ) = CATRLOPO;
 LOOPDATA.CATRHIPO(1:P.Ndots,IJ) = CATRHIPO;
 
 LOOPDATA.CAHOMEAN(1:P.Ndots,IJ) = CAHOMEAN;
-LOOPDATA.CAHOLOMU(1:P.Ndots,IJ) = CAHOLOMU;
 LOOPDATA.CAHOHIMU(1:P.Ndots,IJ) = CAHOHIMU;
-LOOPDATA.CAHOLOPO(1:P.Ndots,IJ) = CAHOLOPO;
 LOOPDATA.CAHOHIPO(1:P.Ndots,IJ) = CAHOHIPO;
 
 
 % CTRLS
 %----------------------------------------
 LOOPDATA.COTRMEAN(1:P.Ndots,IJ) = COTRMEAN;
-LOOPDATA.COTRLOMU(1:P.Ndots,IJ) = COTRLOMU;
 LOOPDATA.COTRHIMU(1:P.Ndots,IJ) = COTRHIMU;
-LOOPDATA.COTRLOPO(1:P.Ndots,IJ) = COTRLOPO;
 LOOPDATA.COTRHIPO(1:P.Ndots,IJ) = COTRHIPO;
 
 LOOPDATA.COHOMEAN(1:P.Ndots,IJ) = COHOMEAN;
-LOOPDATA.COHOLOMU(1:P.Ndots,IJ) = COHOLOMU;
 LOOPDATA.COHOHIMU(1:P.Ndots,IJ) = COHOHIMU;
-LOOPDATA.COHOLOPO(1:P.Ndots,IJ) = COHOLOPO;
 LOOPDATA.COHOHIPO(1:P.Ndots,IJ) = COHOHIPO;
 
 

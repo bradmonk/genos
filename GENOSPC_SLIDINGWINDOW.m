@@ -95,39 +95,39 @@ gpath = [p1 pathsep p2 pathsep p3 pathsep p4];
 addpath(gpath)
 
 
-which('GENOSDATA.mat')
+
 ADSP = load('GENOSDATA.mat');
 
 disp('dataset loaded')
-clearvars -except FILES MATDAT IJ ADSP
+clearvars -except P ADSP
+
+
+%% SET RUN OPTIONS & PATHS FOR DATA IMPORT/EXPORT
+
+P.Nloops = 25;
+P.Nvars = 500;
+P.windowSize = 50;
+P.Lo2Hi = 1>0;
+
+P.mainmatfile = which('GENOSDATA.mat');
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS\APOE_22_23_24_34_44';
+P.importdir = [P.basedir '\APOE_22_23_24_34_44_FISHP_V2'];
+dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
+P.savepathfile = [P.basedir '\SLIDEWIN50V_' dt '.mat'];
 
 
 
-%==========================================================================
-%% STEP-1: LOAD THE DATASET
-%==========================================================================
-%{
-close all; clear; clc; rng('shuffle');
-genosdir = fileparts(which('GENOS.m'));
-matlabdir = fileparts(which('MATLABS.m'));
-cd(genosdir);
+P.FILES.w = what(P.importdir);
+P.Nmatfiles = numel(P.FILES.w.mat);
+
+disp(P.FILES.w.mat);
+disp(P.Nmatfiles)
 
 
-subfuncpath = [genosdir filesep 'genosfunctions'];
-datasetpath = [matlabdir filesep 'genosdata'];
-gpath = [genosdir pathsep subfuncpath pathsep datasetpath];
-addpath(gpath)
+disp('ABORTING: NOT ENOUGH MAT FILES TO RUN THAT MANY LOOPS');
+if P.Nloops > P.Nmatfiles; return; end
 
-
-which('GENOSDATA.mat')
-ADSP = load('GENOSDATA.mat');
-
-
-
-disp('dataset loaded')
-clearvars -except FILES MATDAT IJ ADSP
-
-%}
+clearvars -except P ADSP
 
 
 %==========================================================================
@@ -148,7 +148,7 @@ USNP = ADSP.USNP;
 PHEN = ADSP.PHEN;
 
 
-clc; clearvars -except FILES MATDAT IJ ADSP PHEN LOCI CASE CTRL USNP
+clc; clearvars -except P ADSP PHEN LOCI CASE CTRL USNP
 head(PHEN)
 head(LOCI)
 
@@ -164,34 +164,24 @@ head(LOCI)
 %==========================================================================
 %==========================================================================
 %==========================================================================
-clearvars -except FILES MATDAT IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
+clearvars -except P ADSP PHEN LOCI CASE CTRL USNP
 
-
-% MATDIR = 'F:\ML\genosdat\APOE3x\APOE33_SUBSAM50_FISHP';
-MATDIR = 'F:\ML\genosdat\APOE3x\APOE33e34_SUBSAM50_FISHP';
-% MATDIR = 'F:\ML\genosdat\APOE2x4x\APOE2x4x_SUBSAM50_FISHP';
-% MATDIR = 'F:\ML\genosdat\APOE2x3x4x\APOE2x3x4x_SUBSAM50_FISHP';
-FILES.w = what(MATDIR);
-FILES.w.mat
-
-
-
-LOOPDATA.HILO_TRMEAN = zeros(200,10);
-LOOPDATA.HILO_TRHIMU = zeros(200,10);
-LOOPDATA.HILO_TRPOPU = zeros(200,10);
-LOOPDATA.HILO_HOMEAN = zeros(200,10);
-LOOPDATA.HILO_HOHIMU = zeros(200,10);
-LOOPDATA.HILO_HOPOPU = zeros(200,10);
+LOOPDATA.HILO_TRMEAN = zeros(P.maxNvars,10);
+LOOPDATA.HILO_TRHIMU = zeros(P.maxNvars,10);
+LOOPDATA.HILO_TRPOPU = zeros(P.maxNvars,10);
+LOOPDATA.HILO_HOMEAN = zeros(P.maxNvars,10);
+LOOPDATA.HILO_HOHIMU = zeros(P.maxNvars,10);
+LOOPDATA.HILO_HOPOPU = zeros(P.maxNvars,10);
 
 %==========================================================================
 %% RUN MAIN LOOP
 %==========================================================================
-for IJ = 1:50
-clearvars -except LOOPDATA FILES MATDAT ADSP LOCI PHEN CASE CTRL USNP IJ
+for IJ = 1:P.Nloops
+clearvars -except P ADSP PHEN LOCI CASE CTRL USNP LOOPDATA IJ
 
 
 
-MATDAT = load([FILES.w.path filesep FILES.w.mat{IJ}]);
+MATDAT = load([P.FILES.w.path filesep P.FILES.w.mat{IJ}]);
 
 
 
@@ -234,12 +224,18 @@ hiloHOPOPU = zeros(200,1);
 
 
 %==========================================================================
-for vi = 1:170
+for vi = 1:(P.Nvars-P.windowSize+1)
 
-% REMOVE VARS FROM HIGH-TO-LOW P-VALUE
 
-SNPi = (172:201)-vi;
-HI2LOW = 1;
+if P.Lo2Hi
+    SNPi = vi:(vi+P.windowSize-1);
+else
+    SNPi = (P.Nvars-P.windowSize+2-vi):(P.Nvars+1-vi);
+end
+
+
+
+
 
 
 % EXTRACT TOP-N NUMBER OF VARIANTS
@@ -287,8 +283,9 @@ VTEX = mlmx_mex(XCASE,XCTRL,XUSNP,...
 
 % THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end 
 % THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end 
-TXX = VTRX(:,7:end);
-HXX = VTEX(:,7:end);
+
+TXX = VTRX(:,10:end);
+HXX = VTEX(:,10:end);
 TX = [ones(size(TXX,1),1) TXX]; % ADD AN INTERCEPT COLUMN
 HX = [ones(size(HXX,1),1) HXX]; % ADD AN INTERCEPT COLUMN
 
@@ -326,14 +323,14 @@ HOmu = nanmean(HOy == HL);
 
 
 % [TRAINED] HIGH CONFIDENCE PREDICTIONS
-TRhi = (TRfx>.8) | (TRfx<.2);
+TRhi = (rescale(TRfx)>.8) | (rescale(TRfx)<.2);
 TRhiN  = TRy(TRhi) == TL(TRhi);
 TRhiMu = nanmean(TRhiN);
 TRhiPop = nanmean(TRhi);
 
 
 % [HOLDOUT] HIGH CONFIDENCE PREDICTIONS
-HOhi = (HOfx>.8) | (HOfx<.2);
+HOhi = (rescale(HOfx)>.8) | (rescale(HOfx)<.2);
 HOhiN  = HOy(HOhi) == HL(HOhi);
 HOhiMu = nanmean(HOhiN);
 HOhiPop = nanmean(HOhi);
@@ -389,10 +386,11 @@ LOOPDATA.HILO_HOPOPU(1:200,IJ) = hiloHOPOPU;
 end
 %% SAVE LOOP DATA
 
+
 %------------------------------------------%
 pause(1)
-dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-save(['F:\ML\genosdat\APOE33e34_P01P50_SLIDEWIN.mat'],'LOOPDATA','FILES');
+% dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
+save(ADSP.savepathfile,'LOOPDATA','P');
 disp('File Saved.')
 pause(1)
 %------------------------------------------%

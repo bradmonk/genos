@@ -103,19 +103,21 @@ clearvars -except P ADSP
 
 
 %% SET RUN OPTIONS & PATHS FOR DATA IMPORT/EXPORT
+clc; clearvars -except P ADSP
+
 
 P.Nloops = 25;
 P.Nvars = 500;
 P.windowSize = 50;
+P.Ndots = P.Nvars-P.windowSize+1;
 P.Lo2Hi = 1>0;
+
 
 P.mainmatfile = which('GENOSDATA.mat');
 P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS\APOE_22_23_24_34_44';
 P.importdir = [P.basedir '\APOE_22_23_24_34_44_FISHP_V2'];
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
 P.savepathfile = [P.basedir '\SLIDEWIN50V_' dt '.mat'];
-
-
 
 P.FILES.w = what(P.importdir);
 P.Nmatfiles = numel(P.FILES.w.mat);
@@ -124,8 +126,11 @@ disp(P.FILES.w.mat);
 disp(P.Nmatfiles)
 
 
+
+if P.Nloops > P.Nmatfiles
 disp('ABORTING: NOT ENOUGH MAT FILES TO RUN THAT MANY LOOPS');
-if P.Nloops > P.Nmatfiles; return; end
+return; 
+end
 
 clearvars -except P ADSP
 
@@ -166,12 +171,12 @@ head(LOCI)
 %==========================================================================
 clearvars -except P ADSP PHEN LOCI CASE CTRL USNP
 
-LOOPDATA.HILO_TRMEAN = zeros(P.maxNvars,10);
-LOOPDATA.HILO_TRHIMU = zeros(P.maxNvars,10);
-LOOPDATA.HILO_TRPOPU = zeros(P.maxNvars,10);
-LOOPDATA.HILO_HOMEAN = zeros(P.maxNvars,10);
-LOOPDATA.HILO_HOHIMU = zeros(P.maxNvars,10);
-LOOPDATA.HILO_HOPOPU = zeros(P.maxNvars,10);
+LOOPDATA.HILO_TRMEAN = zeros(P.Ndots,P.Nloops);
+LOOPDATA.HILO_TRHIMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.HILO_TRPOPU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.HILO_HOMEAN = zeros(P.Ndots,P.Nloops);
+LOOPDATA.HILO_HOHIMU = zeros(P.Ndots,P.Nloops);
+LOOPDATA.HILO_HOPOPU = zeros(P.Ndots,P.Nloops);
 
 %==========================================================================
 %% RUN MAIN LOOP
@@ -215,16 +220,16 @@ VUSNP  = VUSNP(j);
 %==========================================================================
 %%                               HILO
 %==========================================================================
-hiloTRMEAN = zeros(200,1);
-hiloTRHIMU = zeros(200,1);
-hiloTRPOPU = zeros(200,1);
-hiloHOMEAN = zeros(200,1);
-hiloHOHIMU = zeros(200,1);
-hiloHOPOPU = zeros(200,1);
+hiloTRMEAN = zeros(P.Ndots,1);
+hiloTRHIMU = zeros(P.Ndots,1);
+hiloTRPOPU = zeros(P.Ndots,1);
+hiloHOMEAN = zeros(P.Ndots,1);
+hiloHOHIMU = zeros(P.Ndots,1);
+hiloHOPOPU = zeros(P.Ndots,1);
 
 
 %==========================================================================
-for vi = 1:(P.Nvars-P.windowSize+1)
+for vi = 1:P.Ndots
 
 
 if P.Lo2Hi
@@ -267,22 +272,19 @@ TEPHE  = TEPHE(k,:);            % Scramble Phenotype table
 
 
 % MAKE THE NEURAL NET TRAINING & TESTING MATRICES
-VTRX = mlmx_mex(XCASE,XCTRL,XUSNP,...
-    TRPHE.SRR,TRPHE.AD,TRPHE.COHORTNUM,TRPHE.AGE,TRPHE.APOE,TRPHE.BRAAK);
+% VTRX = mlmx_mex(XCASE,XCTRL,XUSNP,...
+%     TRPHE.SRR,TRPHE.AD,TRPHE.COHORTNUM,TRPHE.AGE,TRPHE.APOE,TRPHE.BRAAK);
+% 
+% VTEX = mlmx_mex(XCASE,XCTRL,XUSNP,...
+%     TEPHE.SRR,TEPHE.AD,TEPHE.COHORTNUM,TEPHE.AGE,TEPHE.APOE,TEPHE.BRAAK);
 
-VTEX = mlmx_mex(XCASE,XCTRL,XUSNP,...
-    TEPHE.SRR,TEPHE.AD,TEPHE.COHORTNUM,TEPHE.AGE,TEPHE.APOE,TEPHE.BRAAK);
+[VTRX, ~, ~] = mkmx(XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
+[VTEX, ~, ~] = mkmx(XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
 
-
-% [VTRX, TRX, TRL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TRPHE,[-1 -0 1 3]);
-% [VTEX, TEX, TEL] = makeomicsnet(VLOCI,VCASE,VCTRL,VUSNP,TEPHE,[-1 -0 1 3]);
 
 %==========================================================================
 %                  LOGISTIC REGRESSION 
 %==========================================================================
-
-% THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end 
-% THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end  THIS MUST CHANGE TO 10:end 
 
 TXX = VTRX(:,10:end);
 HXX = VTEX(:,10:end);
@@ -375,12 +377,12 @@ hiloHOPOPU(isnan(hiloHOPOPU)) = nanmean(hiloHOPOPU);
 %%                               HILO-LOHI SAVER
 %==========================================================================
 
-LOOPDATA.HILO_TRMEAN(1:200,IJ) = hiloTRMEAN;
-LOOPDATA.HILO_TRHIMU(1:200,IJ) = hiloTRHIMU;
-LOOPDATA.HILO_TRPOPU(1:200,IJ) = hiloTRPOPU;
-LOOPDATA.HILO_HOMEAN(1:200,IJ) = hiloHOMEAN;
-LOOPDATA.HILO_HOHIMU(1:200,IJ) = hiloHOHIMU;
-LOOPDATA.HILO_HOPOPU(1:200,IJ) = hiloHOPOPU;
+LOOPDATA.HILO_TRMEAN(1:P.Ndots,IJ) = hiloTRMEAN;
+LOOPDATA.HILO_TRHIMU(1:P.Ndots,IJ) = hiloTRHIMU;
+LOOPDATA.HILO_TRPOPU(1:P.Ndots,IJ) = hiloTRPOPU;
+LOOPDATA.HILO_HOMEAN(1:P.Ndots,IJ) = hiloHOMEAN;
+LOOPDATA.HILO_HOHIMU(1:P.Ndots,IJ) = hiloHOHIMU;
+LOOPDATA.HILO_HOPOPU(1:P.Ndots,IJ) = hiloHOPOPU;
 
 
 end

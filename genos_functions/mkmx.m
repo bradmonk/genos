@@ -1,4 +1,4 @@
-function [PVMX, VX, LX] = mkmx(LO,CA,CO,UC,PHE)
+function [PVMX, VX, LX] = mkmx(LO,CA,CO,UC,PHE,varargin)
 
 
 SRR = PHE.SRR;
@@ -27,11 +27,25 @@ for nn = 1:size(CA,1)
 end
 
 
-% keyboard
+vMX = vMX + 20;   % UNCALL:19  HOMREF:20  HETALT:21  HOMALT:22
 
-vMX = vMX + 1;     % UNCALL:0  HOMREF:1  HETALT:2  HOMALT:3
-vMX(vMX==1) = -1;  % UNCALL:0  HOMREF:-1  HETALT:2  HOMALT:3
-vMX(vMX==3) =  5;  % UNCALL:0  HOMREF:-1  HETALT:2  HOMALT:5
+
+
+if nargin == 6
+    v = varargin{1};
+    vMX(vMX==19) = v(2);  % UNCALL
+    vMX(vMX==20) = v(1);  % REF/REF
+    vMX(vMX==21) = v(3);  % REF/ALT
+    vMX(vMX==22) = v(4);  % ALT/ALT
+else % DEFAULT
+    vMX(vMX==19) =  0;    % UNCALL
+    vMX(vMX==20) = -1;    % REF/REF
+    vMX(vMX==21) =  2;    % REF/ALT
+    vMX(vMX==22) =  3;    % ALT/ALT
+end
+
+
+
 
 PVMX = [zeros(size(vMX,1),9) vMX];
 PVMX(: , 1)  =  PHE.SRR;        % COL1: ID

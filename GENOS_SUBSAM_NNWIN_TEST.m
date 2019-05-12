@@ -109,19 +109,27 @@ clc; clearvars -except P ADSP INFO
 
 
 P.Nloops = 25;
-P.Nvars = 500;
-P.windowSize = 50;
+P.Nvars = 200;
+P.windowSize = 20;
 P.Ndots = P.Nvars-P.windowSize+1;
 P.Lo2Hi = 1>0; %YES
 
 
-P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
-P.importdir = [P.basedir '/APOE_22_23_24_33_34_44/APOE_22_23_24_33_34_44_FISHP_V4'];
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+P.importdir = [P.basedir '\APOE_22_23_24_34_44\APOE_22_23_24_34_44_FISHP_V3'];
+P.APOES = '22_23_24_34_44';
+INFO.APOE = [22 23 33 34 44];
+
 % P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
 % P.importdir = [P.basedir '\APOE_22_23_24_33_34_44\APOE_22_23_24_33_34_44_FISHP_V4'];
-P.APOES = '22_23_24_33_34_44';
-INFO.APOE = [22 23 24 33 34 44];
+% P.APOES = '22_23_24_33_34_44';
+% INFO.APOE = [22 23 24 33 34 44];
 
+
+% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+% P.importdir = [P.basedir '\APOE_33\APOE_33_FISHP_V4'];
+% P.APOES = '33';
+% INFO.APOE = [33];
 
 clearvars -except P ADSP INFO
 
@@ -438,8 +446,8 @@ for vi = 1:P.Ndots
     TR_MX = PVTR(:,10:end);
     HO_MX = PVHO(:,10:end);
 
-    TR_DL = dummyvar(categorical(PVTR(:,2)==1)==0);
-    HO_DL = dummyvar(categorical(PVHO(:,2)==1)==0);
+    TR_DL = dummyvar(categorical((PVTR(:,2)==1)==0));
+    HO_DL = dummyvar(categorical((PVHO(:,2)==1)==0));
     TR_VL = TR_DL(:,1);
     HO_VL = HO_DL(:,1);
 
@@ -697,47 +705,47 @@ end
 
 % CASES NEURAL NETS
 %----------------------------------------
-STAT.CATRMEAN(isnan(CATRMEAN)) = nanmean(CATRMEAN);
-STAT.CATRHIMU(isnan(CATRHIMU)) = nanmean(CATRHIMU);
-STAT.CATRHIPO(isnan(CATRHIPO)) = nanmean(CATRHIPO);
+STAT.CATRMEAN(isnan(STAT.CATRMEAN)) = nanmean(STAT.CATRMEAN);
+STAT.CATRHIMU(isnan(STAT.CATRHIMU)) = nanmean(STAT.CATRHIMU);
+STAT.CATRHIPO(isnan(STAT.CATRHIPO)) = nanmean(STAT.CATRHIPO);
 
-STAT.CAHOMEAN(isnan(CAHOMEAN)) = nanmean(CAHOMEAN);
-STAT.CAHOHIMU(isnan(CAHOHIMU)) = nanmean(CAHOHIMU);
-STAT.CAHOHIPO(isnan(CAHOHIPO)) = nanmean(CAHOHIPO);
+STAT.CAHOMEAN(isnan(STAT.CAHOMEAN)) = nanmean(STAT.CAHOMEAN);
+STAT.CAHOHIMU(isnan(STAT.CAHOHIMU)) = nanmean(STAT.CAHOHIMU);
+STAT.CAHOHIPO(isnan(STAT.CAHOHIPO)) = nanmean(STAT.CAHOHIPO);
 
 
 % CTRLS NEURAL NETS
 %----------------------------------------
-STAT.COTRMEAN(isnan(COTRMEAN)) = nanmean(COTRMEAN);
-STAT.COTRHIMU(isnan(COTRHIMU)) = nanmean(COTRHIMU);
-STAT.COTRHIPO(isnan(COTRHIPO)) = nanmean(COTRHIPO);
+STAT.COTRMEAN(isnan(STAT.COTRMEAN)) = nanmean(STAT.COTRMEAN);
+STAT.COTRHIMU(isnan(STAT.COTRHIMU)) = nanmean(STAT.COTRHIMU);
+STAT.COTRHIPO(isnan(STAT.COTRHIPO)) = nanmean(STAT.COTRHIPO);
 
-STAT.COHOMEAN(isnan(COHOMEAN)) = nanmean(COHOMEAN);
-STAT.COHOHIMU(isnan(COHOHIMU)) = nanmean(COHOHIMU);
-STAT.COHOHIPO(isnan(COHOHIPO)) = nanmean(COHOHIPO);
+STAT.COHOMEAN(isnan(STAT.COHOMEAN)) = nanmean(STAT.COHOMEAN);
+STAT.COHOHIMU(isnan(STAT.COHOHIMU)) = nanmean(STAT.COHOHIMU);
+STAT.COHOHIPO(isnan(STAT.COHOHIPO)) = nanmean(STAT.COHOHIPO);
 
 
 
 % CASES LOGISTIC REGRESSION
 %----------------------------------------
-STAT.CATRMEAN_LR(isnan(CATRMEAN_LR)) = nanmean(CATRMEAN_LR);
-STAT.CATRHIMU_LR(isnan(CATRHIMU_LR)) = nanmean(CATRHIMU_LR);
-STAT.CATRHIPO_LR(isnan(CATRHIPO_LR)) = nanmean(CATRHIPO_LR);
+STAT.CATRMEAN_LR(isnan(STAT.CATRMEAN_LR)) = nanmean(STAT.CATRMEAN_LR);
+STAT.CATRHIMU_LR(isnan(STAT.CATRHIMU_LR)) = nanmean(STAT.CATRHIMU_LR);
+STAT.CATRHIPO_LR(isnan(STAT.CATRHIPO_LR)) = nanmean(STAT.CATRHIPO_LR);
 
-STAT.CAHOMEAN_LR(isnan(CAHOMEAN_LR)) = nanmean(CAHOMEAN_LR);
-STAT.CAHOHIMU_LR(isnan(CAHOHIMU_LR)) = nanmean(CAHOHIMU_LR);
-STAT.CAHOHIPO_LR(isnan(CAHOHIPO_LR)) = nanmean(CAHOHIPO_LR);
+STAT.CAHOMEAN_LR(isnan(STAT.CAHOMEAN_LR)) = nanmean(STAT.CAHOMEAN_LR);
+STAT.CAHOHIMU_LR(isnan(STAT.CAHOHIMU_LR)) = nanmean(STAT.CAHOHIMU_LR);
+STAT.CAHOHIPO_LR(isnan(STAT.CAHOHIPO_LR)) = nanmean(STAT.CAHOHIPO_LR);
 
 
 % CTRLS LOGISTIC REGRESSION
 %----------------------------------------
-STAT.COTRMEAN_LR(isnan(COTRMEAN_LR)) = nanmean(COTRMEAN_LR);
-STAT.COTRHIMU_LR(isnan(COTRHIMU_LR)) = nanmean(COTRHIMU_LR);
-STAT.COTRHIPO_LR(isnan(COTRHIPO_LR)) = nanmean(COTRHIPO_LR);
+STAT.COTRMEAN_LR(isnan(STAT.COTRMEAN_LR)) = nanmean(STAT.COTRMEAN_LR);
+STAT.COTRHIMU_LR(isnan(STAT.COTRHIMU_LR)) = nanmean(STAT.COTRHIMU_LR);
+STAT.COTRHIPO_LR(isnan(STAT.COTRHIPO_LR)) = nanmean(STAT.COTRHIPO_LR);
 
-STAT.COHOMEAN_LR(isnan(COHOMEAN_LR)) = nanmean(COHOMEAN_LR);
-STAT.COHOHIMU_LR(isnan(COHOHIMU_LR)) = nanmean(COHOHIMU_LR);
-STAT.COHOHIPO_LR(isnan(COHOHIPO_LR)) = nanmean(COHOHIPO_LR);
+STAT.COHOMEAN_LR(isnan(STAT.COHOMEAN_LR)) = nanmean(STAT.COHOMEAN_LR);
+STAT.COHOHIMU_LR(isnan(STAT.COHOHIMU_LR)) = nanmean(STAT.COHOHIMU_LR);
+STAT.COHOHIPO_LR(isnan(STAT.COHOHIPO_LR)) = nanmean(STAT.COHOHIPO_LR);
 
 
 %==========================================================================
@@ -748,10 +756,10 @@ STAT.COHOHIPO_LR(isnan(COHOHIPO_LR)) = nanmean(COHOHIPO_LR);
 
 % NEURAL NETWORKS CONFUSION STATS
 %----------------------------------------
-LOOPDATA.TR_ALL_STATS(1:P.Ndots,9,IJ) = STAT.TR_ALL_STATS;
-LOOPDATA.HO_ALL_STATS(1:P.Ndots,9,IJ) = STAT.HO_ALL_STATS;
-LOOPDATA.TR_TOP_STATS(1:P.Ndots,9,IJ) = STAT.TR_TOP_STATS;
-LOOPDATA.HO_TOP_STATS(1:P.Ndots,9,IJ) = STAT.HO_TOP_STATS;
+LOOPDATA.TR_ALL_STATS(1:P.Ndots,1:9,IJ) = STAT.TR_ALL_STATS;
+LOOPDATA.HO_ALL_STATS(1:P.Ndots,1:9,IJ) = STAT.HO_ALL_STATS;
+LOOPDATA.TR_TOP_STATS(1:P.Ndots,1:9,IJ) = STAT.TR_TOP_STATS;
+LOOPDATA.HO_TOP_STATS(1:P.Ndots,1:9,IJ) = STAT.HO_TOP_STATS;
 
 
 

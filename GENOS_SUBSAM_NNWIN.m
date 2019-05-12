@@ -118,8 +118,8 @@ P.Lo2Hi = 1>0; %YES
 
 
 
-P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
-P.importdir = [P.basedir '/APOE_22_23_24_33_34_44/APOE_22_23_24_33_34_44_FISHP_V4'];
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+P.importdir = [P.basedir '\APOE_22_23_24_33_34_44\APOE_22_23_24_33_34_44_FISHP_V4'];
 P.APOES = '22_23_24_33_34_44';
 INFO.APOE = [22 23 24 33 34 44];
 
@@ -366,12 +366,6 @@ for vi = 1:P.Ndots
     end
 
 
-
-
-
-%%
-clc;
-
     % EXTRACT TOP-N NUMBER OF VARIANTS
     XLOCI  = VLOCI(SNPi,:);
     XCASE  = VCASE(SNPi);
@@ -385,7 +379,6 @@ clc;
 
     TRPHE = [VTRCASE; VTRCTRL];
     TEPHE = [VTECASE; VTECTRL];
-
 
 
     % SCRAMBLE TRAINING PHENOTYPE ORDER
@@ -403,9 +396,6 @@ clc;
     [PVTR, ~, ~] = mkmxwin(XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
     [PVHO, ~, ~] = mkmxwin(XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
     %==========================================================================
-
-
-
 
 
     % PVMX(: , 1)  =  PHE.SRR;        % COL1: ID
@@ -432,7 +422,7 @@ clc;
     HL = dummyvar(categorical(PVHO(:,2)==1))';
 
 
-    NN = patternnet([200 100 50]);
+    NN = patternnet([100 50]);
     NN.trainFcn = 'traingdx';
     NN.trainParam.max_fail = 50;
 
@@ -447,24 +437,23 @@ clc;
     %=====================================================
     %      NEURAL NETWORK MODEL PERFORMANCE
     %=====================================================
-    %==========================================================================
 
     % GET TRAINED NEURAL NETWORK ACTIVATIONS
     TR_ACT = net(TX) - .5;
     HO_ACT = net(HX) - .5;
 
     % CONVERT ACTIVATION MATRIX TO ARRAY
-    TR_ACT = TR_ACT(1,:); close all; histogram(TR_ACT)
-    HO_ACT = HO_ACT(1,:); close all; histogram(HO_ACT)
+    TR_ACT = TR_ACT(1,:); close all;
+    HO_ACT = HO_ACT(1,:); close all;
     TL     = TL(1,:);
     HL     = HL(1,:);
 
 
     % ALL: SPLIT PREDICTIONS FOR CASES AND CONTROLS
-    ACT_TR_CASE = TR_ACT(TL==1) .*  1;  subplot(2,2,1); histogram(ACT_TR_CASE)
-    ACT_TR_CTRL = TR_ACT(TL==0) .* -1;  subplot(2,2,2); histogram(ACT_TR_CTRL)
-    ACT_HO_CASE = HO_ACT(HL==1) .*  1;  subplot(2,2,3); histogram(ACT_HO_CASE)
-    ACT_HO_CTRL = HO_ACT(HL==0) .* -1;  subplot(2,2,4); histogram(ACT_HO_CTRL)
+    ACT_TR_CASE = TR_ACT(TL==1) .*  1;
+    ACT_TR_CTRL = TR_ACT(TL==0) .* -1;
+    ACT_HO_CASE = HO_ACT(HL==1) .*  1;
+    ACT_HO_CTRL = HO_ACT(HL==0) .* -1;
 
 
     % ALL: DESCRETIZE PREDICTIONS
@@ -483,10 +472,10 @@ clc;
 
 
     % ALL/HIGH: HAS HIGH ACTIVATION?
-    ISHI_TR_CASE = abs(ACT_TR_CASE) > .30; sum(ISHI_TR_CASE)
-    ISHI_TR_CTRL = abs(ACT_TR_CTRL) > .30; sum(ISHI_TR_CTRL)
-    ISHI_HO_CASE = abs(ACT_HO_CASE) > .30; sum(ISHI_HO_CASE)
-    ISHI_HO_CTRL = abs(ACT_HO_CTRL) > .30; sum(ISHI_HO_CTRL)
+    ISHI_TR_CASE = abs(ACT_TR_CASE) > .30;
+    ISHI_TR_CTRL = abs(ACT_TR_CTRL) > .30;
+    ISHI_HO_CASE = abs(ACT_HO_CASE) > .30;
+    ISHI_HO_CTRL = abs(ACT_HO_CTRL) > .30;
 
 
     % HIGH: PROPORTION CORRECT
@@ -529,32 +518,7 @@ clc;
 
 
 
-    clc;
-    disp('%=================================================================');
-    disp('IJ | vi | min(SNPi) | max(SNPi) | numel(BETA):'); 
-    disp([IJ vi min(SNPi) max(SNPi) numel(SNPi)]);
 
-
-    disp(' ');disp(' '); disp('TRAINING'); disp('---------------------------');
-    fprintf('OVERALL PERFORMANCE... \n  CASE: %0.0f%% \n  CTRL: %0.0f%% \n\n' ,...
-        MU_TR_CASE.*100, MU_TR_CTRL.*100)
-
-    fprintf(['HIGH-ACT PERFORMANCE... \n'...
-             '  CASE: %0.0f%% (pop: %0.0f%%) \n  CTRL: %0.0f%% (pop: %0.0f%%)\n\n'],...
-        HIMU_TR_CASE.*100,HIPO_TR_CASE.*100,HIMU_TR_CTRL.*100,HIPO_TR_CTRL.*100)
-
-
-    disp(' ');disp(' '); disp('HOLDOUT'); disp('---------------------------');
-    fprintf('OVERALL PERFORMANCE... \n  CASE: %0.0f%% \n  CTRL: %0.0f%% \n\n' ,...
-        MU_HO_CASE.*100, MU_HO_CTRL.*100)
-
-    fprintf(['HIGH-ACT PERFORMANCE... \n'...
-             '  CASE: %0.0f%% (pop: %0.0f%%) \n  CTRL: %0.0f%% (pop: %0.0f%%)\n\n'],...
-        HIMU_HO_CASE.*100,HIPO_HO_CASE.*100,HIMU_HO_CTRL.*100,HIPO_HO_CTRL.*100)
-
-
-disp(' ');
-disp('%=================================================================');
 
 
 
@@ -563,11 +527,11 @@ disp('%=================================================================');
     %==========================================================================
 
     TXX_LR = PVTR(:,10:end);
-    HXX_LR = HOTR(:,10:end);
+    HXX_LR = PVHO(:,10:end);
     TX_LR = [ones(size(TXX_LR,1),1) TXX_LR]; % ADD AN INTERCEPT COLUMN
     HX_LR = [ones(size(HXX_LR,1),1) HXX_LR]; % ADD AN INTERCEPT COLUMN
     TL_LR = PVTR(:,2);
-    HL_LR = HOTR(:,2);
+    HL_LR = PVHO(:,2);
 
     % PERFORM THE SO-CALLED MACHINE LEARNING STEP
     BETA = pinv(TX_LR' * TX_LR) * (TX_LR' * TL_LR);
@@ -656,26 +620,29 @@ disp('%=================================================================');
     disp('IJ | vi | min(SNPi) | max(SNPi) | numel(BETA):'); 
     disp([IJ vi min(SNPi) max(SNPi) numel(SNPi)]);
 
-
-    disp(' ');disp(' '); disp('TRAINING'); disp('---------------------------');
-    fprintf('OVERALL PERFORMANCE... \n  CASE: %0.0f%% \n  CTRL: %0.0f%% \n\n' ,...
-        MU_TR_CASE_LR.*100, MU_TR_CTRL_LR.*100)
-
-    fprintf(['HIGH-ACT PERFORMANCE... \n'...
-             '  CASE: %0.0f%% (pop: %0.0f%%) \n  CTRL: %0.0f%% (pop: %0.0f%%)\n\n'],...
+    disp('REGRESSION TRAINING'); disp('---------------------------');
+    fprintf(['  CASE ALL: %0.0f%% \n  CTRL ALL: %0.0f%% \n'...
+             '  CASE TOP: %0.0f%% (pop: %0.0f%%) \n  CTRL TOP: %0.0f%% (pop: %0.0f%%)\n\n'] ,...
+        MU_TR_CASE_LR.*100, MU_TR_CTRL_LR.*100,...
         HIMU_TR_CASE_LR.*100,HIPO_TR_CASE_LR.*100,HIMU_TR_CTRL_LR.*100,HIPO_TR_CTRL_LR.*100)
 
+    disp('REGRESSION HOLDOUT'); disp('---------------------------');
+    fprintf(['  CASE ALL: %0.0f%% \n  CTRL ALL: %0.0f%% \n'...
+             '  CASE TOP: %0.0f%% (pop: %0.0f%%) \n  CTRL TOP: %0.0f%% (pop: %0.0f%%)\n\n'] ,...
+        MU_HO_CASE_LR.*100, MU_HO_CTRL_LR.*100,...
+        HIMU_HO_CASE_LR.*100,HIPO_HO_CASE_LR.*100,HIMU_HO_CTRL_LR.*100,HIPO_HO_CTRL_LR.*100)
 
-    disp(' ');disp(' '); disp('HOLDOUT'); disp('---------------------------');
-    fprintf('OVERALL PERFORMANCE... \n  CASE: %0.0f%% \n  CTRL: %0.0f%% \n\n' ,...
-        MU_TR_CASE_LR.*100, MU_TR_CTRL_LR.*100)
+    disp('NEURAL NET TRAINING'); disp('---------------------------');
+    fprintf(['  CASE ALL: %0.0f%% \n  CTRL ALL: %0.0f%% \n'...
+             '  CASE TOP: %0.0f%% (pop: %0.0f%%) \n  CTRL TOP: %0.0f%% (pop: %0.0f%%)\n\n'] ,...
+        MU_TR_CASE.*100, MU_TR_CTRL.*100,...
+        HIMU_TR_CASE.*100,HIPO_TR_CASE.*100,HIMU_TR_CTRL.*100,HIPO_TR_CTRL.*100)
 
-    fprintf(['HIGH-ACT PERFORMANCE... \n'...
-             '  CASE: %0.0f%% (pop: %0.0f%%) \n  CTRL: %0.0f%% (pop: %0.0f%%)\n\n'],...
-        HIMU_TR_CASE_LR.*100,HIPO_TR_CASE_LR.*100,HIMU_TR_CTRL_LR.*100,HIPO_TR_CTRL_LR.*100)
-
-
-disp(' ');
+    disp('NEURAL NET HOLDOUT'); disp('---------------------------');
+    fprintf(['  CASE ALL: %0.0f%% \n  CTRL ALL: %0.0f%% \n'...
+             '  CASE TOP: %0.0f%% (pop: %0.0f%%) \n  CTRL TOP: %0.0f%% (pop: %0.0f%%)\n'] ,...
+        MU_HO_CASE.*100, MU_HO_CTRL.*100,...
+        HIMU_HO_CASE.*100,HIPO_HO_CASE.*100,HIMU_HO_CTRL.*100,HIPO_HO_CTRL.*100)
 disp('%=================================================================');
 
 

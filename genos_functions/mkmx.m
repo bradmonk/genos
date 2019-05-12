@@ -1,4 +1,4 @@
-function [PVMX, VX, LX] = mkmx(LO,CA,CO,UC,PHE,varargin)
+function [PVMX, VX, LX] = mkmx(CA,CO,UC,PHE,varargin)
 
 
 SRR = PHE.SRR;

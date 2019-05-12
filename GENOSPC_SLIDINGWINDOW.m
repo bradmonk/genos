@@ -84,12 +84,12 @@
 %==========================================================================
 %% STEP-1: LOAD THE DATASET
 %==========================================================================
-close all; clear; clc; rng('shuffle');
+close all; clear; clc; rng('shuffle'); f = filesep;
 P.home = fileparts(which('GENOS.m')); cd(P.home);
-P.P1 = [P.home filesep 'genos_functions'];
-P.P3 = [P.P1 filesep 'genos_main_functions'];
-P.P2 = [P.home filesep 'genosfunctions'];
-P.P4 = [P.home filesep 'genos_other'];
+P.P1 = [P.home f 'genos_functions'];
+P.P3 = [P.P1 f 'genos_main_functions'];
+P.P2 = [P.home f 'genosfunctions'];
+P.P4 = [P.home f 'genos_other'];
 addpath(join(string(struct2cell(P)),pathsep,1))
 cd(P.home)
 
@@ -107,14 +107,14 @@ clc; clearvars -except P ADSP
 
 P.Nloops = 25;
 P.Nvars = 500;
-P.windowSize = 50;
+P.windowSize = 20;
 P.Ndots = P.Nvars-P.windowSize+1;
 P.Lo2Hi = 1>0; %YES
 
 
 P.mainmatfile = which('GENOSDATA.mat');
-P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
-P.importdir = [P.basedir '/APOE_22_23_24_33_34_44/APOE_22_23_24_33_34_44_FISHP_V0'];
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS\';
+P.importdir = [P.basedir 'APOE_33\APOE_33_FISHP_V4'];
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
 P.savepathfile = [P.basedir '\SLIDEWIN_' dt '.mat'];
 
@@ -316,6 +316,9 @@ k      = randperm(NVARS)';      % Get N random ints in range 1:N
 TEPHE  = TEPHE(k,:);            % Scramble Phenotype table
 
 
+
+% [VTRX, ~, ~] = mlmx(XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
+% [VTEX, ~, ~] = mlmx(XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
 
 [VTRX, ~, ~] = mkmxwin(XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
 [VTEX, ~, ~] = mkmxwin(XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);

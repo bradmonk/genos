@@ -90,7 +90,6 @@ datasetpath = [genosdir filesep 'genosdata'];
 gpath = [genosdir pathsep subfuncpath pathsep datasetpath];
 addpath(gpath)
 
-C:\Users\monakhos\Documents\MATLAB\genosdata
 
 which('GENOSDATA.mat')
 ADSP = load('GENOSDATA.mat');
@@ -879,9 +878,9 @@ VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
 %     sum(x)
 % 
 %     VLOCI(x,:) = [];
-%     VCASE(x) = [];
-%     VCTRL(x) = [];
-% 
+%     VCASE(x)   = [];
+%     VCTRL(x)   = [];
+%     VUSNP(x)   = [];
 % end
 % VLOCI.VID  = (1:size(VLOCI,1))';
 
@@ -895,8 +894,9 @@ VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
 %     sum(x)
 % 
 %     VLOCI(x,:) = [];
-%     VCASE(x) = [];
-%     VCTRL(x) = [];
+%     VCASE(x)   = [];
+%     VCTRL(x)   = [];
+%     VUSNP(x)   = [];
 % 
 % end
 % VLOCI.VID  = (1:size(VLOCI,1))';

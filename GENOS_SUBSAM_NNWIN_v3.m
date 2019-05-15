@@ -110,24 +110,24 @@ clc; clearvars -except P ADSP INFO
 
 P.Nloops = 25;
 P.Nvars = 200;
-P.windowSize = 50;
+P.windowSize = 20;
 P.Ndots = P.Nvars-P.windowSize+1;
 P.Lo2Hi = 1>0; %YES
 
 
 
+% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+% P.importdir = [P.basedir '\APOE_22_23_24_33_34_44\APOE_22_23_24_33_34_44_FISHP_FINAL'];
+% P.APOES = '22_23_24_33_34_44';
+% INFO.APOE = [22 23 24 33 34 44];
+
 P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-P.importdir = [P.basedir '\APOE_22_23_24_33_34_44\APOE_22_23_24_33_34_44_FISHP_V4'];
-P.APOES = '22_23_24_33_34_44';
-INFO.APOE = [22 23 24 33 34 44];
+P.importdir = [P.basedir '\APOE_22_23_24_34_44\APOE_22_23_24_34_44_FISHP_FINAL'];
+P.APOES = '22_23_24_34_44';
+INFO.APOE = [22 23 24 34 44];
 
 % P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-% P.importdir = [P.basedir '\APOE_22_23_24_34_44\APOE_22_23_24_34_44_FISHP_V3'];
-% P.APOES = '22_23_24_34_44';
-% INFO.APOE = [22 23 24 34 44];
-
-% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-% P.importdir = [P.basedir '\APOE_33\APOE_33_FISHP_V4'];
+% P.importdir = [P.basedir '\APOE_33\APOE_33_FISHP_FINAL'];
 % P.APOES = '33';
 % INFO.APOE = [33];
 

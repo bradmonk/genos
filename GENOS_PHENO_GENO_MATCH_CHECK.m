@@ -1,87 +1,4 @@
-%% GENOS_FISHP
-%{
-% 
-%--------------------------------------------------------------------------
-% 
-% SUMMARY TABLE OF THE 24 COHORTS
-% 
-% COHID    CONSOR    STUDY        COHORT    CASES    CTRLS    TOTAL    %CASE    EQL  BRAAK ID GOOD
-% 01       DGC       Adult_Chng    ACT        323      945     1268       25    323    1   01    1
-% 02       ADGC      AD_Centers    ADC       2438      817     3255       75    817    0   02    1
-% 03       CHARGE    Athrosclro    ASC         39       18       57       68     18    0   03    0
-% 04       CHARGE    Aus_Stroke    SKE        121        5      126       96      5    0   04    0
-% 05       ADGC      ChiT_Aging    CHA         27      204      231       12     27    0   05    0
-% 06       CHARGE    CardioHlth    CHS        250      583      833       30    250    1   06    1
-% 07       ADGC      Hispanic_S    HSP        160      171      331       48    160    0   07    0
-% 08       CHARGE    Erasmus_Er    ERF         45        0       45      100      0    0   08    0
-% 09       CHARGE    Framingham    FHS        157      424      581       27    157    1   09    1
-% 10       ADGC      Gene_Diffs    GDF        111       96      207       54     96    1   10    1
-% 11       ADGC      NIA_LOAD      LOD        367      109      476       77    109    1   11    1
-% 12       ADGC      Aging_Proj    MAP        138      277      415       33    138    1   12    1
-% 13       ADGC      Mayo_Clini    MAY        250       99      349       72     99    1   13    1
-% 14       ADGC      Miami_Univ    MIA        186       14      200       93     14    1   14    0
-% 15       ADGC      AD_Genetic    MIR        316       15      331       95     15    0   15    0
-% 16       ADGC      Mayo_cl_PD    MPD          0       20       20        0      0    1   16    0
-% 17       ADGC      NationC_AD    NCA        160        0      160      100      0    1   17    0
-% 18       ADGC      Wash_Unive    RAS         46        0       46      100      0    1   18    0
-% 19       ADGC      Relig_Ordr    ROS        154      197      351       44    154    1   19    1
-% 20       CHARGE    RotterdamS    RDS        276      813     1089       25    276    0   20    1
-% 21       ADGC      Texas_AD_S    TAR        132       12      144       92     12    0   21    0
-% 22       ADGC      Un_Toronto    TOR          9        0        9      100      0    0   22    0
-% 23       ADGC      Vanderbilt    VAN        210       26      236       89     26    1   23    1
-% 24       ADGC      WashNY_Age    WCA         34      116      150       23     34    0   24    1
-% 
-% 
-% GOODCOHORTS = [1 2         6 7   9 10 11 12 13               19 20     23 24]
-% BRAKCOHORTS = [1           6     9 10 11 12 13 14   16 17 18 19        23   ]
-%--------------------------------------------------------------------------
-% 
-% THE ADSP DATASET - WHAT'S BEING IMPORTED?
-%
-% 
-% The dataset that will be loaded in STEP-1 below will import 5 variables
-% and store them into a structural array named 'ADSP'. If you type ADSP
-% into the command prompt you will see...
-% 
-% 
-% >> ADSP
-% 
-% ADSP = 
-%   struct with fields:
-% 
-%     PHEN: [10910×22 table]
-%     LOCI: [94483×24 table]
-%     CASE: {94483×1 cell}
-%     CTRL: {94483×1 cell}
-%     USNP: {94483×1 cell}
-% 
-% 
-% ...(maybe not in this specific order) the 5 container variables.
-% 
-% 
-% PHEN    a table containing the phenotype information for each
-%         participant. If you type head(ADSP.PHEN) you can see what
-%         data each column contains.
-% 
-% 
-% LOCI    a table containing genotype info for each exome variant locus.
-%         if you type head(ADSP.LOCI) you can see what data each column
-%         contains.
-% 
-% 
-% 
-% CASE    the last three are cell arrays, containing a list of 
-% CTRL    participant IDs & HET/HOM status. Each have 1 cell per row
-% USNP    of LOCI (~94483 cells); they are (at least upon import) 
-%         pre-sorted in corresponding order, which allows us to
-%         iterate over each loci/cell and tally each HET (+1) or 
-%         HOM (+2) that matches subsets of participant IDs. (there
-%         is an optimized function specifically designed to
-%         perform this task, as you will see below).
-%         
-% 
-%--------------------------------------------------------------------------
-%}
+
 %==========================================================================
 %% STEP-1: LOAD THE DATASET
 %==========================================================================
@@ -98,7 +15,8 @@ cd(P.home)
 which('GENOSDATA.mat')
 ADSP = load('GENOSDATA.mat');
 
-
+which('ADSP_MINI3.mat')
+ADSP = load('ADSP_MINI3.mat');
 
 ADSP.GOODCOHORTS = [1 2 6 7 9 10 11 12 13 19 20 23 24];
 ADSP.BRAKCOHORTS = [1 6 9 10 11 12 13 14 16 17 18 19 23];
@@ -118,18 +36,27 @@ ADSP.USE_APOT = '33';
 
 clearvars -except P ADSP
 
+%==========================================================================
+%%   CARBON COPY MAIN VARIABLES FROM ADSP.STRUCT
+%==========================================================================
+%
+% After evaluating this section, each variable will be copied from the
+% ADSP structural array to their own base variable. This is done so
+% that (1) you can access their data directly (e.g. LOCI.GENE(1:5) instead
+% of ADSP.LOCI.GENE(1:5) ) and so that (2) you can always restart fresh
+% here, by running this segment of code, rather than having to import the
+% data from the .mat file in the section above.
 
-%==========================================================================
-%%   START MAIN LOOP
-%==========================================================================
-for IJ = 1:5
-%% CARBON COPY
 LOCI = ADSP.LOCI;
 CASE = ADSP.CASE;
 CTRL = ADSP.CTRL;
 USNP = ADSP.USNP;
 PHEN = ADSP.PHEN;
-clc; clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP
+
+
+clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
+head(PHEN)
+head(LOCI)
 
 
 %% CHOOSE COHORTS & APOE SUBSET TO USE IN GROUP GENERATOR
@@ -269,6 +196,9 @@ PHETECTRL  = PHETECTRL(k,:);        % Scramble Phenotype table
 clearvars -except IJ ADSP PHEN LOCI CASE CTRL USNP COHSET...
 PHETRCASE PHETRCTRL PHETECASE PHETECTRL
 
+
+
+
 %==========================================================================
 %%   PUT SOME OF THE TEST GROUP BACK INTO THE TRAINING GROUP
 %==========================================================================
@@ -404,7 +334,6 @@ LOCI.PPTECTRLALT = TECTRLN;
 clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 
 
-
 %==========================================================================
 %%               COMPUTE FISHER'S P-VALUE
 %==========================================================================
@@ -436,27 +365,116 @@ LOCI.TEFISHOR = FISHOR;
 clearvars -except IJ ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 
 
-%% SAVE MAT FILE
-pause(1)
+%% STORE VARIABLES FOR NEURAL NETWORK TRAINING AS 'VLOCI'
+clc; clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL
 
-INFO.GOODCOHORTS = ADSP.GOODCOHORTS;
-INFO.BRAKCOHORTS = ADSP.BRAKCOHORTS;
-INFO.USE_COHORT  = ADSP.USE_COHORT;
-INFO.USE_APOE    = ADSP.USE_APOE;
-INFO.USE_APOT    = ADSP.USE_APOT;
-
-dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-save(['F:\GENOSDATA\APOE_SUBGROUPS\APOE_' ADSP.USE_APOT '_FISHP_' dt '.mat'],...
-    'LOCI','PHEN','TRCASE','TRCTRL','TECASE','TECTRL','INFO');
-pause(1)
-%------------------------------------------%
-
-end
+VLOCI     = LOCI;
+VCASE     = CASE;
+VCTRL     = CTRL;
+VUSNP     = USNP;
+VTRCASE   = TRCASE;
+VTRCTRL   = TRCTRL;
+VTECASE   = TECASE;
+VTECTRL   = TECTRL;
 
 
+% SET MAIN FISHP TO TRAINING GROUP FISHP
+VLOCI.FISHP      = VLOCI.TRFISHP;
+VLOCI.FISHOR     = VLOCI.TRFISHOR;
+VLOCI.CASEREF    = VLOCI.TRCASEREF;
+VLOCI.CASEALT    = VLOCI.TRCASEALT;
+VLOCI.CTRLREF    = VLOCI.TRCTRLREF;
+VLOCI.CTRLALT    = VLOCI.TRCTRLALT;
 
 
 
+% SORT VARIANTS BY EITHER TRFISHP|CHRPOS
+[~,i]  = sort(VLOCI.CHRPOS);
+% [~,i]  = sort(VLOCI.TRFISHP);
+VLOCI  = VLOCI(i,:);
+VCASE  = VCASE(i);
+VCTRL  = VCTRL(i);
+VUSNP  = VUSNP(i);
+
+
+clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
+VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
+
+%==========================================================================
+%%             GET APOE AND TOMM40 LOCI
+%==========================================================================
+clearvars -except ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
+VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL
+
+
+ALZGENES = string({"APOE";"TOMM40"});
+
+x1 = strcmp(VLOCI.GENE,ALZGENES{1});
+sum(x1)
+x2 = strcmp(VLOCI.GENE,ALZGENES{2});
+sum(x2)
+
+KEEP = x1 | x2;
+VLOCI = VLOCI(KEEP,:);
+VCASE = VCASE(KEEP);
+VCTRL = VCTRL(KEEP);
+VUSNP = VUSNP(KEEP);
+
+%%
+
+
+% ApoE status is defined by a person's combination of these two SNPs:
+% 
+%     SNP        CHR   POS(GRCh37)   POS(GRCh38)  REF   ALT   MUT
+%     rs429358   19    45411941      44908684     T     C     missense
+%     rs7412     19    45412079      44908822     C     T     missense
+% 
+%     APOE 2/2	45411941 ( T , T )	45412079 ( T , T )
+%     APOE 2/3	45411941 ( T , T )	45412079 ( T , C )
+%     APOE 2/4	45411941 ( T , C )	45412079 ( T , C )
+%     APOE 3/3	45411941 ( T , T )	45412079 ( C , C )
+%     APOE 3/4	45411941 ( T , C )	45412079 ( C , C )
+%     APOE 4/4	45411941 ( C , C )	45412079 ( C , C )
+   
+
+% you never two mutations on the same chromosome:
+%     APOE 1	45411941 ( C )	45412079 ( T )
+   
+
+%==========================================================================
+%%      MAKE  RECTANGLE  NEURAL NET  VARIANT MATRIX
+%==========================================================================
+
+
+TRPHE = [VTRCASE; VTRCTRL];
+TEPHE = [VTECASE; VTECTRL];
+
+
+
+% SCRAMBLE TRAINING PHENOTYPE ORDER
+NVARS  = size(TRPHE,1);         % Total number of people
+k      = randperm(NVARS)';      % Get N random ints in range 1:N
+TRPHE  = TRPHE(k,:);            % Scramble Phenotype table
+
+% SCRAMBLE TESTING PHENOTYPE ORDER
+NVARS  = size(TEPHE,1);         % Total number of people
+k      = randperm(NVARS)';      % Get N random ints in range 1:N
+TEPHE  = TEPHE(k,:);            % Scramble Phenotype table
+
+
+
+
+% MAKE THE NEURAL NET TRAINING & TESTING MATRICES
+% [VTRX, TRX, TRL] = mkmx(VLOCI,VCASE,VCTRL,VUSNP,TRPHE,[-1 -0 2 5]);
+% [VTEX, TEX, TEL] = mkmx(VLOCI,VCASE,VCTRL,VUSNP,TEPHE,[-1 -0 2 5]);
+[VTRX, TRX, TRL] = mkmx(VCASE,VCTRL,VUSNP,TRPHE,[-1 -0 2 3]);
+[VTEX, TEX, TEL] = mkmx(VCASE,VCTRL,VUSNP,TEPHE,[-1 -0 2 3]);
+
+
+
+clearvars -except P ADSP LOCI CASE CTRL PHEN USNP TRCASE TRCTRL TECASE TECTRL...
+VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL TRPHE TEPHE...
+VTRX VTEX TRX TRL TEX TEL
 
 
 

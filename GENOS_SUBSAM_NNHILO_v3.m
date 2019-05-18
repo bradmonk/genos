@@ -109,27 +109,27 @@ clc; clearvars -except P ADSP INFO
 
 
 P.Nloops = 50;
-P.Nvars = 200;
+P.Nvars = 151;
 P.windowSize = 0;
 P.Ndots = P.Nvars;
 P.Lo2Hi = 1>0; %YES
 
 
 
-P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-P.importdir = [P.basedir '\APOE_22_23_24_33_34_44\APOE_22_23_24_33_34_44_FISHP_FINAL'];
-P.APOES = '22_23_24_33_34_44';
-INFO.APOE = [22 23 24 33 34 44];
+% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+% P.importdir = [P.basedir '\APOE_22_23_24_33_34_44\APOE_22_23_24_33_34_44_FISHP_FINAL'];
+% P.APOES = '22_23_24_33_34_44';
+% INFO.APOE = [22 23 24 33 34 44];
 
 % P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
 % P.importdir = [P.basedir '\APOE_22_23_24_34_44\APOE_22_23_24_34_44_FISHP_FINAL'];
 % P.APOES = '22_23_24_34_44';
 % INFO.APOE = [22 23 24 34 44];
 
-% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-% P.importdir = [P.basedir '\APOE_33\APOE_33_FISHP_FINAL'];
-% P.APOES = '33';
-% INFO.APOE = [33];
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+P.importdir = [P.basedir '\APOE_33\APOE_33_FISHP_FINAL'];
+P.APOES = '33';
+INFO.APOE = [33];
 
 clearvars -except P ADSP INFO
 
@@ -289,13 +289,29 @@ VLOCI.CTRLREF    = VLOCI.TRCTRLREF;
 VLOCI.CTRLALT    = VLOCI.TRCTRLALT;
 
 
+%==========================================================================
+% REMOVE SELECT GENES BY NAME
+%==========================================================================
+%{
+ALZGENES = string({"APOE";"TOMM40"});
+for nn = 1:numel(ALZGENES)
+    x = strcmp(VLOCI.GENE,ALZGENES{nn});
+    VLOCI(x,:) = [];
+    VCASE(x) = [];
+    VCTRL(x) = [];
+    VUSNP(x) = [];
+end
+VLOCI.VID  = (1:size(VLOCI,1))';
+%}
+
+
+
 % SORT VARIANTS BY EITHER TRFISHP|CHRPOS
 [~,j]  = sort(VLOCI.TRFISHP);
 VLOCI  = VLOCI(j,:);
 VCASE  = VCASE(j);
 VCTRL  = VCTRL(j);
 VUSNP  = VUSNP(j);
-
 
 
 % Save some data for the record
@@ -450,10 +466,12 @@ for vi = 1:P.Ndots
 
     NN = patternnet([50 20],'trainscg','crossentropy');
 
+    
+    
     NN.trainParam.max_fail = 50;
     NN.trainParam.showWindow = 0;
     NN.performParam.regularization = 0.1;
-    NN.performParam.normalization = 'none';
+    NN.performParam.normalization = 'standard';
 
 
 

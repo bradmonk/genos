@@ -87,16 +87,17 @@
 %==========================================================================
 close all; clear; clc; rng('shuffle');
 P.home = fileparts(which('GENOS.m')); cd(P.home);
+P.P0 = [P.home filesep 'genos_matdata'];
 P.P1 = [P.home filesep 'genos_functions'];
-P.P3 = [P.P1 filesep 'genos_main_functions'];
-P.P2 = [P.home filesep 'genosfunctions'];
+P.P2 = [P.P1 filesep 'genos_main_functions'];
+P.P3 = [P.home filesep 'genosfunctions'];
 P.P4 = [P.home filesep 'genos_other'];
 addpath(join(string(struct2cell(P)),pathsep,1))
 cd(P.home)
 
 
-which('GENOSDATA.mat')
-ADSP = load('GENOSDATA.mat');
+which('GENOSDATAFINAL.mat')
+ADSP = load('GENOSDATAFINAL.mat');
 
 
 
@@ -122,7 +123,7 @@ clearvars -except P ADSP
 %==========================================================================
 %%   START MAIN LOOP
 %==========================================================================
-for IJ = 1:5
+for IJ = 1:50
 %% CARBON COPY
 LOCI = ADSP.LOCI;
 CASE = ADSP.CASE;
@@ -140,6 +141,9 @@ COHSET = COHSET(sum(COHSET.COHORTNUM == ADSP.USE_COHORT , 2)>0,:);
 
 COHSET = COHSET(sum(COHSET.APOE == ADSP.USE_APOE ,2)>0,:);
 
+if any(COHSET.APOE ~= ADSP.USE_APOE(1))
+    disp('APOE MISMATCH'); return 
+end
 
 % RANDOMLY SHUFFLE TABLE ROWS TO ENSURE UNIQUE SUBSET EACH RUN
 COHSET = COHSET(randperm(size(COHSET,1)),:);    

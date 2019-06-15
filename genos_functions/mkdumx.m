@@ -1,7 +1,7 @@
-function [PVMX, VMX, YVEC, YDUM] = mkmx(LX,CA,CO,UC,PHE,varargin)
+function [PVMX, VMX, YVEC, YDUM] = mkdumx(CA,CO,UC,PHE,varargin)
+% function [PVMX, DVMX] = mkdumx(CA,CO,UC,PHE,varargin)
 
 
-% keyboard
 
 SRR = PHE.SRR;
 
@@ -33,8 +33,8 @@ vMX = vMX + 20;   % UNCALL:19  HOMREF:20  HETALT:21  HOMALT:22
 
 
 
-if nargin > 5
-    v = varargin{end};
+if nargin > 4
+    v = varargin{1};
     vMX(vMX==19) = v(2);  % UNCALL
     vMX(vMX==20) = v(1);  % REF/REF
     vMX(vMX==21) = v(3);  % REF/ALT
@@ -47,6 +47,16 @@ else % DEFAULT
 end
 
 
+
+
+
+cMX = categorical(vMX);
+dMX = zeros(size(cMX,1),size(cMX,2)*4);
+j=1:4:(size(dMX,2));
+for i = 1:size(cMX,2)
+    d = dummyvar(cMX(:,i));
+    dMX(:,j(i):(j(i)+3)) = d;
+end
 
 
 
@@ -63,45 +73,23 @@ PVMX(: , 9)  =  PHE.BRAAK;      % COL6: BRAAK
 
 
 
-
-% BRAGE = AGE - BRAD
-%------------------------------------------------
-% COLS:  PVMX( 1 , 2, 3 , 4 ,  5 , 6 ,  7  ,  8  ,  9    ...)
-% START: PVMX(SRR,AD,COH,AGE,APOE,SEX,BRAAK,BRAAK,BRAAK.....)
-% END:   PVMX(SRR,AD,COH,AGE,APOE,BRAD,BRAAK,AGEz,BRAGEz....)
-% [BRAX] = bragepvmv(PVTR);
-
-% GET BRAAK & AGE (BRAGE) WEIGHTS
-PVMX = bragepvmv(PVMX);
-
-
-
-
-% MAKE ANOTHER MATRIX THAT IS ONLY THE VARIANT COLUMNS (REMOVE PHE COLUMNS)
-VMX = PVMX(:,10:end);
+DVMX = [zeros(size(dMX,1),9) dMX];
+DVMX(: , 1)  =  PHE.SRR;        % COL1: ID
+DVMX(: , 2)  =  PHE.AD;         % COL2: AD
+DVMX(: , 3)  =  PHE.COHORTNUM;  % COL3: COHORT
+DVMX(: , 4)  =  PHE.AGE;        % COL4: AGE
+DVMX(: , 5)  =  PHE.APOE;       % COL5: APOE
+DVMX(: , 6)  =  PHE.SEX;        % COL7: SEX
+DVMX(: , 7)  =  PHE.BRAAK;      % COL6: BRAAK
+DVMX(: , 8)  =  PHE.BRAAK;      % COL6: BRAAK
+DVMX(: , 9)  =  PHE.BRAAK;      % COL6: BRAAK
 
 
 
 
-% CREATE AN Nx1 LABEL ARRAY
-% YVEC(:,1)==1  :CASE
-% YVEC(:,1)==0  :CTRL
-
-YVEC = PVMX(:,2);
-
-
-
-% CREATE AN Nx2 LABEL MATRIX
-% YDUM(:,1)==1  :CASE
-% YDUM(:,2)==1  :CTRL
-
-YDUM = (dummyvar( (YVEC~=1)+1 ));
-
-%%
+% keyboard
+% ms = min(size(PVMX));
+% if ms > 11; disp(int64(PVMX(1:11,1:11))); else disp(int64(PVMX(1:ms,1:ms))); end
+% G = sum(sum(  PVMX(: , 10:end)>0, 2)>0) / (numel(TL));
+% fprintf('COVERAGE: % 0.2f \n\n',G)
 end
-% TR_DL = dummyvar(  categorical( PVMX(:,2) )  );
-% TR_DL = dummyvar(  categorical(  (PVMX(:,2)==1) == 0 )  );
-
-
-
-

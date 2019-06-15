@@ -1,5 +1,5 @@
 %% GENOS: 
-% 
+%{
 %--------------------------------------------------------------------------
 % 
 % SUMMARY TABLE OF THE 24 COHORTS
@@ -78,7 +78,7 @@
 %         is an optimized function specifically designed to
 %         perform this task, as you will see below).
 %         
-% 
+%}
 %--------------------------------------------------------------------------
 
 %==========================================================================
@@ -96,10 +96,10 @@ cd(P.home)
 
 
 
-ADSP = load('GENOSDATA.mat');
+ADSP = load('GENOSDATAFINAL.mat');
 
 
-P.mainmatfile = which('GENOSDATA.mat');
+P.mainmatfile = which('GENOSDATAFINAL.mat');
 disp('dataset loaded')
 clearvars -except P ADSP INFO
 
@@ -108,28 +108,31 @@ clearvars -except P ADSP INFO
 clc; clearvars -except P ADSP INFO
 
 
-P.Nloops = 50;
-P.Nvars = 151;
-P.windowSize = 0;
+P.Nloops = 25;
+P.FileStart = 25;
+P.Nvars = 200;
+P.windowSize = 1;
 P.Ndots = P.Nvars;
 P.Lo2Hi = 1>0; %YES
+P.RemoveGenesByName = 0>1; %No
 
 
+
+
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+P.importdir = [P.basedir '\APOE_22_23_24_33_34_44\APOE_22_23_24_33_34_44_FISHP'];
+P.APOES = '22_23_24_33_34_44';
+INFO.APOE = [22 23 24 33 34 44];
 
 % P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-% P.importdir = [P.basedir '\APOE_22_23_24_33_34_44\APOE_22_23_24_33_34_44_FISHP_FINAL'];
-% P.APOES = '22_23_24_33_34_44';
-% INFO.APOE = [22 23 24 33 34 44];
-
-% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-% P.importdir = [P.basedir '\APOE_22_23_24_34_44\APOE_22_23_24_34_44_FISHP_FINAL'];
+% P.importdir = [P.basedir '\APOE_22_23_24_34_44\APOE_22_23_24_34_44_FISHP'];
 % P.APOES = '22_23_24_34_44';
 % INFO.APOE = [22 23 24 34 44];
 
-P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-P.importdir = [P.basedir '\APOE_33\APOE_33_FISHP_FINAL'];
-P.APOES = '33';
-INFO.APOE = [33];
+% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+% P.importdir = [P.basedir '\APOE_33\APOE_33_FISHP'];
+% P.APOES = '33';
+% INFO.APOE = [33];
 
 clearvars -except P ADSP INFO
 
@@ -265,8 +268,7 @@ for IJ = 1:P.Nloops
 clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA IJ
 
 
-
-MATDAT = load([P.FILES.w.path filesep P.FILES.w.mat{IJ}]);
+MATDAT = load([P.FILES.w.path filesep P.FILES.w.mat{IJ+P.FileStart-1}]);
 
 
 
@@ -830,7 +832,7 @@ end
 %------------------------------------------%
 pause(1)
 % dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-P.savepathfile = [P.basedir filesep 'APOE_' P.APOES '_NNHILO.mat'];
+P.savepathfile = [P.basedir filesep 'APOE_' P.APOES '_HILO.mat'];
 save(P.savepathfile,'LOOPDATA','P','INFO');
 disp('File saved...'); disp(P.savepathfile)
 pause(1)

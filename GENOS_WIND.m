@@ -1,5 +1,5 @@
 %% GENOS: 
-% 
+%{
 %--------------------------------------------------------------------------
 % 
 % SUMMARY TABLE OF THE 24 COHORTS
@@ -78,7 +78,7 @@
 %         is an optimized function specifically designed to
 %         perform this task, as you will see below).
 %         
-% 
+%}
 %--------------------------------------------------------------------------
 
 %==========================================================================
@@ -108,30 +108,38 @@ clearvars -except P ADSP INFO
 clc; clearvars -except P ADSP INFO
 
 
-P.Nloops = 10;
+P.Nloops = 50;
 P.FileStart = 1;
 P.Nvars = 200;
 P.windowSize = 50;
 P.Ndots = P.Nvars-P.windowSize+1;
-P.Lo2Hi = 1>0; %YES
-P.RemoveGenesByName = 0>1; %No
+P.Lo2Hi = true;
+P.RemoveGenesByName = false;
 f = filesep;
 
-P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
-P.importdir = [P.basedir f 'APOE_22_23_24_33_34_44' f 'APOE_22_23_24_33_34_44_FISHP'];
-P.APOES = '22_23_24_33_34_44';
-INFO.APOE = [22 23 24 33 34 44];
+% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+% P.importdir = [P.basedir f 'APOE_22_23_24_33_34_44' f 'APOE_22_23_24_33_34_44_FISHP'];
+% P.APOES = '22_23_24_33_34_44';
+% INFO.APOE = [22 23 24 33 34 44];
 
 
-% P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
+% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
 % P.importdir = [P.basedir f 'APOE_22_23_24_34_44' f 'APOE_22_23_24_34_44_FISHP'];
 % P.APOES = '22_23_24_34_44';
 % INFO.APOE = [22 23 24 34 44];
 
-% P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
+% P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
 % P.importdir = [P.basedir f 'APOE_33' f 'APOE_33_FISHP'];
 % P.APOES = '33';
 % INFO.APOE = [33];
+
+
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+P.importdir = [P.basedir f 'APOE_34_44' f 'APOE_34_44_FISHP'];
+P.APOES = '34 44';
+INFO.APOE = [34 44];
+
+
 
 clearvars -except P ADSP INFO
 
@@ -721,7 +729,7 @@ disp('%=================================================================');
 
 
 
-keyboard
+
 end
 %===========================================
 
@@ -831,6 +839,59 @@ LOOPDATA.COHOHIMU_LR(1:P.Ndots,IJ) = STAT.COHOHIMU_LR;
 LOOPDATA.COHOHIPO_LR(1:P.Ndots,IJ) = STAT.COHOHIPO_LR;
 
 
+
+
+
+%==========================================================================
+%% OUTPUT TABLE OF STAT DATA
+%==========================================================================
+
+
+
+ROC_TR_ALL = array2table(STAT.TR_ALL_STATS);
+ROC_HO_ALL = array2table(STAT.HO_ALL_STATS);
+ROC_TR_TOP = array2table(STAT.TR_TOP_STATS);
+ROC_HO_TOP = array2table(STAT.HO_TOP_STATS);
+
+STAT = rmfield(STAT,'TR_ALL_STATS');
+STAT = rmfield(STAT,'HO_ALL_STATS');
+STAT = rmfield(STAT,'TR_TOP_STATS');
+STAT = rmfield(STAT,'HO_TOP_STATS');
+
+% 1. NonConfusion: fraction of samples appropriately classified
+% 2. N CASE classified as CASE
+% 3. N CASE classified as CTRL
+% 4. N CTRL classified as CASE
+% 5. N CTRL classified as CTRL
+% 6. CASE false negative rate (false neg)/(all output neg)
+% 7. CASE false positive rate (false pos)/(all output pos)
+% 8. CASE true  positive rate (true  pos)/(all output pos)
+% 9. CASE true  negative rate (true  neg)/(all output neg)
+
+ROC_TR_ALL.Properties.VariableNames = {'TRall_PctOK','TRall_CAasCA','TRall_CAasCO',...
+'TRall_COasCA','TRall_COasCO','TRall_FN','TRall_FP','TRall_TP','TRall_TN'};
+
+ROC_HO_ALL.Properties.VariableNames = {'HOall_PctOK','HOall_CAasCA','HOall_CAasCO',...
+'HOall_COasCA','HOall_COasCO','HOall_FN','HOall_FP','HOall_TP','HOall_TN'};
+
+ROC_TR_TOP.Properties.VariableNames = {'TRtop_PctOK','TRtop_CAasCA','TRtop_CAasCO',...
+'TRtop_COasCA','TRtop_COasCO','TRtop_FN','TRtop_FP','TRtop_TP','TRtop_TN'};
+
+ROC_HO_TOP.Properties.VariableNames = {'HOtop_PctOK','HOtop_CAasCA','HOtop_CAasCO',...
+'HOtop_COasCA','HOtop_COasCO','HOtop_FN','HOtop_FP','HOtop_TP','HOtop_TN'};
+
+
+
+T = struct2table(STAT);
+STAB = [T ROC_TR_ALL ROC_HO_ALL ROC_TR_TOP ROC_HO_TOP];
+
+
+dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
+writetable(STAB,[P.basedir filesep 'LOOPDATA_HILO_APOE_' P.APOES '_' dt '.csv'],'Delimiter',',')
+writetable(STAB,[P.basedir filesep 'LOOPDATA_HILO_APOE_' P.APOES '.xlsx'],'Sheet',IJ)
+disp('Spreadsheets saved...'); disp(P.basedir); pause(.1);
+
+clear STAB
 
 end
 %% SAVE LOOP DATA

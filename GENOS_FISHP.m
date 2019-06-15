@@ -85,15 +85,14 @@
 %==========================================================================
 %% STEP-1: LOAD THE DATASET
 %==========================================================================
-clc; close all; clear; rng('shuffle'); f = filesep;
-P.root  = [f 'Users' f 'bradleymonk' f 'Documents' f 'MATLAB'];
-P.home =  [P.root f 'GIT' f 'genomics' f 'genos'];
-P.funs  = [P.home f 'genos_functions'];
-P.data  = [P.home f 'genos_data'];
-P.figs  = [P.home f 'genos_figures'];
-P.mat1  = [P.data f 'APOE'];
+close all; clear; clc; rng('shuffle');
+P.home = fileparts(which('GENOS.m')); cd(P.home);
+P.P1 = [P.home filesep 'genos_functions'];
+P.P3 = [P.P1 filesep 'genos_main_functions'];
+P.P2 = [P.home filesep 'genosfunctions'];
+P.P4 = [P.home filesep 'genos_other'];
 addpath(join(string(struct2cell(P)),pathsep,1))
-cd(P.home); clearvars -except P
+cd(P.home)
 
 
 
@@ -108,14 +107,23 @@ ADSP.BRAKCOHORTS = [1 6 9 10 11 12 13 14 16 17 18 19 23];
 %ADSP.USE_COHORT = unique([ADSP.GOODCOHORTS ADSP.BRAKCOHORTS]);
 ADSP.USE_COHORT = unique([ADSP.GOODCOHORTS]);
 
-% ADSP.USE_APOE = [22 23 24 33 34 44];
-% ADSP.USE_APOT = '22_23_24_33_34_44';
+ADSP.USE_APOE = [22 23 24 33 34 44];
+ADSP.USE_APOT = '22_23_24_33_34_44';
 % ADSP.USE_APOE = [22 23 24 34 44];
 % ADSP.USE_APOT = '22_23_24_34_44';
+% ADSP.USE_APOE = [22 23 24 33];
+% ADSP.USE_APOT = '22 23 24 33';
 % ADSP.USE_APOE = [22 23 34 44];
 % ADSP.USE_APOT = '22_23_34_44';
-ADSP.USE_APOE = [33];
-ADSP.USE_APOT = '33';
+% ADSP.USE_APOE = [34 44];
+% ADSP.USE_APOT = '34 44';
+% ADSP.USE_APOE = [33 34];
+% ADSP.USE_APOT = '33 34';
+% ADSP.USE_APOE = [33];
+% ADSP.USE_APOT = '33';
+
+
+
 
 
 
@@ -449,7 +457,7 @@ INFO.USE_APOE    = ADSP.USE_APOE;
 INFO.USE_APOT    = ADSP.USE_APOT;
 
 dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-save(['APOE_' ADSP.USE_APOT '_FISHP_' dt '.mat'],...
+save(['APOE_' ADSP.USE_APOT '_FISHP_' dt '_BRAAK.mat'],...
     'LOCI','PHEN','TRCASE','TRCTRL','TECASE','TECTRL','INFO');
 pause(1)
 %------------------------------------------%

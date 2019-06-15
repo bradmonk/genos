@@ -109,30 +109,28 @@ clearvars -except P ADSP INFO
 clc; clearvars -except P ADSP INFO
 
 
-P.Nloops = 10;
+P.Nloops = 15;
 P.FileStart = 11;
 P.Nvars = 151;
 P.windowSize = 0;
 P.Ndots = P.Nvars;
 P.Lo2Hi = 1>0; %YES
-P.RemoveGenesByName = 0>1; %NO
+P.RemoveGenesByName = 0>1; %no
 f = filesep;
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
 
-% P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
+
 % P.importdir = [P.basedir f 'APOE_22_23_24_33_34_44' f 'APOE_22_23_24_33_34_44_FISHP'];
 % P.APOES = '22_23_24_33_34_44';
 % INFO.APOE = [22 23 24 33 34 44];
 
+P.importdir = [P.basedir f 'APOE_22_23_24_34_44' f 'APOE_22_23_24_34_44_FISHP'];
+P.APOES = '22_23_24_34_44';
+INFO.APOE = [22 23 24 34 44];
 
-% P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
-% P.importdir = [P.basedir f 'APOE_22_23_24_34_44' f 'APOE_22_23_24_34_44_FISHP'];
-% P.APOES = '22_23_24_34_44';
-% INFO.APOE = [22 23 24 34 44];
-
-P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
-P.importdir = [P.basedir f 'APOE_33' f 'APOE_33_FISHP'];
-P.APOES = '33';
-INFO.APOE = [33];
+% P.importdir = [P.basedir f 'APOE_33' f 'APOE_33_FISHP'];
+% P.APOES = '33';
+% INFO.APOE = [33];
 
 
 
@@ -817,9 +815,6 @@ LOOPDATA.COHOHIPO_LR(1:P.Ndots,IJ) = STAT.COHOHIPO_LR;
 %==========================================================================
 %% OUTPUT TABLE OF STAT DATA
 %==========================================================================
-
-% load('InCaseIpressSave.mat')
-
 
 ROC_TR_ALL = array2table(STAT.TR_ALL_STATS);
 ROC_HO_ALL = array2table(STAT.HO_ALL_STATS);

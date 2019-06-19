@@ -125,13 +125,12 @@ P.Lo2Hi = true;
 P.RemoveGenesByName = false;
 P.RemoveBadGenes = false;
 f = filesep;
-
-
-
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+P.SNPTABLE=[P.home 'F:\GENOSDATA\GENOS_TOP_SNPs.xlsx'];
+P.datadumpdir = 'F:\GENOSDATA\GENOS_PERTURB_DATADUMP\';
 
 % [22 23 24 33 34 44]
 %--------------------------
-P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
 P.importdir = [P.basedir f 'APOE_22_23_24_33_34_44' f 'APOE_22_23_24_33_34_44_FISHP'];
 P.APOES = '22_23_24_33_34_44';
 INFO.APOE = [22 23 24 33 34 44];
@@ -139,7 +138,6 @@ INFO.APOE = [22 23 24 33 34 44];
 
 % [22 23 24 34 44]
 %--------------------------
-% P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
 % P.importdir = [P.basedir f 'APOE_22_23_24_34_44' f 'APOE_22_23_24_34_44_FISHP'];
 % P.APOES = '22_23_24_34_44';
 % INFO.APOE = [22 23 24 34 44];
@@ -147,7 +145,6 @@ INFO.APOE = [22 23 24 33 34 44];
 
 % [33]
 %--------------------------
-% P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
 % P.importdir = [P.basedir f 'APOE_33' f 'APOE_33_FISHP'];
 % P.APOES = '33';
 % INFO.APOE = [33];
@@ -155,7 +152,6 @@ INFO.APOE = [22 23 24 33 34 44];
 
 % [34 44]
 %--------------------------
-% P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
 % P.importdir = [P.basedir f 'APOE_34_44' f 'APOE_34_44_FISHP'];
 % P.APOES = '34_44';
 % INFO.APOE = [34 44];
@@ -163,7 +159,6 @@ INFO.APOE = [22 23 24 33 34 44];
 
 % [33 34]
 %--------------------------
-% P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
 % P.importdir = [P.basedir f 'APOE_34_44' f 'APOE_34_44_FISHP'];
 % P.APOES = '33_44';
 % INFO.APOE = [34 44];
@@ -276,7 +271,7 @@ USNP  = USNP(j);
 
 
 
-P.SNPTABLE=[P.home '/genos_data/GENOS_TOP_SNPs.xlsx'];
+
 PTOP = readtable(P.SNPTABLE,'Sheet','PTOP');
 ORLO = readtable(P.SNPTABLE,'Sheet','ORLO');
 ORHI = readtable(P.SNPTABLE,'Sheet','ORHI');
@@ -287,6 +282,7 @@ ORHI.CHRPOS = uint64(ORHI.CHRPOS);
 ADSP.PTOP = PTOP;
 ADSP.ORLO = ORLO;
 ADSP.ORHI = ORHI;
+ADSP.FISHPOR = ORHI;
 
 clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
 
@@ -488,8 +484,8 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
     % GET GENE-CHRLOC TO PERTURB AND ENSURE IT'S #1 AMONG SNPS
     %==========================================================================
 
-    GENE   = ADSP.ORLO.GENE{kk};
-    CHRPOS = ADSP.ORLO.CHRPOS(kk);
+    GENE   = ADSP.FISHPOR.GENE{kk};
+    CHRPOS = ADSP.FISHPOR.CHRPOS(kk);
 
     VLOCI.TRFISHP(VLOCI.CHRPOS==CHRPOS) = 0;
 
@@ -682,8 +678,8 @@ YDt YDh DXt DXh netq netd net
 %----------------------------------------------------------------------
 
 
-    GENE   = ADSP.ORLO.GENE{kk};
-    CHRPOS = ADSP.ORLO.CHRPOS(kk);
+    GENE   = ADSP.FISHPOR.GENE{kk};
+    CHRPOS = ADSP.FISHPOR.CHRPOS(kk);
 
 
 
@@ -919,8 +915,8 @@ YDt YDh DXt DXh netq netd net
 %----------------------------------------------------------------------
 
 
-GENE   = ADSP.ORLO.GENE{kk};
-CHRPOS = ADSP.ORLO.CHRPOS(kk);
+GENE   = ADSP.FISHPOR.GENE{kk};
+CHRPOS = ADSP.FISHPOR.CHRPOS(kk);
 
 
 
@@ -966,7 +962,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['/Users/bradleymonk/Desktop/GENOX/' GENE '_' num2str(CHRPOS) '_ANYANY.png']);
+saveas(gcf, [P.datadumpdir GENE '_' num2str(CHRPOS) '_ANYANY.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
@@ -1015,7 +1011,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['/Users/bradleymonk/Desktop/GENOX/' GENE '_' num2str(CHRPOS) '_REFREF.png']);
+saveas(gcf, [P.datadumpdir GENE '_' num2str(CHRPOS) '_REFREF.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
@@ -1062,7 +1058,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['/Users/bradleymonk/Desktop/GENOX/' GENE '_' num2str(CHRPOS) '_REFALT.png']);
+saveas(gcf, [P.datadumpdir GENE '_' num2str(CHRPOS) '_REFALT.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
@@ -1112,14 +1108,14 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, ['/Users/bradleymonk/Desktop/GENOX/' GENE '_' num2str(CHRPOS) '_ALTALT.png']);
+saveas(gcf, [P.datadumpdir GENE '_' num2str(CHRPOS) '_ALTALT.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
 
 
 %------------------------------------------%
-P.SAVEPATH = ['/Users/bradleymonk/Desktop/GENOX/' GENE '_' num2str(CHRPOS) '.mat'];
+P.SAVEPATH = [P.datadumpdir GENE '_' num2str(CHRPOS) '.mat'];
 save(P.SAVEPATH,'LOOPDATA','P','INFO');
 disp('File saved...'); disp(P.SAVEPATH)
 %------------------------------------------%

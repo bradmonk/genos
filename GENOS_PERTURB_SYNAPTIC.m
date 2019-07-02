@@ -118,8 +118,8 @@ P.doSYN = 1;
 P.doPLO = 0;
 P.doORLO = 0;
 P.doORHI = 0;
-P.NGeneStart = 101;
-P.NGeneEnd = 388;
+P.NGeneStart = 1;
+P.NGeneEnd = 389;
 P.NGenes = P.NGeneEnd - P.NGeneStart + 1;
 P.Nloops = 10;
 P.FileStart = 1;
@@ -228,26 +228,24 @@ clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
 PLOops = detectImportOptions(P.SNPTABLE,'Sheet','Plo');
 ORLOops = detectImportOptions(P.SNPTABLE,'Sheet','ORlo');
 ORHIops = detectImportOptions(P.SNPTABLE,'Sheet','ORhi');
-SYNAops = detectImportOptions(P.SNPTABLE,'Sheet','Synaptic');
+SYNAops = detectImportOptions(P.SNPTABLE,'Sheet','Syn');
 
 PLO  = readtable(P.SNPTABLE,PLOops,'Sheet','Plo');
 ORLO = readtable(P.SNPTABLE,ORLOops,'Sheet','ORlo');
 ORHI = readtable(P.SNPTABLE,ORHIops,'Sheet','ORhi');
-SYNA = readtable(P.SNPTABLE,SYNAops,'Sheet','Synaptic');
+SYNA = readtable(P.SNPTABLE,SYNAops,'Sheet','Syn');
 
 PLO.CHRPOS  = uint64(PLO.CHRPOS);
 ORLO.CHRPOS = uint64(ORLO.CHRPOS);
 ORHI.CHRPOS = uint64(ORHI.CHRPOS);
 SYNA.CHRPOS = uint64(SYNA.CHRPOS);
+SYN = SYNA;
 
 
-
-
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYNA
+clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYNA SYN
 %% FIND LOWEST P-VALUE SNP VERSION & SET CHRPOS TO THAT VERSION
+%{
 clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYNA
-
-
 
 vi = sum(LOCI.GENE == string(SYNA.GENE)' ,2) >0;
 
@@ -260,6 +258,7 @@ SYN = SYN(ia,:);
 
 
 clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYNA SYN
+%}
 %--------------------------------------------------------------------------
 %%
 %--------------------------------------------------------------------------
@@ -271,13 +270,13 @@ ADSP.SYN  = SYN;
 
 
 if P.doPLO == 1
-    ADSP.FISHPOR = PLO;
+    ADSP.SNP = PLO;
 elseif P.doORLO == 1
-    ADSP.FISHPOR = ORLO;
+    ADSP.SNP = ORLO;
 elseif P.doORHI == 1
-     ADSP.FISHPOR = ORHI;
+     ADSP.SNP = ORHI;
 elseif P.doSYN == 1
-     ADSP.FISHPOR = SYN;
+     ADSP.SNP = SYN;
 end
 
 clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYNA SYN
@@ -460,8 +459,8 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
     % GET GENE-CHRLOC TO PERTURB AND ENSURE IT'S #1 AMONG SNPS
     %==========================================================================
 
-    GENE   = ADSP.FISHPOR.GENE{kk};
-    CHRPOS = ADSP.FISHPOR.CHRPOS(kk);
+    GENE   = ADSP.SNP.GENE{kk};
+    CHRPOS = ADSP.SNP.CHRPOS(kk);
 
     VLOCI.TRFISHP(VLOCI.CHRPOS==CHRPOS) = 0;
 
@@ -654,8 +653,8 @@ YDt YDh DXt DXh netq netd net
 %----------------------------------------------------------------------
 
 
-    GENE   = ADSP.FISHPOR.GENE{kk};
-    CHRPOS = ADSP.FISHPOR.CHRPOS(kk);
+    GENE   = ADSP.SNP.GENE{kk};
+    CHRPOS = ADSP.SNP.CHRPOS(kk);
 
 
 
@@ -891,8 +890,8 @@ YDt YDh DXt DXh netq netd net
 %----------------------------------------------------------------------
 
 
-GENE   = ADSP.FISHPOR.GENE{kk};
-CHRPOS = ADSP.FISHPOR.CHRPOS(kk);
+GENE   = ADSP.SNP.GENE{kk};
+CHRPOS = ADSP.SNP.CHRPOS(kk);
 
 
 

@@ -114,8 +114,8 @@ clearvars -except P ADSP INFO
 clc; clearvars -except P ADSP INFO
 
 
-P.doPRO = 1;
-P.doPLO = 0;
+P.doPRO = 0;
+P.doPLO = 1;
 P.doORLO = 0;
 P.doORHI = 0;
 P.doSYN = 0;
@@ -132,14 +132,14 @@ P.RemoveGenesByName = false;
 P.RemoveBadGenes = false;
 P.f = filesep;
 P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-P.SNPTABLE= 'F:\GENOSDATA\GENOS_TOP_PROTECTIVE_SNPs.xlsx';
+P.SNPTABLE= 'F:\GENOSDATA\GENOS_TOP_SNPs.xlsx';
 P.datadumpdir = 'F:\GENOSDATA\GENOS_PERTURB\PRO';
 
 % [22 23 24 33 34 44]
 %--------------------------
-% P.importdir = [P.basedir P.f 'APOE_22_23_24_33_34_44' P.f 'APOE_22_23_24_33_34_44_FISHP'];
-% P.APOES = '22_23_24_33_34_44';
-% INFO.APOE = [22 23 24 33 34 44];
+P.importdir = [P.basedir P.f 'APOE_22_23_24_33_34_44' P.f 'APOE_22_23_24_33_34_44_FISHP'];
+P.APOES = '22_23_24_33_34_44';
+INFO.APOE = [22 23 24 33 34 44];
 
 
 % [22 23 24 34 44]
@@ -158,9 +158,9 @@ P.datadumpdir = 'F:\GENOSDATA\GENOS_PERTURB\PRO';
 
 % [34 44]
 %--------------------------
-P.importdir = [P.basedir P.f 'APOE_34_44' P.f 'APOE_34_44_FISHP'];
-P.APOES = '34_44';
-INFO.APOE = [34 44];
+% P.importdir = [P.basedir P.f 'APOE_34_44' P.f 'APOE_34_44_FISHP'];
+% P.APOES = '34_44';
+% INFO.APOE = [34 44];
 
 
 % [33 34]
@@ -445,14 +445,14 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
     end
     VLOCI.VID  = (1:size(VLOCI,1))';
     %}
-    BADGENES = string(["TYRO3","TOMM40"]);
-    for nn = 1:numel(BADGENES)
-        x = strcmp(VLOCI.GENE,BADGENES(nn));
-        VLOCI(x,:) = [];
-        VCASE(x) = [];
-        VCTRL(x) = [];
-        VUSNP(x) = [];
-    end
+%     BADGENES = string(["TYRO3","TOMM40"]);
+%     for nn = 1:numel(BADGENES)
+%         x = strcmp(VLOCI.GENE,BADGENES(nn));
+%         VLOCI(x,:) = [];
+%         VCASE(x) = [];
+%         VCTRL(x) = [];
+%         VUSNP(x) = [];
+%     end
 
 
 
@@ -558,7 +558,7 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
     
 
 
-    for nn = 1:5
+    for nn = 1:3
     
         netq = train(NN,VXt',Yt');  % TRAIN NETQ
 
@@ -661,17 +661,17 @@ YDt YDh DXt DXh netq netd net
 
     %------------------------------------------------------------------
     % TRAINING APOE:  22 23 24 33 34 44
-    % HOLDOUT  APOE:  33
-    % HOLDOUT  VARS:  5
+    % HOLDOUT  APOE:  44
+    % HOLDOUT  VARS:  3
     %------------------------------------------------------------------
     [PVXt, VXt, DVXt, DXt, Yt, YDt] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
     [PVXh, VXh, DVXh, DXh, Yh, YDh] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
 
 
-    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE APOE33 ALLELE
+    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE APOE44 ALLELE
     e4i = find(XLOCI.CHRPOS==190045411941);
-    PVXh(:,(9+e4i)) = -1;
-    VXh(:,e4i)      = -1;
+    PVXh(:,(9+e4i)) = 3;
+    VXh(:,e4i)      = 3;
     e2i = find(XLOCI.CHRPOS==190045412079);
     PVXh(:,(9+e2i)) = -1;
     VXh(:,e2i)      = -1;
@@ -724,8 +724,8 @@ YDt YDh DXt DXh netq netd net
     % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE APOE33 ALLELE
     e4i = find(XLOCI.CHRPOS==190045411941);
     e2i = find(XLOCI.CHRPOS==190045412079);
-    PVXh(:,(9+e4i)) = -1;
-    VXh(:,e4i)      = -1;
+    PVXh(:,(9+e4i)) = 3;
+    VXh(:,e4i)      = 3;
     PVXh(:,(9+e2i)) = -1;
     VXh(:,e2i)      = -1;
 
@@ -774,8 +774,8 @@ YDt YDh DXt DXh netq netd net
     % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE APOE33 ALLELE
     e4i = find(XLOCI.CHRPOS==190045411941);
     e2i = find(XLOCI.CHRPOS==190045412079);
-    PVXh(:,(9+e4i)) = -1;
-    VXh(:,e4i)      = -1;
+    PVXh(:,(9+e4i)) = 3;
+    VXh(:,e4i)      = 3;
     PVXh(:,(9+e2i)) = -1;
     VXh(:,e2i)      = -1;
 
@@ -821,8 +821,8 @@ YDt YDh DXt DXh netq netd net
     % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE APOE33 ALLELE
     e4i = find(XLOCI.CHRPOS==190045411941);
     e2i = find(XLOCI.CHRPOS==190045412079);
-    PVXh(:,(9+e4i)) = -1;
-    VXh(:,e4i)      = -1;
+    PVXh(:,(9+e4i)) = 3;
+    VXh(:,e4i)      = 3;
     PVXh(:,(9+e2i)) = -1;
     VXh(:,e2i)      = -1;
 

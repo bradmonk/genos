@@ -98,7 +98,7 @@ P.home = fileparts(which('GENOS.m')); cd(P.home);
 P.funs = [P.home filesep 'genos_functions'];
 P.mfuns = [P.funs filesep 'genos_main_functions'];
 P.other = [P.home filesep 'genos_other'];
-P.data = [P.home filesep 'genos_data'];
+P.data = 'F:\GENOSDATA';
 addpath(join(string(struct2cell(P)),pathsep,1))
 cd(P.home)
 
@@ -121,7 +121,7 @@ P.doORLO = 0;
 P.doORHI = 0;
 P.doSYN = 0;
 P.NGeneStart = 1;
-P.NGeneEnd = 100;
+P.NGeneEnd = 500;
 P.NGenes = P.NGeneEnd - P.NGeneStart + 1;
 P.Nloops = 10;
 P.FileStart = 1;
@@ -132,7 +132,7 @@ P.Lo2Hi = true;
 P.RemoveGenesByName = false;
 P.RemoveBadGenes = false;
 P.f = filesep;
-P.SNPTABLE= [P.data P.f 'GENOS_TOP_PROTECTIVE_SNPs.xlsx'];
+P.SNPTABLE= [P.data P.f 'GENOS_TOP_SNPs.xlsx'];
 P.datadumpdir = [P.data P.f 'GENOX' P.f 'PRO'];
 
 
@@ -182,12 +182,16 @@ clearvars -except P ADSP INFO
 
 P.FILES.w = what(P.importdir);
 P.Nmatfiles = numel(P.FILES.w.mat);
-disp(P.FILES.w.mat); disp(P.Nmatfiles);
+disp(P.FILES.w.mat); 
+disp('FOUND THIS MANY PARTICIPANT SUBSAMPLE MAT FILES...');
+disp(P.Nmatfiles);
 
 
 
-if P.Nloops > P.Nmatfiles
-disp('ABORTING: NOT ENOUGH MAT FILES TO RUN THAT MANY LOOPS');
+if P.Nmatfiles < 50
+disp('ABORTING: PROBABLY WRONG APOE SUBDIR SELECTED.');
+disp('ONLY FOUND THIS MANY PARTICIPANT SUBSAMPLE MAT FILES...');
+disp(P.Nmatfiles);
 return; 
 end
 
@@ -594,19 +598,10 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
     NN.performParam.normalization = 'none';
 
 
-
-    netq = train(NN,VXt',Yt');  % TRAIN NETQ
-    [ERR,~,~,~] = confusion(Yh',netq(VXh'));
-    qCOR = 1-ERR;
-    LOOPDATA.NETQ(ij) = {netq};
-    maxq = qCOR;
-    
-
-
+    maxq = 0;
     for nn = 1:3
     
         netq = train(NN,VXt',Yt');  % TRAIN NETQ
-
         [ERR,~,~,~] = confusion(Yh',netq(VXh'));
         qCOR = 1-ERR;
 
@@ -988,7 +983,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_ANYANY.png']);
+saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_APOE34_SNP34.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
@@ -1038,7 +1033,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_REFREF.png']);
+saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_APOE34_SNP44.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
@@ -1086,7 +1081,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_REFALT.png']);
+saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_APOE44_SNP34.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
@@ -1137,7 +1132,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_ALTALT.png']);
+saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_APOE44_SNP44.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 

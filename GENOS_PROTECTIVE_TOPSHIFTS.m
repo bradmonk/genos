@@ -116,24 +116,24 @@ clearvars -except P ADSP INFO
 %==========================================================================
 clc; clearvars -except P ADSP INFO
 
-P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
-f = filesep;
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
+P.f = filesep;
 
 
 P.APOES = '22_23_24_33_34_44'; INFO.APOE = [22 23 24 33 34 44];
-P.importdir = [P.basedir f 'APOE_22_23_24_33_34_44' f 'APOE_22_23_24_33_34_44_FISHP'];
+P.importdir = [P.basedir P.f 'APOE_22_23_24_33_34_44' P.f 'APOE_22_23_24_33_34_44_FISHP'];
 
 % P.APOES = '22_23_24_34_44'; INFO.APOE = [22 23 24 34 44];
-% P.importdir = [P.basedir f 'APOE_22_23_24_34_44' f 'APOE_22_23_24_34_44_FISHP'];
+% P.importdir = [P.basedir P.f 'APOE_22_23_24_34_44' P.f 'APOE_22_23_24_34_44_FISHP'];
 
 % P.APOES = '33'; INFO.APOE = [33];
-% P.importdir = [P.basedir f 'APOE_33' f 'APOE_33_FISHP'];
+% P.importdir = [P.basedir P.f 'APOE_33' P.f 'APOE_33_FISHP'];
 
 % P.APOES = '34_44'; INFO.APOE = [34 44];
-% P.importdir = [P.basedir f 'APOE_34_44' f 'APOE_34_44_FISHP'];
+% P.importdir = [P.basedir P.f 'APOE_34_44' P.f 'APOE_34_44_FISHP'];
 
 % P.APOES = '33_44'; INFO.APOE = [34 44];
-% P.importdir = [P.basedir f 'APOE_34_44' f 'APOE_34_44_FISHP'];
+% P.importdir = [P.basedir P.f 'APOE_34_44' P.f 'APOE_34_44_FISHP'];
 
 
 clearvars -except P ADSP INFO
@@ -165,30 +165,27 @@ P.RemoveBadGenes = false;
 
 % SET DEFAULT FOLDERS 
 %------------------------------------------------------
-P.genox.DIRroot = [P.home P.f 'genos_data' P.f 'GENOX'];
-
-
 % P.genox.DIRroot = [P.home P.f 'genos_data' P.f 'GENOX'];
 % P.genox.DIRmat  = [P.genox.DIRroot P.f 'PLO_MAT'];
 % P.genox.DIRimg  = [P.genox.DIRroot P.f 'PLO_IMG'];
 % P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'PLO_STATS_MAT'];
 % P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'PLO_STATS_IMG'];
-
-
+% 
+% 
 % P.genox.DIRroot = [P.home P.f 'genos_data' P.f 'GENOX'];
 % P.genox.DIRmat  = [P.genox.DIRroot P.f 'ORLO_MAT'];
 % P.genox.DIRimg  = [P.genox.DIRroot P.f 'ORLO_IMG'];
 % P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'ORLO_STATS_MAT'];
 % P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'ORLO_STATS_IMG'];
-
-
+% 
+% 
 % P.genox.DIRroot = [P.home P.f 'genos_data' P.f 'GENOX'];
 % P.genox.DIRmat  = [P.genox.DIRroot P.f 'ORHI_MAT'];
 % P.genox.DIRimg  = [P.genox.DIRroot P.f 'ORHI_IMG'];
 % P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'ORHI_STATS_MAT'];
 % P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'ORHI_STATS_IMG'];
-
-
+% 
+% 
 % P.genox.DIRroot = [P.home P.f 'genos_data' P.f 'GENOX'];
 % P.genox.DIRmat  = [P.genox.DIRroot P.f 'SYN_MAT'];
 % P.genox.DIRimg  = [P.genox.DIRroot P.f 'SYN_IMG'];
@@ -196,11 +193,12 @@ P.genox.DIRroot = [P.home P.f 'genos_data' P.f 'GENOX'];
 % P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'SYN_STATS_IMG'];
 
 
-P.genox.DIRroot = [P.home P.f 'genos_data' P.f 'GENOX'];
-P.genox.DIRmat  = [P.genox.DIRroot P.f 'PRO/PRO_MAT'];
-P.genox.DIRimg  = [P.genox.DIRroot P.f 'PRO/PRO_IMG'];
-P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'PRO/PRO_STATS_MAT'];
-P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'PRO/PRO_STATS_IMG'];
+
+P.genox.DIRroot = 'F:\GENOSDATA\GENOS_PERTURB\PRO';
+P.genox.DIRmat  = [P.genox.DIRroot P.f 'PRO_MAT'];
+P.genox.DIRimg  = [P.genox.DIRroot P.f 'PRO_MAT'];
+P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'PRO_STATS_MAT'];
+P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'PRO_STATS_IMG'];
 
 
 
@@ -289,5 +287,5 @@ for k = 1:size(STATISTICS,1)
 
 end
 
-writetable(STATISTICS,'/Users/bradleymonk/Desktop/PROTECTIVE_SNPS.xlsx','Sheet',1)
+writetable(STATISTICS,'F:\GENOSDATA\GENOS_PERTURB\PROTECTIVE_SNPS2.xlsx','Sheet',1)
 

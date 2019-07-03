@@ -116,7 +116,7 @@ clearvars -except P ADSP INFO
 %==========================================================================
 clc; clearvars -except P ADSP INFO
 
-P.basedir = '/Users/bradleymonk/Documents/MATLAB/GIT/genomics/genos/genos_data/APOE';
+P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
 P.f = filesep;
 
 
@@ -192,11 +192,13 @@ P.RemoveBadGenes = false;
 % P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'SYN_STATS_MAT'];
 % P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'SYN_STATS_IMG'];
 
-P.genox.DIRroot = [P.home P.f 'genos_data' P.f 'GENOX'];
-P.genox.DIRmat  = [P.genox.DIRroot P.f 'PRO/PRO_MAT'];
-P.genox.DIRimg  = [P.genox.DIRroot P.f 'PRO/PRO_MAT'];
-P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'PRO/PRO_STATS_MAT'];
-P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'PRO/PRO_STATS_IMG'];
+
+
+P.genox.DIRroot = 'F:\GENOSDATA\GENOS_PERTURB\PRO';
+P.genox.DIRmat  = [P.genox.DIRroot P.f 'PRO_MAT'];
+P.genox.DIRimg  = [P.genox.DIRroot P.f 'PRO_MAT'];
+P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'PRO_STATS_MAT'];
+P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'PRO_STATS_IMG'];
 
 
 
@@ -312,8 +314,8 @@ P.PERX.fipaths = fullfile(P.PERX.folder,P.PERX.finames);
 disp(P.PERX.fipaths); disp(P.PERX.finames);
 
 
-cm=cmbyr(15); cmap = cm([12,5,14,2,15,1],:);
-set(groot,'defaultAxesColorOrder',cmap)
+% cm=cmbyr(15); cmap = cm([12,5,14,2,15,1],:);
+% set(groot,'defaultAxesColorOrder',cmap)
 % edges = (-.49:.02:.49);
 
 

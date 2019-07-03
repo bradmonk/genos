@@ -114,7 +114,7 @@ clearvars -except P ADSP INFO
 clc; clearvars -except P ADSP INFO
 
 
-P.doPRO = 0;
+
 P.doPLO = 1;
 P.doORLO = 0;
 P.doORHI = 0;

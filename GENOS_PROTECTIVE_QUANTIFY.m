@@ -194,7 +194,7 @@ P.RemoveBadGenes = false;
 
 
 
-P.genox.DIRroot = 'F:\GENOSDATA\GENOS_PERTURB\PRO';
+P.genox.DIRroot = 'F:\GENOSDATA\GENOX\PRO';
 P.genox.DIRmat  = [P.genox.DIRroot P.f 'PRO_MAT'];
 P.genox.DIRimg  = [P.genox.DIRroot P.f 'PRO_MAT'];
 P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'PRO_STATS_MAT'];
@@ -296,9 +296,92 @@ end
 
 clc; clearvars -except P ADSP INFO PERT PER
 %==========================================================================
+%% QUANTIFY SHIFTS AND EXPORT TO EXCEL
+%==========================================================================
+clc; clearvars -except P ADSP INFO PERT PER
+
+% GET PATHS TO ALL MAT FILES IN SELECTED FOLDER
+%------------------------------------------------------
+P.PERT.w = what(P.genox.DIRstatsmat);
+P.PERT.finfo = dir(P.PERT.w.path);
+P.PERT.finames = {P.PERT.finfo.name};
+c=~cellfun(@isempty,regexp(P.PERT.finames,'((\S)+(\.mat+))'));
+P.PERT.finames = string(P.PERT.finames(c)');
+P.PERT.folder = P.PERT.finfo.folder;
+P.PERT.fipaths = fullfile(P.PERT.folder,P.PERT.finames);
+disp(P.PERT.fipaths); disp(P.PERT.finames);
+
+
+GENOS = load(P.PERT.fipaths{1});
+%---
+STAT(1).GENE   = GENOS.PER.GENE;
+STAT(1).CHRPOS = GENOS.PER.CHRPOS;
+STAT(1).AREA   = GENOS.PER.area;
+STAT(1).CASEMU = GENOS.PER.caseMu;
+STAT(1).CTRLMU = GENOS.PER.ctrlMu;
+STAT(1).CACOMU = GENOS.PER.cacoZd;
+
+
+GENOS = load(P.PERT.fipaths{1});
+%---
+TAB = struct2table(GENOS.PER);
+TAB.GENE(2) = TAB.GENE(1);
+TAB.GENE(3) = TAB.GENE(1);
+TAB.GENE(4) = TAB.GENE(1);
+
+TAB.CHRPOS(2) = TAB.CHRPOS(1);
+TAB.CHRPOS(3) = TAB.CHRPOS(1);
+TAB.CHRPOS(4) = TAB.CHRPOS(1);
+
+TAB.TEST = [1;2;3;4];
+
+STATS = TAB;
+
+
+
+for ii = 2:numel(P.PERT.fipaths)
+
+    GENOS = load(P.PERT.fipaths{ii});
+
+    TAB = struct2table(GENOS.PER);
+    TAB.GENE(2) = TAB.GENE(1);
+    TAB.GENE(3) = TAB.GENE(1);
+    TAB.GENE(4) = TAB.GENE(1);
+
+    TAB.CHRPOS(2) = TAB.CHRPOS(1);
+    TAB.CHRPOS(3) = TAB.CHRPOS(1);
+    TAB.CHRPOS(4) = TAB.CHRPOS(1);
+
+    TAB.TEST = [1;2;3;4];
+
+    STATS = [STATS; TAB];
+
+end
+
+
+STATISTICS = STATS(:,[1 2 4 5 6 7]);
+STATISTICS.CASEHIST = zeros(size(STATISTICS,1),50);
+STATISTICS.CTRLHIST = zeros(size(STATISTICS,1),50);
+
+
+for k = 1:size(STATISTICS,1)
+
+    STATISTICS.CASEHIST(k,:) = STATS.area{k,1}(:,4)' + STATS.area{k,1}(:,2)';
+
+    STATISTICS.CTRLHIST(k,:) = STATS.area{k,1}(:,5)' + STATS.area{k,1}(:,3)';
+
+end
+
+writetable(STATISTICS,'F:\GENOSDATA\GENOX\PRO_SNPS.xlsx','Sheet',1)
+
+
+clc; clearvars -except P ADSP INFO PERT PER STATS STATISTICS
+
+
+%==========================================================================
 %% PLOT CONFUSION PERFORMANCE HISTOGRAMS
 %==========================================================================
-
+clc; clearvars -except P ADSP INFO PERT PER STATS STATISTICS
 
 % IMPORT PEROX FILES
 %-----------------------------------

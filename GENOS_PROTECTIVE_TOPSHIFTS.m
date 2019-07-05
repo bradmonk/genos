@@ -194,7 +194,7 @@ P.RemoveBadGenes = false;
 
 
 
-P.genox.DIRroot = 'F:\GENOSDATA\GENOS_PERTURB\PRO';
+P.genox.DIRroot = 'F:\GENOSDATA\GENOX\PRO';
 P.genox.DIRmat  = [P.genox.DIRroot P.f 'PRO_MAT'];
 P.genox.DIRimg  = [P.genox.DIRroot P.f 'PRO_MAT'];
 P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'PRO_STATS_MAT'];
@@ -287,5 +287,5 @@ for k = 1:size(STATISTICS,1)
 
 end
 
-writetable(STATISTICS,'F:\GENOSDATA\GENOS_PERTURB\PROTECTIVE_SNPS2.xlsx','Sheet',1)
+writetable(STATISTICS,'F:\GENOSDATA\GENOX\PRO_SNPS.xlsx','Sheet',1)
 

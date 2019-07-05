@@ -121,9 +121,9 @@ P.doORLO = 0;
 P.doORHI = 0;
 P.doSYN = 0;
 P.NGeneStart = 1;
-P.NGeneEnd = 500;
+P.NGeneEnd = 50;
 P.NGenes = P.NGeneEnd - P.NGeneStart + 1;
-P.Nloops = 10;
+P.Nloops = 20;
 P.FileStart = 1;
 P.Nvars = 200;
 P.windowSize = 50;
@@ -132,7 +132,7 @@ P.Lo2Hi = true;
 P.RemoveGenesByName = false;
 P.RemoveBadGenes = false;
 P.f = filesep;
-P.SNPTABLE= [P.data P.f 'GENOS_TOP_SNPs.xlsx'];
+P.TOP_SNP_XLSX_PATH = [P.data P.f 'GENOS_TOP_SNPs.xlsx'];
 P.datadumpdir = [P.data P.f 'GENOX' P.f 'PRO'];
 
 
@@ -173,28 +173,11 @@ INFO.APOE = [22 23 24 33 34 44];
 
 
 
-
-clearvars -except P ADSP INFO
-
-
-
-%% VALIDATE IMPORT OPTIONS & GET PATHS TO EACH FISHP.MAT FILE
-
-P.FILES.w = what(P.importdir);
-P.Nmatfiles = numel(P.FILES.w.mat);
-disp(P.FILES.w.mat); 
+P.FILES.sets = what(P.importdir);
+P.Nsets = numel(P.FILES.sets.mat);
+disp(P.FILES.sets.mat); 
 disp('FOUND THIS MANY PARTICIPANT SUBSAMPLE MAT FILES...');
-disp(P.Nmatfiles);
-
-
-
-if P.Nmatfiles < 50
-disp('ABORTING: PROBABLY WRONG APOE SUBDIR SELECTED.');
-disp('ONLY FOUND THIS MANY PARTICIPANT SUBSAMPLE MAT FILES...');
-disp(P.Nmatfiles);
-return; 
-end
-
+disp(P.Nsets);
 
 
 clearvars -except P ADSP INFO
@@ -204,31 +187,50 @@ clearvars -except P ADSP INFO
 %==========================================================================
 %% IMPORT TOP VARIANTS FROM EXCEL SHEET
 %==========================================================================
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
+clc; clearvars -except P ADSP INFO
 
-PLOops  = detectImportOptions(P.SNPTABLE,'Sheet','Plo');
-ORLOops = detectImportOptions(P.SNPTABLE,'Sheet','ORlo');
-ORHIops = detectImportOptions(P.SNPTABLE,'Sheet','ORhi');
-SYNops  = detectImportOptions(P.SNPTABLE,'Sheet','Syn');
-PROops  = detectImportOptions(P.SNPTABLE,'Sheet','Pro');
+PLOops  = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','Plo');
+ORLOops = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','ORlo');
+ORHIops = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','ORhi');
+SYNops  = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','Syn');
+PROops  = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','Pro');
 
-PLO  = readtable(P.SNPTABLE,PLOops,'Sheet','Plo');
-ORLO = readtable(P.SNPTABLE,ORLOops,'Sheet','ORlo');
-ORHI = readtable(P.SNPTABLE,ORHIops,'Sheet','ORhi');
-SYN  = readtable(P.SNPTABLE,SYNops,'Sheet','Syn');
-PRO  = readtable(P.SNPTABLE,SYNops,'Sheet','Pro');
-
-PLO.CHRPOS  = uint64(PLO.CHRPOS);
-ORLO.CHRPOS = uint64(ORLO.CHRPOS);
-ORHI.CHRPOS = uint64(ORHI.CHRPOS);
-SYN.CHRPOS  = uint64(SYN.CHRPOS);
-PRO.CHRPOS  = uint64(PRO.CHRPOS);
+SNPTAB.PLO  = readtable(P.TOP_SNP_XLSX_PATH,PLOops,'Sheet','Plo');
+SNPTAB.ORLO = readtable(P.TOP_SNP_XLSX_PATH,ORLOops,'Sheet','ORlo');
+SNPTAB.ORHI = readtable(P.TOP_SNP_XLSX_PATH,ORHIops,'Sheet','ORhi');
+SNPTAB.SYN  = readtable(P.TOP_SNP_XLSX_PATH,SYNops,'Sheet','Syn');
+SNPTAB.PRO  = readtable(P.TOP_SNP_XLSX_PATH,PROops,'Sheet','Pro');
 
 
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN PRO
+SNPTAB.PLO.CHRPOS  = uint64(SNPTAB.PLO.CHRPOS);
+SNPTAB.ORLO.CHRPOS = uint64(SNPTAB.ORLO.CHRPOS);
+SNPTAB.ORHI.CHRPOS = uint64(SNPTAB.ORHI.CHRPOS);
+SNPTAB.SYN.CHRPOS  = uint64(SNPTAB.SYN.CHRPOS);
+SNPTAB.PRO.CHRPOS  = uint64(SNPTAB.PRO.CHRPOS);
+
+
+ADSP.SNPTAB = SNPTAB;
+
+if P.doPLO == 1
+    ADSP.SNP = ADSP.SNPTAB.PLO;
+elseif P.doORLO == 1
+    ADSP.SNP = ADSP.SNPTAB.ORLO;
+elseif P.doORHI == 1
+     ADSP.SNP = ADSP.SNPTAB.ORHI;
+elseif P.doSYN == 1
+     ADSP.SNP = ADSP.SNPTAB.SYN;
+elseif P.doPRO == 1
+     ADSP.SNP = ADSP.SNPTAB.PRO;
+end
+
+
+disp(head(ADSP.SNP));
+clearvars -except P ADSP INFO
+%==========================================================================
 %% FIND LOWEST P-VALUE SNP VERSION & SET CHRPOS TO THAT VERSION
+%==========================================================================
 %{
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN PRO
+clc; clearvars -except P ADSP INFO
 
 LOCI = ADSP.LOCI;
 
@@ -247,9 +249,11 @@ clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN PR
 
 
 
+%==========================================================================
 %% FIND GENE ENTRY FROM CHRPOS
+%==========================================================================
 %{
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN PRO
+clc; clearvars -except P ADSP INFO
 
 LOCI = ADSP.LOCI;
 
@@ -277,43 +281,14 @@ PROT = PROT(ia,:);
 clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN PRO PROT
 %}
 
-%--------------------------------------------------------------------------
-%%
-%--------------------------------------------------------------------------
-
-ADSP.PLO  = PLO;
-ADSP.ORLO = ORLO;
-ADSP.ORHI = ORHI;
-ADSP.SYN  = SYN;
-
-
-if P.doPLO == 1
-    ADSP.SNP = PLO;
-elseif P.doORLO == 1
-    ADSP.SNP = ORLO;
-elseif P.doORHI == 1
-     ADSP.SNP = ORHI;
-elseif P.doSYN == 1
-     ADSP.SNP = SYN;
-elseif P.doPRO == 1
-     ADSP.SNP = PRO;
-end
-
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
-
 
 
 
 %==========================================================================
 %%   CARBON COPY MAIN VARIABLES FROM ADSP.STRUCT
 %==========================================================================
-%
-% After evaluating this section, each variable will be copied from the
-% ADSP structural array to their own base variable. This is done so
-% that (1) you can access their data directly (e.g. LOCI.GENE(1:5) instead
-% of ADSP.LOCI.GENE(1:5) ) and so that (2) you can always restart fresh
-% here, by running this segment of code, rather than having to import the
-% data from the .mat file in the section above.
+clc; clearvars -except P ADSP INFO
+
 
 LOCI = ADSP.LOCI;
 CASE = ADSP.CASE;
@@ -322,13 +297,9 @@ USNP = ADSP.USNP;
 PHEN = ADSP.PHEN;
 
 
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
-head(PHEN)
-head(LOCI)
 
-
-
-
+disp(head(PHEN)); disp(head(LOCI));
+clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
 %==========================================================================
 %==========================================================================
 %==========================================================================
@@ -339,7 +310,7 @@ head(LOCI)
 %==========================================================================
 %==========================================================================
 %==========================================================================
-clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
+clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
 
 
 % NEURAL NETWORKS CONFUSION STATS
@@ -425,15 +396,14 @@ for ij = 1:P.Nloops
 % 
 % 
 %========================================================================== 
-close all; clc;
 clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij
-fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
+close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
 
 
 
     % LOAD MAT DATA CONTAINING UNIQUE PARTICIPANT SUBSET
 
-    MATDAT = load([P.FILES.w.path filesep    P.FILES.w.mat{randi(50)}   ]);
+    MATDAT = load([P.FILES.sets.path P.f  P.FILES.sets.mat{randi(50)}  ]);
 
 
     
@@ -590,6 +560,8 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
     YDt YDh DXt DXh netq netd net 
     %----------------------------------------------------------------------
 
+    
+    
     % SET NEURAL NET PARAMETERS
     NN = patternnet([50 20],'trainscg','crossentropy');
     NN.trainParam.max_fail = 50;
@@ -687,10 +659,8 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
 
 
 %% SYSTEMATICALLY PERTURB NEURAL NET BY ALTERING (1) SNP IN ALL PARTICIPANTS
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL SNPi XLOCI...
-XCASE XCTRL XUSNP TRPHE TEPHE PVXt DVXt PVXh DVXh VXt VXh Yt Yh...
-YDt YDh DXt DXh netq netd net 
+clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
+XLOCI XCASE XCTRL XUSNP TRPHE TEPHE net
 %----------------------------------------------------------------------
 
 
@@ -911,27 +881,13 @@ end
 %
 %==========================================================================
 %==========================================================================
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL SNPi XLOCI...
-XCASE XCTRL XUSNP TRPHE TEPHE PVXt DVXt PVXh DVXh VXt VXh Yt Yh...
-YDt YDh DXt DXh netq netd net 
-%----------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
+%==========================================================================
 %% SAVE LOOP DATA
-%----------------------------------------------------------------------
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL SNPi XLOCI...
-XCASE XCTRL XUSNP TRPHE TEPHE PVXt DVXt PVXh DVXh VXt VXh Yt Yh...
-YDt YDh DXt DXh netq netd net
+%==========================================================================
+clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
+XLOCI XCASE XCTRL XUSNP TRPHE TEPHE net
 %----------------------------------------------------------------------
 
 

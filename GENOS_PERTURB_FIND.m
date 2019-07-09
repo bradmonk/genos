@@ -1,18 +1,17 @@
 %==========================================================================
-%% STEP-1: LOAD THE DATASET
+%% GENOS_PERTURB_FIND.m
 %==========================================================================
 close all; clear; clc; rng('shuffle');
 P.home = fileparts(which('GENOS.m')); cd(P.home);
-P.P1 = [P.home filesep 'genos_functions'];
-P.P3 = [P.P1 filesep 'genos_main_functions'];
-P.P4 = [P.home filesep 'genos_other'];
+P.funs = [P.home filesep 'genos_functions'];
+P.mfuns = [P.funs filesep 'genos_main_functions'];
+P.other = [P.home filesep 'genos_other'];
+P.data = 'F:\GENOSDATA';
 addpath(join(string(struct2cell(P)),pathsep,1))
 cd(P.home); P.f = filesep;
 
 
 ADSP = load('GENOSDATAFINAL.mat');
-
-
 P.mainmatfile = which('GENOSDATAFINAL.mat');
 disp('dataset loaded')
 clearvars -except P ADSP INFO
@@ -22,15 +21,15 @@ clearvars -except P ADSP INFO
 clc; clearvars -except P ADSP INFO
 
 
-P.doPRO = 1;
-P.doPLO = 0;
+P.doPRO = 0;
+P.doPLO = 1;
 P.doORLO = 0;
 P.doORHI = 0;
 P.doSYN = 0;
 P.NGeneStart = 1;
-P.NGeneEnd = 100;
+P.NGeneEnd = 500;
 P.NGenes = P.NGeneEnd - P.NGeneStart + 1;
-P.Nloops = 10;
+P.Nloops = 20;
 P.FileStart = 1;
 P.Nvars = 200;
 P.windowSize = 50;
@@ -38,65 +37,30 @@ P.Ndots = 5;
 P.Lo2Hi = true;
 P.RemoveGenesByName = false;
 P.RemoveBadGenes = false;
-P.f = filesep;
-P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-P.SNPTABLE= 'F:\GENOSDATA\GENOS_TOP_PROTECTIVE_SNPs.xlsx';
-P.datadumpdir = 'F:\GENOSDATA\GENOS_PERTURB\PRO';
+P.TOP_SNP_XLSX_PATH = [P.data P.f 'GENOS_TOP_SNPs.xlsx'];
+P.datadumpdir = [P.data P.f 'GENOX' P.f 'PLO'];
+
+
 
 % [22 23 24 33 34 44]
 %--------------------------
-% P.importdir = [P.basedir P.f 'APOE_22_23_24_33_34_44' P.f 'APOE_22_23_24_33_34_44_FISHP'];
-% P.APOES = '22_23_24_33_34_44';
-% INFO.APOE = [22 23 24 33 34 44];
-
-
-% [22 23 24 34 44]
-%--------------------------
-% P.importdir = [P.basedir P.f 'APOE_22_23_24_34_44' P.f 'APOE_22_23_24_34_44_FISHP'];
-% P.APOES = '22_23_24_34_44';
-% INFO.APOE = [22 23 24 34 44];
-
-
-% [33]
-%--------------------------
-% P.importdir = [P.basedir P.f 'APOE_33' P.f 'APOE_33_FISHP'];
-% P.APOES = '33';
-% INFO.APOE = [33];
+P.importdir = [P.data P.f 'APOE' P.f 'APOE_22_23_24_33_34_44' P.f 'APOE_22_23_24_33_34_44_FISHP'];
+P.APOES = '22_23_24_33_34_44';
+INFO.APOE = [22 23 24 33 34 44];
 
 
 % [34 44]
 %--------------------------
-P.importdir = [P.basedir P.f 'APOE_34_44' P.f 'APOE_34_44_FISHP'];
-P.APOES = '34_44';
-INFO.APOE = [34 44];
-
-
-% [33 34]
-%--------------------------
-% P.importdir = [P.basedir P.f 'APOE_34_44' P.f 'APOE_34_44_FISHP'];
-% P.APOES = '33_44';
+% P.importdir = [P.data P.f 'APOE' P.f 'APOE_34_44' P.f 'APOE_34_44_FISHP'];
+% P.APOES = '34_44';
 % INFO.APOE = [34 44];
 
 
-
-
-clearvars -except P ADSP INFO
-
-
-
-%% VALIDATE IMPORT OPTIONS & GET PATHS TO EACH FISHP.MAT FILE
-
-P.FILES.w = what(P.importdir);
-P.Nmatfiles = numel(P.FILES.w.mat);
-disp(P.FILES.w.mat); disp(P.Nmatfiles);
-
-
-
-if P.Nloops > P.Nmatfiles
-disp('ABORTING: NOT ENOUGH MAT FILES TO RUN THAT MANY LOOPS');
-return; 
-end
-
+P.FILES.sets = what(P.importdir);
+P.Nsets = numel(P.FILES.sets.mat);
+disp(P.FILES.sets.mat); 
+disp('FOUND THIS MANY PARTICIPANT SUBSAMPLE MAT FILES...');
+disp(P.Nsets);
 
 
 clearvars -except P ADSP INFO
@@ -106,62 +70,99 @@ clearvars -except P ADSP INFO
 %==========================================================================
 %% IMPORT TOP VARIANTS FROM EXCEL SHEET
 %==========================================================================
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
+clc; clearvars -except P ADSP INFO
 
-PLOops = detectImportOptions(P.SNPTABLE,'Sheet','Plo');
-ORLOops = detectImportOptions(P.SNPTABLE,'Sheet','ORlo');
-ORHIops = detectImportOptions(P.SNPTABLE,'Sheet','ORhi');
-SYNops = detectImportOptions(P.SNPTABLE,'Sheet','Syn');
+PLOops  = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','Plo');
+ORLOops = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','ORlo');
+ORHIops = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','ORhi');
+SYNops  = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','Syn');
+PROops  = detectImportOptions(P.TOP_SNP_XLSX_PATH,'Sheet','Pro');
 
-PLO  = readtable(P.SNPTABLE,PLOops,'Sheet','Plo');
-ORLO = readtable(P.SNPTABLE,ORLOops,'Sheet','ORlo');
-ORHI = readtable(P.SNPTABLE,ORHIops,'Sheet','ORhi');
-SYN = readtable(P.SNPTABLE,SYNops,'Sheet','Syn');
-
-PLO.CHRPOS  = uint64(PLO.CHRPOS);
-ORLO.CHRPOS = uint64(ORLO.CHRPOS);
-ORHI.CHRPOS = uint64(ORHI.CHRPOS);
-SYN.CHRPOS = uint64(SYN.CHRPOS);
+SNPTAB.PLO  = readtable(P.TOP_SNP_XLSX_PATH,PLOops,'Sheet','Plo');
+SNPTAB.ORLO = readtable(P.TOP_SNP_XLSX_PATH,ORLOops,'Sheet','ORlo');
+SNPTAB.ORHI = readtable(P.TOP_SNP_XLSX_PATH,ORHIops,'Sheet','ORhi');
+SNPTAB.SYN  = readtable(P.TOP_SNP_XLSX_PATH,SYNops,'Sheet','Syn');
+SNPTAB.PRO  = readtable(P.TOP_SNP_XLSX_PATH,PROops,'Sheet','Pro');
 
 
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN
-%% FIND LOWEST P-VALUE SNP VERSION & SET CHRPOS TO THAT VERSION
-%{
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYNA
-
-vi = sum(LOCI.GENE == string(SYNA.GENE)' ,2) >0;
-
-SYN = LOCI(vi,:);
-
-SYN = sortrows(SYN,'OKFISHP');
-
-[C,ia,ic] = unique(SYN.GENE,'stable');
-SYN = SYN(ia,:);
+SNPTAB.PLO.CHRPOS  = uint64(SNPTAB.PLO.CHRPOS);
+SNPTAB.ORLO.CHRPOS = uint64(SNPTAB.ORLO.CHRPOS);
+SNPTAB.ORHI.CHRPOS = uint64(SNPTAB.ORHI.CHRPOS);
+SNPTAB.SYN.CHRPOS  = uint64(SNPTAB.SYN.CHRPOS);
+SNPTAB.PRO.CHRPOS  = uint64(SNPTAB.PRO.CHRPOS);
 
 
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYNA SYN
-%}
-%--------------------------------------------------------------------------
-%%
-%--------------------------------------------------------------------------
-
-ADSP.PLO  = PLO;
-ADSP.ORLO = ORLO;
-ADSP.ORHI = ORHI;
-ADSP.SYN  = SYN;
-
+ADSP.SNPTAB = SNPTAB;
 
 if P.doPLO == 1
-    ADSP.SNP = PLO;
+    ADSP.SNP = ADSP.SNPTAB.PLO;
 elseif P.doORLO == 1
-    ADSP.SNP = ORLO;
+    ADSP.SNP = ADSP.SNPTAB.ORLO;
 elseif P.doORHI == 1
-     ADSP.SNP = ORHI;
+     ADSP.SNP = ADSP.SNPTAB.ORHI;
 elseif P.doSYN == 1
-     ADSP.SNP = SYN;
+     ADSP.SNP = ADSP.SNPTAB.SYN;
+elseif P.doPRO == 1
+     ADSP.SNP = ADSP.SNPTAB.PRO;
 end
 
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN
+
+disp(head(ADSP.SNP));
+clearvars -except P ADSP INFO
+%==========================================================================
+%% FIND LOWEST P-VALUE SNP VERSION & SET CHRPOS TO THAT VERSION
+%==========================================================================
+%{
+clc; clearvars -except P ADSP INFO
+
+LOCI = ADSP.LOCI;
+
+vi = sum(LOCI.GENE == string(PRO.GENE)' ,2) >0;
+
+PROT = LOCI(vi,:);
+
+PROT = sortrows(PROT,'OKFISHP');
+
+[C,ia,ic] = unique(PROT.GENE,'stable');
+PROT = PROT(ia,:);
+
+
+clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN PRO PROT
+%}
+
+
+
+%==========================================================================
+%% FIND GENE ENTRY FROM CHRPOS
+%==========================================================================
+%{
+clc; clearvars -except P ADSP INFO
+
+LOCI = ADSP.LOCI;
+
+CP = PRO.CHRPOS(1:99)';
+
+vi = sum(LOCI.CHRPOS == CP ,2) >0;
+
+PROT = LOCI(vi,:);
+
+% [] = ismember(PROT.CHRPOS,CP)
+
+[C,i,j] = intersect(CP,PROT.CHRPOS)
+
+PROT = PROT(i,:);
+ 
+%      C=A(i) & C=B(j)
+
+
+PROT = sortrows(PROT,'OKFISHP');
+
+[C,ia,ic] = unique(PROT.GENE,'stable');
+PROT = PROT(ia,:);
+
+
+clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN PRO PROT
+%}
 
 
 
@@ -169,13 +170,8 @@ clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP PLO ORLO ORHI SYN
 %==========================================================================
 %%   CARBON COPY MAIN VARIABLES FROM ADSP.STRUCT
 %==========================================================================
-%
-% After evaluating this section, each variable will be copied from the
-% ADSP structural array to their own base variable. This is done so
-% that (1) you can access their data directly (e.g. LOCI.GENE(1:5) instead
-% of ADSP.LOCI.GENE(1:5) ) and so that (2) you can always restart fresh
-% here, by running this segment of code, rather than having to import the
-% data from the .mat file in the section above.
+clc; clearvars -except P ADSP INFO
+
 
 LOCI = ADSP.LOCI;
 CASE = ADSP.CASE;
@@ -184,13 +180,9 @@ USNP = ADSP.USNP;
 PHEN = ADSP.PHEN;
 
 
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
-head(PHEN)
-head(LOCI)
 
-
-
-
+disp(head(PHEN)); disp(head(LOCI));
+clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
 %==========================================================================
 %==========================================================================
 %==========================================================================
@@ -201,7 +193,7 @@ head(LOCI)
 %==========================================================================
 %==========================================================================
 %==========================================================================
-clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
+clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP
 
 
 % NEURAL NETWORKS CONFUSION STATS
@@ -287,15 +279,14 @@ for ij = 1:P.Nloops
 % 
 % 
 %========================================================================== 
-close all; clc;
 clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij
-fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
+close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
 
 
 
     % LOAD MAT DATA CONTAINING UNIQUE PARTICIPANT SUBSET
 
-    MATDAT = load([P.FILES.w.path filesep    P.FILES.w.mat{randi(50)}   ]);
+    MATDAT = load([P.FILES.sets.path P.f  P.FILES.sets.mat{randi(50)}  ]);
 
 
     
@@ -352,15 +343,18 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
     end
     end
     VLOCI.VID  = (1:size(VLOCI,1))';
+
+
+%     BADGENES = string(["TYRO3","TOMM40"]);
+%     for nn = 1:numel(BADGENES)
+%         x = strcmp(VLOCI.GENE,BADGENES(nn));
+%         VLOCI(x,:) = [];
+%         VCASE(x) = [];
+%         VCTRL(x) = [];
+%         VUSNP(x) = [];
+%     end
     %}
-    BADGENES = string(["TYRO3","TOMM40"]);
-    for nn = 1:numel(BADGENES)
-        x = strcmp(VLOCI.GENE,BADGENES(nn));
-        VLOCI(x,:) = [];
-        VCASE(x) = [];
-        VCTRL(x) = [];
-        VUSNP(x) = [];
-    end
+
 
 
 
@@ -391,7 +385,7 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
 
     disp(GENE);
     disp(VLOCI(1:5,1:9)); 
-    pause(2);
+    pause(1);
 
 
     % Save some data for the record
@@ -449,27 +443,20 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
     YDt YDh DXt DXh netq netd net 
     %----------------------------------------------------------------------
 
+    
+    
     % SET NEURAL NET PARAMETERS
-    NN = patternnet([50 20],'trainscg','crossentropy');
+    NN = patternnet([30 20],'trainscg','crossentropy');
     NN.trainParam.max_fail = 50;
     NN.trainParam.showWindow = 0;
     NN.performParam.regularization = 0.1;
     NN.performParam.normalization = 'none';
 
 
-
-    netq = train(NN,VXt',Yt');  % TRAIN NETQ
-    [ERR,~,~,~] = confusion(Yh',netq(VXh'));
-    qCOR = 1-ERR;
-    LOOPDATA.NETQ(ij) = {netq};
-    maxq = qCOR;
-    
-
-
-    for nn = 1:5
+    maxq = 0;
+    for nn = 1:3
     
         netq = train(NN,VXt',Yt');  % TRAIN NETQ
-
         [ERR,~,~,~] = confusion(Yh',netq(VXh'));
         qCOR = 1-ERR;
 
@@ -499,66 +486,14 @@ fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk,ij)
 
 
 
-% MAKE TWO NEURAL NET ARCHITECTURES COMPETE
-%----------------------------------------------------------------------
-%{
-    maxq=0;
-    maxd=0;
-
-    for nn = 1:5
-        disp(nn)
-    
-        netq = train(NN,VXt',Yt');  % TRAIN NETQ
-        netd = train(NN,DXt',Yt');  % TRAIN NETD
-
-
-
-        [ERR,~,~,~] = confusion(Yh',netq(VXh'));
-        qCOR = 1-ERR;
-        [ERR,~,~,~] = confusion(Yh',netd(DXh'));
-        dCOR = 1-ERR;
-
-        if qCOR>maxq
-            LOOPDATA.NETQ(ij) = {netq};
-            maxq = qCOR;
-        end
-        if dCOR>maxd
-            LOOPDATA.NETD(ij) = {netd};
-            maxd = dCOR;
-        end
-    fprintf('\n maxq: %0.4f ',  maxq)
-    fprintf('\n maxd: %0.4f \n',maxd)
-    end
-
-
-
-    netq = LOOPDATA.NETQ{ij};
-    netd = LOOPDATA.NETD{ij};
-
-
-    % if maxq > maxd
-    %     net = netq;
-    %     [CONFU_TR, PERF_TR, AREA_TR] = confusionmx(Yt', netq(VXt'),1);
-    %     [CONFU_HO, PERF_HO, AREA_HO] = confusionmx(Yh', netq(VXh'),1);
-    % else
-    %     net = netd;
-    %     [CONFU_TR, PERF_TR, AREA_TR] = confusionmx(Yt', netd(DXt'),1);
-    %     [CONFU_HO, PERF_HO, AREA_HO] = confusionmx(Yh', netd(DXh'),1);
-    % end
-
-%}
-%----------------------------------------------------------------------
-
 
 
 
 
 
 %% SYSTEMATICALLY PERTURB NEURAL NET BY ALTERING (1) SNP IN ALL PARTICIPANTS
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL SNPi XLOCI...
-XCASE XCTRL XUSNP TRPHE TEPHE PVXt DVXt PVXh DVXh VXt VXh Yt Yh...
-YDt YDh DXt DXh netq netd net 
+clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
+XLOCI XCASE XCTRL XUSNP TRPHE TEPHE net
 %----------------------------------------------------------------------
 
 
@@ -569,14 +504,15 @@ YDt YDh DXt DXh netq netd net
 
     %------------------------------------------------------------------
     % TRAINING APOE:  22 23 24 33 34 44
-    % HOLDOUT  APOE:  33
-    % HOLDOUT  VARS:  5
+    % HOLDOUT  APOE2:  -1 (REF/REF)
+    % HOLDOUT  APOE4:  -1 (REF/REF)
+    % HOLDOUT  VARIS:   ~ (NAT/NAT)
     %------------------------------------------------------------------
     [PVXt, VXt, DVXt, DXt, Yt, YDt] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
     [PVXh, VXh, DVXh, DXh, Yh, YDh] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
 
 
-    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE APOE33 ALLELE
+    % APOE SET TO APOE33
     e4i = find(XLOCI.CHRPOS==190045411941);
     PVXh(:,(9+e4i)) = -1;
     VXh(:,e4i)      = -1;
@@ -586,10 +522,10 @@ YDt YDh DXt DXh netq netd net
 
 
 
-    % DO NOT YET ALTER THE HOLDOUT VARIANT, TO GET A MEASURE OF IT'S BASELINE
-    %VARi = find(XLOCI.CHRPOS==CHRPOS);
-    %PVXh(:,(9+VARi)) = 5;
-    %VXh(:,VARi)      = 5;
+    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE REF/ALT TARGET VARIANT
+    %vi = find(XLOCI.CHRPOS==CHRPOS);
+    %PVXh(:,(9+vi)) = -1;
+    %VXh(:,vi)      = -1;
 
 
     % NET: GET ACTIVATIONS FOR TRAINING AND HOLDOUT
@@ -621,25 +557,26 @@ YDt YDh DXt DXh netq netd net
 
     %------------------------------------------------------------------
     % TRAINING APOE:  22 23 24 33 34 44
-    % HOLDOUT  APOE:  33
-    % HOLDOUT  TREM2: ALT/ALT (+1)
+    % HOLDOUT  APOE2:  -1 (REF/REF)
+    % HOLDOUT  APOE4:  -1 (REF/REF)
+    % HOLDOUT  VARIS:  -1 (REF/REF)
     %------------------------------------------------------------------
-
     [PVXt, VXt, DVXt, DXt, Yt, YDt] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
     [PVXh, VXh, DVXh, DXh, Yh, YDh] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
 
 
-    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE APOE33 ALLELE
+    % APOE SET TO APOE33
     e4i = find(XLOCI.CHRPOS==190045411941);
-    e2i = find(XLOCI.CHRPOS==190045412079);
     PVXh(:,(9+e4i)) = -1;
     VXh(:,e4i)      = -1;
+    e2i = find(XLOCI.CHRPOS==190045412079);
     PVXh(:,(9+e2i)) = -1;
     VXh(:,e2i)      = -1;
 
 
-    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE REF/REF TARGET VARIANT
-    vi = XLOCI.CHRPOS==CHRPOS;
+
+    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE REF/ALT TARGET VARIANT
+    vi = find(XLOCI.CHRPOS==CHRPOS);
     PVXh(:,(9+vi)) = -1;
     VXh(:,vi)      = -1;
 
@@ -672,24 +609,26 @@ YDt YDh DXt DXh netq netd net
 
     %------------------------------------------------------------------
     % TRAINING APOE:  22 23 24 33 34 44
-    % HOLDOUT  APOE:  33
-    % HOLDOUT  VARS:  REFALT/ALT (+5)
+    % HOLDOUT  APOE2:  -1 (REF/REF)
+    % HOLDOUT  APOE4:  -1 (REF/REF)
+    % HOLDOUT  VARIS:   2 (ALT/REF)
     %------------------------------------------------------------------
     [PVXt, VXt, DVXt, DXt, Yt, YDt] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
     [PVXh, VXh, DVXh, DXh, Yh, YDh] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
 
 
-    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE APOE33 ALLELE
+    % APOE SET TO APOE33
     e4i = find(XLOCI.CHRPOS==190045411941);
-    e2i = find(XLOCI.CHRPOS==190045412079);
     PVXh(:,(9+e4i)) = -1;
     VXh(:,e4i)      = -1;
+    e2i = find(XLOCI.CHRPOS==190045412079);
     PVXh(:,(9+e2i)) = -1;
     VXh(:,e2i)      = -1;
 
 
-    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE REF/REF TARGET VARIANT
-    vi = XLOCI.CHRPOS==CHRPOS;
+
+    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE REF/ALT TARGET VARIANT
+    vi = find(XLOCI.CHRPOS==CHRPOS);
     PVXh(:,(9+vi)) = 2;
     VXh(:,vi)      = 2;
 
@@ -719,24 +658,26 @@ YDt YDh DXt DXh netq netd net
 
     %------------------------------------------------------------------
     % TRAINING APOE:  22 23 24 33 34 44
-    % HOLDOUT  APOE:  33
-    % HOLDOUT  VARS:  ALT/ALT (+5)
+    % HOLDOUT  APOE2:  -1 (REF/REF)
+    % HOLDOUT  APOE4:  -1 (REF/REF)
+    % HOLDOUT  VARIS:   3 (ALT/ALT)
     %------------------------------------------------------------------
     [PVXt, VXt, DVXt, DXt, Yt, YDt] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TRPHE,[-1 -0 2 3]);
     [PVXh, VXh, DVXh, DXh, Yh, YDh] = mkdx(XLOCI,XCASE,XCTRL,XUSNP,TEPHE,[-1 -0 2 3]);
 
 
-    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE APOE33 ALLELE
+    % APOE SET TO APOE33
     e4i = find(XLOCI.CHRPOS==190045411941);
-    e2i = find(XLOCI.CHRPOS==190045412079);
     PVXh(:,(9+e4i)) = -1;
     VXh(:,e4i)      = -1;
+    e2i = find(XLOCI.CHRPOS==190045412079);
     PVXh(:,(9+e2i)) = -1;
     VXh(:,e2i)      = -1;
 
 
-    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE ALT/ALT TARGET VARIANT
-    vi = XLOCI.CHRPOS==CHRPOS;
+
+    % ARTIFICIALLY MAKE HOLDOUT PARTICIPANTS HAVE REF/ALT TARGET VARIANT
+    vi = find(XLOCI.CHRPOS==CHRPOS);
     PVXh(:,(9+vi)) = 3;
     VXh(:,vi)      = 3;
 
@@ -775,27 +716,13 @@ end
 %
 %==========================================================================
 %==========================================================================
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL SNPi XLOCI...
-XCASE XCTRL XUSNP TRPHE TEPHE PVXt DVXt PVXh DVXh VXt VXh Yt Yh...
-YDt YDh DXt DXh netq netd net 
-%----------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
+%==========================================================================
 %% SAVE LOOP DATA
-%----------------------------------------------------------------------
-clc; clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
-VLOCI VCASE VCTRL VUSNP VTRCASE VTRCTRL VTECASE VTECTRL SNPi XLOCI...
-XCASE XCTRL XUSNP TRPHE TEPHE PVXt DVXt PVXh DVXh VXt VXh Yt Yh...
-YDt YDh DXt DXh netq netd net
+%==========================================================================
+clearvars -except P ADSP INFO PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
+XLOCI XCASE XCTRL XUSNP TRPHE TEPHE net
 %----------------------------------------------------------------------
 
 
@@ -806,8 +733,9 @@ CHRPOS = ADSP.SNP.CHRPOS(kk);
 
 %------------------------------------------------------------------
 % TRAINING APOE:  22 23 24 33 34 44
-% HOLDOUT  APOE:  33
-% HOLDOUT  VARI:  NATIVE
+% HOLDOUT  APOE2:  -1 (REF/REF)
+% HOLDOUT  APOE4:  -1 (REF/REF)
+% HOLDOUT  VARIS:   ~ (NAT/NAT)
 %------------------------------------------------------------------
 fh01 = figure('Units','normalized','OuterPosition',[.01 .06 .55 .37],'Color','w');
 ax1 = axes('Position',[.07 .16 .61 .80],'Color','none');
@@ -846,7 +774,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_ANYANY.png']);
+saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_APOE33_SNPxx.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
@@ -855,8 +783,9 @@ pause(1)
 
 %------------------------------------------------------------------
 % TRAINING APOE:  22 23 24 33 34 44
-% HOLDOUT  APOE:  33
-% HOLDOUT  VARI: -1
+% HOLDOUT  APOE2:  -1 (REF/REF)
+% HOLDOUT  APOE4:  -1 (REF/REF)
+% HOLDOUT  VARIS:  -1 (REF/REF)
 %------------------------------------------------------------------
 fh02 = figure('Units','normalized','OuterPosition',[.01 .06 .55 .37],'Color','w');
 ax1 = axes('Position',[.07 .16 .61 .80],'Color','none');
@@ -895,15 +824,16 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_REFREF.png']);
+saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_APOE33_SNP33.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
 
 %------------------------------------------------------------------
 % TRAINING APOE:  22 23 24 33 34 44
-% HOLDOUT  APOE:  33
-% HOLDOUT  VARI:  2
+% HOLDOUT  APOE2:  -1 (REF/REF)
+% HOLDOUT  APOE4:  -1 (REF/REF)
+% HOLDOUT  VARIS:   2 (ALT/REF)
 %------------------------------------------------------------------
 fh02 = figure('Units','normalized','OuterPosition',[.01 .06 .55 .37],'Color','w');
 ax1 = axes('Position',[.07 .16 .61 .80],'Color','none');
@@ -942,7 +872,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_REFALT.png']);
+saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_APOE33_SNP34.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 
@@ -952,8 +882,9 @@ pause(1)
 
 %------------------------------------------------------------------
 % TRAINING APOE:  22 23 24 33 34 44
-% HOLDOUT  APOE:  33
-% HOLDOUT  VARI:  3
+% HOLDOUT  APOE2:  -1 (REF/REF)
+% HOLDOUT  APOE4:  -1 (REF/REF)
+% HOLDOUT  VARIS:   3 (ALT/ALT)
 %------------------------------------------------------------------
 fh02 = figure('Units','normalized','OuterPosition',[.01 .06 .55 .37],'Color','w');
 ax1 = axes('Position',[.07 .16 .61 .80],'Color','none');
@@ -992,7 +923,7 @@ bar(([ PERFS(1) , PERFS(2) , PERFS(3) ]),.20,'FaceColor',[.95 .85 .50]);
 pause(1)
 set(gcf, 'PaperPositionMode', 'auto');
 %dt=char(datetime(datetime,'Format','yyyy-MM-dd-HH-mm-ss'));
-saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_ALTALT.png']);
+saveas(gcf, [P.datadumpdir P.f GENE '_' num2str(CHRPOS) '_APOE33_SNP44.png']);
 pause(1)
 %---------------------------------------------------------------------- 
 

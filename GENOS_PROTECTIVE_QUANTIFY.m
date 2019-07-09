@@ -1,95 +1,3 @@
-%% GENOS: 
-%{
-%--------------------------------------------------------------------------
-% 
-% SUMMARY TABLE OF THE 24 COHORTS
-% 
-% COHID    CONSOR    STUDY        COHORT    CASES    CTRLS    TOTAL    %CASE    EQL  BRAAK ID GOOD
-% 01       DGC       Adult_Chng    ACT        323      945     1268       25    323    1   01    1
-% 02       ADGC      AD_Centers    ADC       2438      817     3255       75    817    0   02    1
-% 03       CHARGE    Athrosclro    ASC         39       18       57       68     18    0   03    0
-% 04       CHARGE    Aus_Stroke    SKE        121        5      126       96      5    0   04    0
-% 05       ADGC      ChiT_Aging    CHA         27      204      231       12     27    0   05    0
-% 06       CHARGE    CardioHlth    CHS        250      583      833       30    250    1   06    1
-% 07       ADGC      Hispanic_S    HSP        160      171      331       48    160    0   07    0
-% 08       CHARGE    Erasmus_Er    ERF         45        0       45      100      0    0   08    0
-% 09       CHARGE    Framingham    FHS        157      424      581       27    157    1   09    1
-% 10       ADGC      Gene_Diffs    GDF        111       96      207       54     96    1   10    1
-% 11       ADGC      NIA_LOAD      LOD        367      109      476       77    109    1   11    1
-% 12       ADGC      Aging_Proj    MAP        138      277      415       33    138    1   12    1
-% 13       ADGC      Mayo_Clini    MAY        250       99      349       72     99    1   13    1
-% 14       ADGC      Miami_Univ    MIA        186       14      200       93     14    1   14    0
-% 15       ADGC      AD_Genetic    MIR        316       15      331       95     15    0   15    0
-% 16       ADGC      Mayo_cl_PD    MPD          0       20       20        0      0    1   16    0
-% 17       ADGC      NationC_AD    NCA        160        0      160      100      0    1   17    0
-% 18       ADGC      Wash_Unive    RAS         46        0       46      100      0    1   18    0
-% 19       ADGC      Relig_Ordr    ROS        154      197      351       44    154    1   19    1
-% 20       CHARGE    RotterdamS    RDS        276      813     1089       25    276    0   20    1
-% 21       ADGC      Texas_AD_S    TAR        132       12      144       92     12    0   21    0
-% 22       ADGC      Un_Toronto    TOR          9        0        9      100      0    0   22    0
-% 23       ADGC      Vanderbilt    VAN        210       26      236       89     26    1   23    1
-% 24       ADGC      WashNY_Age    WCA         34      116      150       23     34    0   24    1
-% 
-% 
-% GOODCOHORTS = [1 2         6 7   9 10 11 12 13               19 20     23 24]
-% BRAKCOHORTS = [1           6     9 10 11 12 13 14   16 17 18 19        23   ]
-%--------------------------------------------------------------------------
-% 
-% APOE4 CHRPOS: 190045411941
-% APOE2 CHRPOS: 190045412079
-%
-% APOE  190045411941  190045412079
-% e22:      -1            5
-% e23:      -1            2
-% e24:       2            2
-% e33:      -1           -1
-% e34:       2           -1
-% e44:       5           -1
-% 
-% 
-% The dataset that will be loaded in STEP-1 below will import 5 variables
-% and store them into a structural array named 'ADSP'. If you type ADSP
-% into the command prompt you will see...
-% 
-% 
-% >> ADSP
-% 
-% ADSP = 
-%   struct with fields:
-% 
-%     PHEN: [10910×22 table]
-%     LOCI: [94483×24 table]
-%     CASE: {94483×1 cell}
-%     CTRL: {94483×1 cell}
-%     USNP: {94483×1 cell}
-% 
-% 
-% ...(maybe not in this specific order) the 5 container variables.
-% 
-% 
-% PHEN    a table containing the phenotype information for each
-%         participant. If you type head(ADSP.PHEN) you can see what
-%         data each column contains.
-% 
-% 
-% LOCI    a table containing genotype info for each exome variant locus.
-%         if you type head(ADSP.LOCI) you can see what data each column
-%         contains.
-% 
-% 
-% 
-% CASE    the last three are cell arrays, containing a list of 
-% CTRL    participant IDs & HET/HOM status. Each have 1 cell per row
-% USNP    of LOCI (~94483 cells); they are (at least upon import) 
-%         pre-sorted in corresponding order, which allows us to
-%         iterate over each loci/cell and tally each HET (+1) or 
-%         HOM (+2) that matches subsets of participant IDs. (there
-%         is an optimized function specifically designed to
-%         perform this task, as you will see below).
-%         
-%}
-%--------------------------------------------------------------------------
-
 %==========================================================================
 %% STEP-1: LOAD THE DATASET
 %==========================================================================
@@ -99,72 +7,18 @@ P.P1 = [P.home filesep 'genos_functions'];
 P.P3 = [P.P1 filesep 'genos_main_functions'];
 P.P4 = [P.home filesep 'genos_other'];
 addpath(join(string(struct2cell(P)),pathsep,1))
-cd(P.home)
-
-
-ADSP = load('GENOSDATAFINAL.mat');
-
-
-P.mainmatfile = which('GENOSDATAFINAL.mat');
-disp('dataset loaded')
-clearvars -except P ADSP INFO
-
-
-
-%==========================================================================
-%% APOE related options
-%==========================================================================
-clc; clearvars -except P ADSP INFO
-
-P.basedir = 'F:\GENOSDATA\APOE_SUBGROUPS';
-P.f = filesep;
-
-
-P.APOES = '22_23_24_33_34_44'; INFO.APOE = [22 23 24 33 34 44];
-P.importdir = [P.basedir P.f 'APOE_22_23_24_33_34_44' P.f 'APOE_22_23_24_33_34_44_FISHP'];
-
-% P.APOES = '22_23_24_34_44'; INFO.APOE = [22 23 24 34 44];
-% P.importdir = [P.basedir P.f 'APOE_22_23_24_34_44' P.f 'APOE_22_23_24_34_44_FISHP'];
-
-% P.APOES = '33'; INFO.APOE = [33];
-% P.importdir = [P.basedir P.f 'APOE_33' P.f 'APOE_33_FISHP'];
-
-% P.APOES = '34_44'; INFO.APOE = [34 44];
-% P.importdir = [P.basedir P.f 'APOE_34_44' P.f 'APOE_34_44_FISHP'];
-
-% P.APOES = '33_44'; INFO.APOE = [34 44];
-% P.importdir = [P.basedir P.f 'APOE_34_44' P.f 'APOE_34_44_FISHP'];
-
-
-clearvars -except P ADSP INFO
-
-
-
+cd(P.home); P.f = filesep;
 
 
 %==========================================================================
 %% (GENOX) PERTURB TEST OPTIONS & FOLDERS 
 %==========================================================================
-clc; clearvars -except P ADSP INFO
-
-
-% SET PERTURB TEST OPTIONS
-%------------------------------------------------------
-P.f = filesep;
-P.NGenes = 100;
-P.Nloops = 10;
-P.FileStart = 1;
-P.Nvars = 200;
-P.windowSize = 50;
-P.Ndots = 5;
-P.Lo2Hi = true;
-P.RemoveGenesByName = false;
-P.RemoveBadGenes = false;
-
+clc; clearvars -except P
 
 
 % SET DEFAULT FOLDERS 
 %------------------------------------------------------
+%{
 % P.genox.DIRroot = [P.home P.f 'genos_data' P.f 'GENOX'];
 % P.genox.DIRmat  = [P.genox.DIRroot P.f 'PLO_MAT'];
 % P.genox.DIRimg  = [P.genox.DIRroot P.f 'PLO_IMG'];
@@ -191,14 +45,14 @@ P.RemoveBadGenes = false;
 % P.genox.DIRimg  = [P.genox.DIRroot P.f 'SYN_IMG'];
 % P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'SYN_STATS_MAT'];
 % P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'SYN_STATS_IMG'];
-
+%}
 
 
 P.genox.DIRroot = 'F:\GENOSDATA\GENOX\PRO';
-P.genox.DIRmat  = [P.genox.DIRroot P.f 'PRO_MAT'];
-P.genox.DIRimg  = [P.genox.DIRroot P.f 'PRO_MAT'];
-P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'PRO_STATS_MAT'];
-P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'PRO_STATS_IMG'];
+P.genox.DIRmat  = [P.genox.DIRroot P.f 'PRO_MAT_RE'];
+P.genox.DIRimg  = [P.genox.DIRroot P.f 'PRO_MAT_RE'];
+P.genox.DIRstatsmat = [P.genox.DIRroot P.f 'PRO_STATS_MAT_RE'];
+P.genox.DIRstatsimg = [P.genox.DIRroot P.f 'PRO_STATS_IMG_RE'];
 
 
 
@@ -214,34 +68,39 @@ P.PERT.folder = P.PERT.finfo.folder;
 P.PERT.fipaths = fullfile(P.PERT.folder,P.PERT.finames);
 disp(P.PERT.fipaths); disp(P.PERT.finames);
 
+PERT = load(P.PERT.fipaths{1});
 
-ij=2;
-PERT = load(P.PERT.fipaths{ij});
-
-clearvars -except P ADSP INFO PERT
+clearvars -except P PERT
 
 
 %==========================================================================
 %% GET PERTURB STATS
 %==========================================================================
-clc; clearvars -except P ADSP INFO PERT
+clc; clearvars -except P PERT
 
 
 for ij = 1:numel(P.PERT.fipaths)
 clc; clearvars -except P ADSP INFO PER ij
-disp(ij);
-disp(P.PERT.finames{ij})
+disp(ij); disp(P.PERT.finames{ij})
 
 
+% LOAD SNP FILE
+%-----------------------------------
 PERT = load(P.PERT.fipaths{ij});
 
+
+% DETERMINE GENE, CHRPOS, AND NLOOPS
+%-----------------------------------
 PER(1).GENE   = PERT.INFO.TOPLOCI{1,1}.GENE(1);
 PER(1).CHRPOS = PERT.INFO.TOPLOCI{1,1}.CHRPOS(1);
+NLoops = size(PERT.LOOPDATA.AREA_HO,3);
+
+
 
 
 % NAT/NAT PERFORMANCE
 %-----------------------------------
-PER(1).area = mean(PERT.LOOPDATA.AREA_HO(:,:,1:10,1) ,3);
+PER(1).area = mean(PERT.LOOPDATA.AREA_HO(:,:,NLoops,1) ,3);
 PER(1).caseMu = midgravity(PER(1).area(:,1), PER(1).area(:,2), PER(1).area(:,4));
 PER(1).ctrlMu = midgravity(PER(1).area(:,1), PER(1).area(:,3), PER(1).area(:,5));
 PER(1).cacoZd = 0;
@@ -254,7 +113,7 @@ PER(1).cacoZd = 0;
 
 % REF/REF PERFORMANCE
 %-----------------------------------
-PER(2).area = mean(PERT.LOOPDATA.AREA_HO(:,:,1:10,2) ,3);
+PER(2).area = mean(PERT.LOOPDATA.AREA_HO(:,:,NLoops,2) ,3);
 PER(2).caseMu = midgravity(PER(2).area(:,1), PER(2).area(:,2), PER(2).area(:,4));
 PER(2).ctrlMu = midgravity(PER(2).area(:,1), PER(2).area(:,3), PER(2).area(:,5));
 PER(2).cacoZd = (abs(PER(2).caseMu - PER(1).caseMu)+...
@@ -263,7 +122,7 @@ PER(2).cacoZd = (abs(PER(2).caseMu - PER(1).caseMu)+...
 
 % REF/ALT PERFORMANCE
 %-----------------------------------
-PER(3).area = mean(PERT.LOOPDATA.AREA_HO(:,:,1:10,3) ,3);
+PER(3).area = mean(PERT.LOOPDATA.AREA_HO(:,:,NLoops,3) ,3);
 PER(3).caseMu = midgravity(PER(3).area(:,1), PER(3).area(:,2), PER(3).area(:,4));
 PER(3).ctrlMu = midgravity(PER(3).area(:,1), PER(3).area(:,3), PER(3).area(:,5));
 PER(3).cacoZd = (abs(PER(3).caseMu - PER(1).caseMu)+...
@@ -275,7 +134,7 @@ PER(3).cacoZd = (abs(PER(3).caseMu - PER(1).caseMu)+...
 
 % ALT/ALT PERFORMANCE
 %-----------------------------------
-PER(4).area = mean(PERT.LOOPDATA.AREA_HO(:,:,1:10,4) ,3);
+PER(4).area = mean(PERT.LOOPDATA.AREA_HO(:,:,NLoops,4) ,3);
 PER(4).caseMu = midgravity(PER(4).area(:,1), PER(4).area(:,2), PER(4).area(:,4));
 PER(4).ctrlMu = midgravity(PER(4).area(:,1), PER(4).area(:,3), PER(4).area(:,5));
 PER(4).cacoZd = (abs(PER(4).caseMu - PER(1).caseMu)+...
@@ -294,7 +153,7 @@ disp('File saved...'); disp(P.SAVEPATH)
 end
 
 
-clc; clearvars -except P ADSP INFO PERT PER
+clc; clearvars -except P PERT PER
 %==========================================================================
 %% QUANTIFY SHIFTS AND EXPORT TO EXCEL
 %==========================================================================
@@ -372,21 +231,19 @@ for k = 1:size(STATISTICS,1)
 
 end
 
-writetable(STATISTICS,'F:\GENOSDATA\GENOX\PRO_SNPS.xlsx','Sheet',1)
+writetable(STATISTICS,'F:\GENOSDATA\GENOX\PRO\PRO_SNPS.xlsx','Sheet','RAWRE')
 
 
-clc; clearvars -except P ADSP INFO PERT PER STATS STATISTICS
+clc; clearvars -except P PERT PER STATS STATISTICS
 
 
 %==========================================================================
 %% PLOT CONFUSION PERFORMANCE HISTOGRAMS
 %==========================================================================
-clc; clearvars -except P ADSP INFO PERT PER STATS STATISTICS
+clc; clearvars -except P PERT PER STATS STATISTICS
 
 % IMPORT PEROX FILES
 %-----------------------------------
-clc; clearvars -except P ADSP INFO PERT PER kk
-
 P.PERX.w = what(P.genox.DIRstatsmat);
 P.PERX.finfo = dir(P.PERX.w.path);
 P.PERX.finames = {P.PERX.finfo.name};
@@ -397,15 +254,8 @@ P.PERX.fipaths = fullfile(P.PERX.folder,P.PERX.finames);
 disp(P.PERX.fipaths); disp(P.PERX.finames);
 
 
-% cm=cmbyr(15); cmap = cm([12,5,14,2,15,1],:);
-% set(groot,'defaultAxesColorOrder',cmap)
-% edges = (-.49:.02:.49);
-
-
-
-
 for ij = 1:numel(P.PERX.fipaths)
-clc; clearvars -except P ADSP INFO PERT PER ij
+clc; clearvars -except P PERT PER STATS STATISTICS ij
 disp(ij);
 
 

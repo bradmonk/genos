@@ -1,7 +1,7 @@
-function [CONMX, MU, XYAREA] = confusionmx(LABS,ACT,varargin)
-%======================================================================
+function [CONMX, MU, XYAREA] = confusionmx(Yt,MX,net,varargin)
+%==========================================================================
 % BUILD CONFUSION MATRICES
-%======================================================================
+%==========================================================================
 %  %CORRECT     NCASE_ACTUAL   NCTRL_ACTUAL   %CASE_ACTUAL
 %  NCASE_PRED       TP             FP             PPV
 %  NCTRL_PRED       FN             FN             NPV
@@ -9,6 +9,13 @@ function [CONMX, MU, XYAREA] = confusionmx(LABS,ACT,varargin)
 %------------------------------------------------------------------
 % keyboard
 %%
+
+    LABS = Yt';
+
+    ACT = net(MX');
+
+%==========================================================================
+
 
     [ERR, CMX,~, CMR] = confusion(LABS,ACT);
     COR = 1-ERR;
@@ -43,9 +50,9 @@ function [CONMX, MU, XYAREA] = confusionmx(LABS,ACT,varargin)
 
 
 
-%======================================================================
+%==========================================================================
 % BUILD CONFUSION MATRICES
-%======================================================================
+%==========================================================================
 %  %CORRECT     NCASE_ACTUAL   NCTRL_ACTUAL   %CASE_ACTUAL
 %  NCASE_PRED       TP             FP             PPV
 %  NCTRL_PRED       FN             FN             NPV
@@ -64,66 +71,117 @@ function [CONMX, MU, XYAREA] = confusionmx(LABS,ACT,varargin)
 
 
 
-    
-
-    HACT = ACT - .5;
-
-
-    % ALL: SPLIT PREDICTIONS FOR CASES AND CONTROLS
-    ACT_CASE = HACT(1,LABS(1,:)==1) .*  1;
-    ACT_CTRL = HACT(1,LABS(1,:)==0) .* -1;
-
-
-    % ALL: DESCRETIZE PREDICTIONS
-    TF_CASE = ACT_CASE >  0;
-    TF_CTRL = ACT_CTRL >= 0;
-
-
-    % ALL: PROPORTION CORRECT
-    MU_CASE = nanmean(TF_CASE);
-    MU_CTRL = nanmean(TF_CTRL);
-
-    
-
-    % ALL/HIGH: HAS HIGH ACTIVATION?
-    HIQ_CASE = quantile(abs(ACT_CASE),.75);
-    HIQ_CTRL = quantile(abs(ACT_CTRL),.75);
-
-    ISHI_CASE = abs(ACT_CASE) > HIQ_CASE;
-    ISHI_CTRL = abs(ACT_CTRL) > HIQ_CTRL;
-
-    % HIGH: PROPORTION POPULATION
-    %HIPO_CASE = mean(ISHI_CASE);
-    %HIPO_CTRL = mean(ISHI_CTRL);
-
-    % HIGH: PROPORTION CORRECT
-    HIMU_CASE = nanmean(ACT_CASE(ISHI_CASE) > 0);
-    HIMU_CTRL = nanmean(ACT_CTRL(ISHI_CTRL) > 0);
-
-    MU_ALL = nanmean([TF_CASE TF_CTRL]);
-    HIMU_ALL = nanmean([(ACT_CASE(ISHI_CASE)>0) (ACT_CTRL(ISHI_CTRL)>0)]);
-
-
-    MU = [MU_CASE MU_CTRL MU_ALL HIMU_CASE HIMU_CTRL HIMU_ALL];
-
-
-
-
-    edges = (-.5:.02:.5);
-    [CASE_NUM_LO,CASE_EDG_LO] = histcounts( (ACT_CASE(ACT_CASE>0)),edges);
-    [CTRL_NUM_LO,CTRL_EDG_LO] = histcounts( (ACT_CTRL(ACT_CTRL>0).*-1),edges );
-    [CASE_NUM_HI,CASE_EDG_HI] = histcounts( (ACT_CASE(ACT_CASE<0)),edges);
-    [CTRL_NUM_HI,CTRL_EDG_HI] = histcounts( (ACT_CTRL(ACT_CTRL<0).*-1),edges );
-    XAREA = mean([edges(1:end-1); edges(2:end)])';
-    YAREA = [CASE_NUM_HI; CTRL_NUM_HI; CASE_NUM_LO; CTRL_NUM_LO]';
-
-    XYAREA = [XAREA YAREA];
-
-
-%%
+%==========================================================================
+% GET NEURAL NET PERFORMANCE
+%==========================================================================
 % keyboard
-%% GENERATE HISTOGRAM PLOTS
 
+
+
+HACT = ACT - .5;
+
+cut = nngetcut(LABS,HACT,0);
+
+
+
+
+
+
+% ALL ACTIVATION
+%----------------------------------------------------------------------
+
+% ALL: SPLIT PREDICTIONS FOR CASES AND CONTROLS
+ACT_CASE = HACT( LABS==1 ) .*  1;
+ACT_CTRL = HACT( LABS==0 ) .*  1;
+
+
+% ALL: DESCRETIZE PREDICTIONS
+TF_CASE = ACT_CASE >  cut;
+TF_CTRL = ACT_CTRL <= cut;
+
+
+% ALL: PROPORTION CORRECT
+MU_CASE = nanmean(TF_CASE);
+MU_CTRL = nanmean(TF_CTRL);
+MU_CACO = nanmean([TF_CASE TF_CTRL]);
+
+
+
+
+% HIGH ACTIVATION
+%----------------------------------------------------------------------
+
+% GET HIGH CONFIDENCE CUTOFF
+LOHI = quantile(HACT,[.25,.75]);
+LO=LOHI(1);HI=LOHI(2);
+
+
+% DETERMINE WHICH OUTPUTS ARE ABOVE THRESHOLD
+ISHI_CASE = (ACT_CASE < LO)|(ACT_CASE > HI);
+ISHI_CTRL = (ACT_CTRL < LO)|(ACT_CTRL > HI);
+
+
+% DETERMINE PROPORTION CORRECT
+HIMU_CASE = nanmean(ACT_CASE(ISHI_CASE) >  0);
+HIMU_CTRL = nanmean(ACT_CTRL(ISHI_CTRL) <= 0);
+HIMU_CACO = nanmean([(ACT_CASE(ISHI_CASE)>0) (ACT_CTRL(ISHI_CTRL)<=0)]);
+
+
+
+%----------------------------------------------------------------------
+
+    
+MU = [MU_CASE MU_CTRL MU_CACO HIMU_CASE HIMU_CTRL HIMU_CACO];
+
+
+fprintf('\n ALL PCT-CORRECT: (CASE|CTRL|CACO): %.2f | %.2f | %.2f   ',...
+    MU_CASE, MU_CTRL, MU_CACO)
+
+
+fprintf('\n HIC PCT-CORRECT: (CASE|CTRL|CACO): %.2f | %.2f | %.2f \n\n',...
+    HIMU_CASE, HIMU_CTRL, HIMU_CACO)
+
+
+%----------------------------------------------------------------------
+% keyboard
+
+
+
+
+edges = (-.5:.02:.5);
+CASE_NUM_LO = histcounts( ACT_CASE( ACT_CASE <  0 ) ,edges);
+CTRL_NUM_LO = histcounts( ACT_CTRL( ACT_CTRL >  0 ) ,edges);
+CASE_NUM_HI = histcounts( ACT_CASE( ACT_CASE >= 0 ) ,edges);
+CTRL_NUM_HI = histcounts( ACT_CTRL( ACT_CTRL <= 0 ) ,edges);
+
+XAREA = mean([edges(1:end-1); edges(2:end)])';
+YAREA = [CASE_NUM_LO; CTRL_NUM_LO; CASE_NUM_HI; CTRL_NUM_HI]';
+XYAREA = [XAREA YAREA];
+
+
+
+
+
+
+%==========================================================================
+%% GENERATE PLOTS
+%==========================================================================
+if nargin == 4
+
+NETDAT.XAREA  = XAREA;
+NETDAT.YAREA  = YAREA;
+NETDAT.XYAREA = XYAREA;
+NETDAT.MU     = MU;
+
+nnperfplots(LABS,MX,ACT,NETDAT)
+
+end
+
+
+%==========================================================================
+%% GENERATE HISTOGRAM PLOTS
+%==========================================================================
+%{
 if nargin > 2
     close all
     fh02 = figure('Units','normalized','OuterPosition',[.05 .07 .60 .70],...
@@ -189,6 +247,11 @@ if nargin > 2
     %varargout = {XYAREA};
 end
 %%
+
+%}
+%----------------------------------------------------------------------
+
+
 
 
 end

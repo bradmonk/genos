@@ -6,8 +6,8 @@ P.home = fileparts(which('GENOS.m')); cd(P.home);
 P.funs = [P.home filesep 'genos_functions'];
 P.mfuns = [P.funs filesep 'genos_main_functions'];
 P.other = [P.home filesep 'genos_other'];
-%P.data = [P.home filesep 'genos_data'];
-P.data = 'F:\GENOSDATA';
+P.data = [P.home filesep 'genos_data'];
+% P.data = 'F:\GENOSDATA';
 addpath(join(string(struct2cell(P)),pathsep,1))
 cd(P.home); P.f = filesep;
 
@@ -32,7 +32,7 @@ P.doORLO = 0;
 P.doORHI = 0;
 P.doSYN = 0;
 P.NGeneStart = 1;
-P.NGeneEnd = 500;
+P.NGeneEnd = 50;
 P.NGenes = P.NGeneEnd - P.NGeneStart + 1;
 P.Nloops = 10;
 P.FileStart = 1;

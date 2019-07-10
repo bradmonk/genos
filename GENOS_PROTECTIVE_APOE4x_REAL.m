@@ -6,8 +6,8 @@ P.home = fileparts(which('GENOS.m')); cd(P.home);
 P.funs = [P.home filesep 'genos_functions'];
 P.mfuns = [P.funs filesep 'genos_main_functions'];
 P.other = [P.home filesep 'genos_other'];
-%P.data = [P.home filesep 'genos_data'];
-P.data = 'F:\GENOSDATA';
+P.data = [P.home filesep 'genos_data'];
+% P.data = 'F:\GENOSDATA';
 addpath(join(string(struct2cell(P)),pathsep,1))
 cd(P.home); P.f = filesep;
 
@@ -32,7 +32,7 @@ P.doORLO = 0;
 P.doORHI = 0;
 P.doSYN = 0;
 P.NGeneStart = 1;
-P.NGeneEnd = 500;
+P.NGeneEnd = 22;
 P.NGenes = P.NGeneEnd - P.NGeneStart + 1;
 P.Nloops = 10;
 P.FileStart = 1;
@@ -82,13 +82,13 @@ PLOops  = detectImportOptions([P.TargetSNP_Path P.f 'PLO.csv']);
 ORLOops = detectImportOptions([P.TargetSNP_Path P.f 'ORLO.csv']);
 ORHIops = detectImportOptions([P.TargetSNP_Path P.f 'ORHI.csv']);
 SYNops  = detectImportOptions([P.TargetSNP_Path P.f 'SYN.csv']);
-PROops  = detectImportOptions([P.TargetSNP_Path P.f 'PRO.csv']);
+PROops  = detectImportOptions([P.TargetSNP_Path P.f 'PRO3.csv']);
 
 SNPTAB.PLO  = readtable([P.TargetSNP_Path P.f 'PLO.csv'],PLOops);
 SNPTAB.ORLO = readtable([P.TargetSNP_Path P.f 'ORLO.csv'],ORLOops);
 SNPTAB.ORHI = readtable([P.TargetSNP_Path P.f 'ORHI.csv'],ORHIops);
 SNPTAB.SYN  = readtable([P.TargetSNP_Path P.f 'SYN.csv'],SYNops);
-SNPTAB.PRO  = readtable([P.TargetSNP_Path P.f 'PRO.csv'],PROops);
+SNPTAB.PRO  = readtable([P.TargetSNP_Path P.f 'PRO3.csv'],PROops);
 
 SNPTAB.PLO.CHRPOS  = uint64(SNPTAB.PLO.CHRPOS);
 SNPTAB.ORLO.CHRPOS = uint64(SNPTAB.ORLO.CHRPOS);
@@ -333,7 +333,7 @@ close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk
 
 
     disp(GENE);
-    disp(VLOCI(1:5,1:9)); 
+    disp(VLOCI(1:9,1:9)); 
     pause(2);
 
 
@@ -419,8 +419,8 @@ LOOPDATA.NETS{ij,1} = net;
 
 
 
-[CONFU_TR, PERF_TR, AREA_TR] = confusionmx(Yt, VXt, net );
-[CONFU_HO, PERF_HO, AREA_HO] = confusionmx(Yh, VXh, net ,1);
+% [CONFU_TR, PERF_TR, AREA_TR] = confusionmx(Yt, VXt, net );
+% [CONFU_HO, PERF_HO, AREA_HO] = confusionmx(Yh, VXh, net );
 % [CONFU_TR, PERF_TR, PCUT_TR, AREA_TR] = nnperform(Yt', DXt', PVXt, net, 'cut',.5,'plt',0);
 % [CONFU_HO, PERF_HO, PCUT_HO, AREA_HO] = nnperform(Yh', DXh', PVXh, net, 'cut',.5,'plt',0);
 
@@ -498,7 +498,6 @@ VXh(:,vi)         = INFO.NNwts(4);
 % NET: GET ACTIVATIONS FOR TRAINING AND HOLDOUT
 [CONFU_TR, PERF_TR, AREA_TR] = confusionmx(Yt, VXt, net );
 [CONFU_HO, PERF_HO, AREA_HO] = confusionmx(Yh, VXh, net );
-
 LOOPDATA.CONFU_TR(:,:,ij, 1) = CONFU_TR;
 LOOPDATA.CONFU_HO(:,:,ij, 1) = CONFU_HO;
 LOOPDATA.PERF_TR(ij,:,    1) = PERF_TR;
@@ -595,11 +594,11 @@ LOOPDATA.AREA_HO(:,:,ij,  2) = AREA_HO;
 % USING ONE-HOT-TRAINING-MATRIX (DVXt, DXt)
 %-------------------------------------------
 % TRAINING APOES:  22 23 24 33 34 44
-% HOLDOUT  APOE:   {24|34|44}
+% HOLDOUT  APOE:   34 PSEUDO
 % HOLDOUT TARSNP:  ALT|ALT
 %------------------------------------------------------------------
-PHEt = TRPHE( sum( TRPHE.APOE==[24,34,44] ,2)>0 ,:);
-PHEh = TEPHE( sum( TEPHE.APOE==[24,34,44] ,2)>0 ,:);
+PHEt = TRPHE(TRPHE.APOE ~= 11 ,:);
+PHEh = TEPHE(TEPHE.APOE ~= 11 ,:);
 
 [PVXt, VXt, DVXt, DXt, Yt, YDt] = vxdx(XLOCI,XCASE,XCTRL,XUSNP,PHEt,INFO.NNwts);
 [PVXh, VXh, DVXh, DXh, Yh, YDh] = vxdx(XLOCI,XCASE,XCTRL,XUSNP,PHEh,INFO.NNwts);
@@ -607,7 +606,7 @@ PHEh = TEPHE( sum( TEPHE.APOE==[24,34,44] ,2)>0 ,:);
 
 % [[ APOE ]] UPDATE APOE STATUS IN HOLDOUT GROUP FOR ONE-HOT DUAL-VAR-MX (DVXh)
 %-----------------------------------------------------
-%{
+%{.
 %--- SET E2{REF|REF}
 e2i = find(XLOCI.CHRPOS==190045412079);
 DVXh(:,(e2i*2+8))  = INFO.NNwts(1);
@@ -620,11 +619,11 @@ VXh(:,e2i)         = INFO.NNwts(1);
 %--- SET E4{ALT|REF}
 e4i = find(XLOCI.CHRPOS==190045411941);
 DVXh(:,(e4i*2+8))  = INFO.NNwts(3);
-DVXh(:,(e4i*2+9))  = INFO.NNwts(4);
+DVXh(:,(e4i*2+9))  = INFO.NNwts(1);
 DXh(:,e4i*2-1)     = INFO.NNwts(3);
-DXh(:,e4i*2-0)     = INFO.NNwts(4);
-PVXh(:,(9+e4i))    = INFO.NNwts(4);
-VXh(:,e4i)         = INFO.NNwts(4);
+DXh(:,e4i*2-0)     = INFO.NNwts(1);
+PVXh(:,(9+e4i))    = INFO.NNwts(3);
+VXh(:,e4i)         = INFO.NNwts(3);
 %}
 
 
@@ -712,7 +711,7 @@ VXh(:,vi)         = INFO.NNwts(4);
 
 % NET: GET ACTIVATIONS FOR TRAINING AND HOLDOUT
 [CONFU_TR, PERF_TR, AREA_TR] = confusionmx(Yt, VXt, net );
-[CONFU_HO, PERF_HO, AREA_HO] = confusionmx(Yh, VXh, net ,1);
+[CONFU_HO, PERF_HO, AREA_HO] = confusionmx(Yh, VXh, net );
 
 LOOPDATA.CONFU_TR(:,:,ij, 4) = CONFU_TR;
 LOOPDATA.CONFU_HO(:,:,ij, 4) = CONFU_HO;
@@ -771,10 +770,10 @@ disp('File saved...'); disp(P.SAVEPATH)
 
 
 
-P.FINAME1 = '_SNP44_APOE_22_23_24_33_34_44';
-P.FINAME2 = '_SNP44_APOE_33';
-P.FINAME3 = '_SNP44_APOE_24_34_44';
-P.FINAME4 = '_SNP44_APOE_34_44';
+P.FINAME1 = '_SNP44_1APOE_ANY_REAL';
+P.FINAME2 = '_SNP44_2APOE_33_REAL';
+P.FINAME3 = '_SNP44_3APOE_34_PSEUDO';
+P.FINAME4 = '_SNP44_4APOE_3444_REAL';
 
 
 

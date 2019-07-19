@@ -1,8 +1,37 @@
-function [] = pcaplotter(PC,PHECOLORS,cbTITLE,CMAP,cbTICKS,cbTICKLABELS,...
-                PClast,AZEL,do2D,doAnimate,doSave,varargin)
+function [] = plotpca(PC,PHECOLORS,cbTITLE,CMAP,cbTICKS,cbTICKLABELS,varargin)
 
 
-keyboard
+
+if nargin < 7
+    do2D = 1;
+    doAnimate = 0;
+    doSave = 0;
+    AZEL = [-75 12];
+elseif nargin == 7
+    do2D = varargin{1};
+    doAnimate = 0;
+    doSave = 0;
+    AZEL = [-75 12];
+elseif nargin == 8
+    do2D = varargin{1};
+    doAnimate = varargin{2};
+    doSave = 0;
+    AZEL = [-75 12];
+elseif nargin == 9
+    do2D = varargin{1};
+    doAnimate = varargin{2};
+    doSave = varargin{3};
+    AZEL = [-75 12];
+elseif nargin == 10
+    do2D = varargin{1};
+    doAnimate = varargin{2};
+    doSave = varargin{3};
+    AZEL = varargin{4};
+end
+
+
+
+
 
 if do2D
 fh1=figure('Units','normalized','OuterPosition',[.01 .05 .98 .86],'Color','w');
@@ -45,7 +74,7 @@ ph3 = scatter(PC(:,2), PC(:,3),50, PHECOLORS,'filled','MarkerFaceAlpha',.2);
     cb.Label.VerticalAlignment = 'baseline'; axis off;
 
     axes(hax4); colormap(hax4, CMAP); hold on;
-ph4 = scatter(PC(:,PClast(1)), PC(:,PClast(2)),50, PHECOLORS,'filled','MarkerFaceAlpha',.2);
+ph4 = scatter(PC(:,1), PC(:,4),50, PHECOLORS,'filled','MarkerFaceAlpha',.2);
     xlabel('\bf PCx');ylabel('\bf PCy'); title('PCx & PCy')
     if ~doCLabs; cb=colorbar('Direction','reverse'); else
     cb=colorbar('Ticks',cbTICKS,'TickLabels',cbTICKLABELS,'Direction','reverse'); end
@@ -132,7 +161,7 @@ ph1 = scatter( nPC+1  , PC(:,1), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02); hold 
 ph2 = scatter( nPC+2  , PC(:,2), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02); hold on
 ph3 = scatter( nPC+3  , PC(:,3), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02); hold on
 ph4 = scatter( nPC+4  , PC(:,4), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02); hold on
-ph5 = scatter( nPC+5  , PC(:,PClast(2)), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02);
+ph5 = scatter( nPC+5  , PC(:,5), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02);
 
     xlabel('\bf PCA Components 1-5 ');ylabel('\bf Eigenvector Coefficients');
     cb=colorbar('Ticks',cbTICKS,'TickLabels',cbTICKLABELS,'Direction','reverse');
@@ -147,7 +176,7 @@ text(3,max(ph3.YData),sprintf(['explains: \n ' num2str(round(PE(3),2)) '%% \n'])
 'Interpreter','tex','HorizontalAlignment','center','VerticalAlignment','bottom','FontSize',14);
 text(4,max(ph4.YData),sprintf(['explains: \n ' num2str(round(PE(4),2)) '%% \n']),...
 'Interpreter','tex','HorizontalAlignment','center','VerticalAlignment','bottom','FontSize',14);
-text(5,max(ph5.YData),sprintf(['explains: \n ' num2str(round(PE(PClast(2)),2)) '%% \n']),...
+text(5,max(ph5.YData),sprintf(['explains: \n ' num2str(round(PE(5),2)) '%% \n']),...
 'Interpreter','tex','HorizontalAlignment','center','VerticalAlignment','bottom','FontSize',14);
 
 
@@ -178,7 +207,7 @@ ph3 = scatter( nPC+3  , PC(:,3), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02);
 hold on
 ph4 = scatter( nPC+4  , PC(:,4), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02);
 hold on
-ph5 = scatter( nPC+5  , PC(:,PClast(2)), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02);
+ph5 = scatter( nPC+5  , PC(:,5), 50, PHECOLORS,'o','MarkerEdgeAlpha',.02);
 
 
 

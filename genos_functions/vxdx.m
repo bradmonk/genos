@@ -1,4 +1,4 @@
-function [PVMX, VMX, DVMX, DMX, YVEC, YDUM] = mkdx(LX,CA,CO,UC,PHE,varargin)
+function [PVMX, VMX, DVMX, DMX, YVEC, YDUM] = vxdx(LX,CA,CO,UC,PHE,varargin)
 % function [PVMX, DVMX] = mkdumx(CA,CO,UC,PHE,varargin)
 
 
@@ -125,6 +125,15 @@ DVMX(: , 9)  =  PHE.BRAAK;      % COL6: BRAAK
 % GET BRAAK & AGE (BRAGE) WEIGHTS
 PVMX = bragepvmv(PVMX);
 DVMX = bragepvmv(DVMX);
+
+
+% COLS:  PVMX( 1 , 2, 3 , 4 ,  5 , 6 ,  7  ,  8  ,  9      ...)
+% START: PVMX(SRR,AD,COH,AGE,APOE,SEX,BRAAK,BRAAK,BRAAK    ...)
+% END:   PVMX(SRR,AD,COH,AGE,APOE,BRAGEz,BRAAK,AGEz,BRAGEz ...)
+
+PVMX(:,6) = PVMX(:,9);
+DVMX(:,6) = DVMX(:,9);
+
 
 
 

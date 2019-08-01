@@ -362,14 +362,6 @@ clc; clearvars -except P ADSP LOOP iSNP
 
 
 
-BRAAK = iSNP.BRAAK
-
-
-
-
-mdl = fitlm(tbl,'ResponseVar','BloodPressure');
-
-
 
 
 

@@ -115,8 +115,8 @@ P.TopSNPs = 50;
 P.Nloops = 3;
 P.Nsnps = P.TopSNPs + P.TargetSNPs;
 %P.Ngenes = P.NgeneEnd - P.NgeneStart + 1;
-P.Output_Path = [P.data P.f 'SERIAL' P.f 'RUNRAND' P.f 'MAT'];
-P.TargetSNP_Path = [P.data P.f 'CSVSNP' P.f 'RANDLOCI.csv'];
+P.Output_Path = [P.data P.f 'SERIAL' P.f 'ONEHOT' P.f 'MAT'];
+P.TargetSNP_Path = [P.data P.f 'CSVSNP' P.f 'SNPLIST_WITHAPOE.csv'];
 
 
 
@@ -244,12 +244,12 @@ LOOPDATA.GENECHRPOS = cell(P.Nloops,2);
 % TRAINING MATRIX INFO
 %----------------------------------------
 LOOPDATA.XLOCI{P.Nloops} = LOCI(1:P.Nsnps,:);
-LOOPDATA.PVXt       = nan(7000,(P.Nsnps+9),P.Nloops);
-LOOPDATA.PVXh       = nan(4000,(P.Nsnps+9),P.Nloops);
-LOOPDATA.NNREFt     = nan(7000,(P.Nsnps+10),P.Nloops);
-LOOPDATA.NNREFh     = nan(4000,(P.Nsnps+10),P.Nloops);
-LOOPDATA.NNALTt     = nan(7000,(P.Nsnps+10),P.Nloops);
-LOOPDATA.NNALTh     = nan(4000,(P.Nsnps+10),P.Nloops);
+LOOPDATA.PVXt       = nan(7000,((P.Nsnps*2)+9),P.Nloops);
+LOOPDATA.PVXh       = nan(4000,((P.Nsnps*2)+9),P.Nloops);
+LOOPDATA.NNREFt     = nan(7000,((P.Nsnps*2)+10),P.Nloops);
+LOOPDATA.NNREFh     = nan(4000,((P.Nsnps*2)+10),P.Nloops);
+LOOPDATA.NNALTt     = nan(7000,((P.Nsnps*2)+10),P.Nloops);
+LOOPDATA.NNALTh     = nan(4000,((P.Nsnps*2)+10),P.Nloops);
 
 
 
@@ -341,14 +341,24 @@ close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk
     s = (kk*P.TargetSNPs-9):(kk*P.TargetSNPs);
     CHRPOS = ADSP.SNP.CHRPOS(s);
 
+    % REMOVE APOE UNLESS A TARGET SNP
     if (~any(CHRPOS==190045412079)) && (~any(CHRPOS==190045411941))
-        BADGENES = string(["TYRO3","APOE"]); %,"TOMM40"
+        BADGENES = string(["APOE"]); %,"TOMM40"
         for nn = 1:numel(BADGENES)
            x = strcmp(VLOCI.GENE,BADGENES(nn));
            VLOCI.TRFISHP( x ) = 1;
            VLOCI.TEFISHP( x ) = 1;
            VLOCI.FISHP( x )   = 1;
         end
+    end
+
+
+    BADGENES = string(["TOMM40"]); %,"TOMM40"
+    for nn = 1:numel(BADGENES)
+       x = strcmp(VLOCI.GENE,BADGENES(nn));
+       VLOCI.TRFISHP( x ) = 1;
+       VLOCI.TEFISHP( x ) = 1;
+       VLOCI.FISHP( x )   = 1;
     end
 
 
@@ -393,7 +403,7 @@ close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk
     clc;
     fprintf('\nTarget SNP Genes: \n\n');
     disp(GENE')
-    disp(VLOCI(1:12,[1:8 31 32 43 44])); 
+    disp(VLOCI(1:12,[1:8 31 32 41 42 43 44])); 
     pause(2);
 
 
@@ -445,8 +455,8 @@ close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk
 
     % Save some data for the record
     LOOPDATA.XLOCI{ij} = XLOCI;
-    LOOPDATA.PVXt(1:(size(PVXt,1)),1:(size(PVXt,2)),ij)  = PVXt;
-    LOOPDATA.PVXh(1:(size(PVXh,1)),1:(size(PVXh,2)),ij)  = PVXh;
+    LOOPDATA.PVXt(1:(size(DVXt,1)),1:(size(DVXt,2)),ij)  = DVXt;
+    LOOPDATA.PVXh(1:(size(DVXh,1)),1:(size(DVXh,2)),ij)  = DVXh;
 
 
 
@@ -473,10 +483,10 @@ TRAINVARS = {PVXt, VXt, DVXt, DXt, Yt, YDt};
 TESTVARS  = {PVXh, VXh, DVXh, DXh, Yh, YDh};
 
 PARAMS.LOOPS = 3;
-PARAMS.doDX  = 0;
+PARAMS.doDX  = 1;
 PARAMS.NNEURONS = [50,20];
 
-net = nettrain(TRAINVARS,TESTVARS,PARAMS);
+net = hottrain(TRAINVARS,TESTVARS,PARAMS);
 
 LOOPDATA.NETS{ij,1} = net;
 
@@ -497,61 +507,71 @@ clearvars -except P ADSP INFO SNPTAB PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
 XLOCI XCASE XCTRL XUSNP TRPHE TEPHE net
 
 
-NNREFt = nan(size(TRPHE,1),P.Nsnps+1);
-NNREFh = nan(size(TEPHE,1),P.Nsnps+1);
-NNALTt = nan(size(TRPHE,1),P.Nsnps+1);
-NNALTh = nan(size(TEPHE,1),P.Nsnps+1);
+NNREFt = nan(size(TRPHE,1),(P.Nsnps*2)+1);
+NNREFh = nan(size(TEPHE,1),(P.Nsnps*2)+1);
+NNALTt = nan(size(TRPHE,1),(P.Nsnps*2)+1);
+NNALTh = nan(size(TEPHE,1),(P.Nsnps*2)+1);
 
 
-% ITERATE OVER EACH SNP IN THE NN MATRIX
+% ITERATE OVER EACH HET-ALT SNP IN THE NN MATRIX
 %-------------------------------------------
-for vi = 1:P.Nsnps
+for vi = 1:2:(P.Nsnps*2)
 
 % PVXt(SRR,AD,COH,AGE,APOE,BRAGEz,BRAAK,AGEz,BRAGEz ...)
 [PVXt, VXt, DVXt, DXt, Yt, YDt] = vxdx(XLOCI,XCASE,XCTRL,XUSNP,TRPHE,INFO.NNwts);
 [PVXh, VXh, DVXh, DXh, Yh, YDh] = vxdx(XLOCI,XCASE,XCTRL,XUSNP,TEPHE,INFO.NNwts);
 
-VXt(:,vi)      = INFO.NNwts(1);
-VXh(:,vi)      = INFO.NNwts(1);
+DXt(:,vi)      = INFO.NNwts(1);
+DXh(:,vi)      = INFO.NNwts(1);
+DXt(:,vi+1)    = INFO.NNwts(1);
+DXh(:,vi+1)    = INFO.NNwts(1);
 
-NNREFt(:,vi)     = net(VXt')';
-NNREFh(:,vi)     = net(VXh')';
+NNREFt(:,vi)   = net(DXt')';
+NNREFh(:,vi)   = net(DXh')';
 
-VXt(:,vi)      = INFO.NNwts(4);
-VXh(:,vi)      = INFO.NNwts(4);
+DXt(:,vi)      = INFO.NNwts(3);
+DXh(:,vi)      = INFO.NNwts(3);
 
-NNALTt(:,vi) = net(VXt')';
-NNALTh(:,vi) = net(VXh')';
+NNALTt(:,vi)   = net(DXt')';
+NNALTh(:,vi)   = net(DXh')';
+
+DXt(:,vi+1)    = INFO.NNwts(4);
+DXh(:,vi+1)    = INFO.NNwts(4);
+
+NNALTt(:,vi+1)   = net(DXt')';
+NNALTh(:,vi+1)   = net(DXh')';
 
 end
 %-------------------------------------------
 
 
+
 % APPEND A NN OUTPUT TO NNREF & NNALT WHEN NO VARIANTS ARE EDITED
 [PVXt, VXt, DVXt, DXt, Yt, YDt] = vxdx(XLOCI,XCASE,XCTRL,XUSNP,TRPHE,INFO.NNwts);
 [PVXh, VXh, DVXh, DXh, Yh, YDh] = vxdx(XLOCI,XCASE,XCTRL,XUSNP,TEPHE,INFO.NNwts);
-NNREFt(:,end) = net(VXt')';
-NNREFh(:,end) = net(VXh')';
-NNALTt(:,end) = net(VXt')';
-NNALTh(:,end) = net(VXh')';
+NNREFt(:,end) = net(DXt')';
+NNREFh(:,end) = net(DXh')';
+NNALTt(:,end) = net(DXt')';
+NNALTh(:,end) = net(DXh')';
 
 
-NNREFt = [PVXt(:,1:9) , (NNREFt-.5)];
-NNREFh = [PVXh(:,1:9) , (NNREFh-.5)];
-NNALTt = [PVXt(:,1:9) , (NNALTt-.5)];
-NNALTh = [PVXh(:,1:9) , (NNALTh-.5)];
+NNREFt = [DVXt(:,1:9) , (NNREFt-.5)];
+NNREFh = [DVXh(:,1:9) , (NNREFh-.5)];
+NNALTt = [DVXt(:,1:9) , (NNALTt-.5)];
+NNALTh = [DVXh(:,1:9) , (NNALTh-.5)];
 
 
 clearvars -except P ADSP INFO SNPTAB PHEN LOCI CASE CTRL USNP LOOPDATA kk ij...
-XLOCI XCASE XCTRL XUSNP TRPHE TEPHE net NNREFt NNREFh NNALTt NNALTh PVXt PVXh
+XLOCI XCASE XCTRL XUSNP TRPHE TEPHE net NNREFt NNREFh NNALTt NNALTh...
+PVXt PVXh DVXt DVXh
 
 
 %% SAVE LOOP DATA
 
 LOOPDATA.XLOCI{ij}  = XLOCI;
 
-LOOPDATA.PVXt(1:size(PVXt,1),:,ij)     = PVXt;
-LOOPDATA.PVXh(1:size(PVXh,1),:,ij)     = PVXh;
+LOOPDATA.PVXt(1:size(DVXt,1),:,ij)     = DVXt;
+LOOPDATA.PVXh(1:size(DVXh,1),:,ij)     = DVXh;
 
 LOOPDATA.NNREFt(1:size(NNREFt,1),:,ij) = NNREFt;
 LOOPDATA.NNREFh(1:size(NNREFh,1),:,ij) = NNREFh;

@@ -91,7 +91,7 @@ P.funs = [P.home filesep 'genos_functions'];
 P.mfuns = [P.funs filesep 'genos_main_functions'];
 P.other = [P.home filesep 'genos_other'];
 P.data = [P.home filesep 'genos_data'];
-% P.data = 'F:\GENOSDATA';
+P.data = 'F:\GENOSDATA';
 addpath(join(string(struct2cell(P)),pathsep,1))
 cd(P.home); P.f = filesep;
 

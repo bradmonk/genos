@@ -115,8 +115,8 @@ P.TopSNPs = 50;
 P.Nloops = 3;
 P.Nsnps = P.TopSNPs + P.TargetSNPs;
 %P.Ngenes = P.NgeneEnd - P.NgeneStart + 1;
-P.Output_Path = [P.data P.f 'SERIAL' P.f 'RUNRAND' P.f 'MAT'];
-P.TargetSNP_Path = [P.data P.f 'CSVSNP' P.f 'RANDLOCI.csv'];
+P.Output_Path = [P.data P.f 'SERIAL' P.f 'RUN8' P.f 'MAT'];
+P.TargetSNP_Path = [P.data P.f 'CSVSNP' P.f 'SNPLIST_WITHAPOE.csv'];
 
 
 
@@ -342,7 +342,7 @@ close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk
     CHRPOS = ADSP.SNP.CHRPOS(s);
 
     if (~any(CHRPOS==190045412079)) && (~any(CHRPOS==190045411941))
-        BADGENES = string(["TYRO3","APOE"]); %,"TOMM40"
+        BADGENES = string(["APOE","TOMM40"]); %,"TOMM40"
         for nn = 1:numel(BADGENES)
            x = strcmp(VLOCI.GENE,BADGENES(nn));
            VLOCI.TRFISHP( x ) = 1;
@@ -366,8 +366,8 @@ close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk
     CHRPOS = ADSP.SNP.CHRPOS(s);
 
     g = sum(VLOCI.CHRPOS == (CHRPOS') ,2)>0;
-    gn = sum(g);
-    if gn < 10
+
+    if sum(g) < 10
         keyboard
     end
 
@@ -393,7 +393,7 @@ close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk
     clc;
     fprintf('\nTarget SNP Genes: \n\n');
     disp(GENE')
-    disp(VLOCI(1:12,[1:8 31 32 43 44])); 
+    disp(VLOCI(1:12,[1:8 31 32 41 42 43 44])); 
     pause(2);
 
 

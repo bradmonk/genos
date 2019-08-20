@@ -107,19 +107,19 @@ clc; clearvars -except P ADSP
 clc; clearvars -except P ADSP
 
 
-LOCI = ADSP.LOCI;
-min(LOCI.CASEALT + LOCI.CTRLALT)
-min(LOCI.CTRLALT)
+% LOCI = ADSP.LOCI;
+% min(LOCI.CASEALT + LOCI.CTRLALT)
+% min(LOCI.CTRLALT)
 
 
 
-RUN = 'RUN9_PLO';
+RUN = 'RUN10_PLO_NOAPOE';
+% RUN = 'RUN9_PLO';
 
 P.serial.DIRroot = [P.home P.f 'genos_data' P.f 'modSNP' P.f RUN];
 P.serial.DIRmat  = [P.serial.DIRroot P.f 'MAT'];
 P.serial.DIRout  = [P.serial.DIRroot P.f 'OUT'];
 P.serial.DIRdat  = [P.serial.DIRroot P.f 'DAT'];
-
 
 
 

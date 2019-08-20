@@ -91,7 +91,7 @@ P.funs = [P.home filesep 'genos_functions'];
 P.mfuns = [P.funs filesep 'genos_main_functions'];
 P.other = [P.home filesep 'genos_other'];
 P.data = [P.home filesep 'genos_data'];
-% P.data = 'F:\GENOSDATA';
+P.data = 'F:\GENOSDATA';
 addpath(join(string(struct2cell(P)),pathsep,1))
 cd(P.home); P.f = filesep;
 
@@ -115,10 +115,8 @@ P.TopSNPs = 49;
 P.Nloops = 5;
 P.Nsnps = P.TopSNPs + P.TargetSNPs;
 %P.Ngenes = P.NgeneEnd - P.NgeneStart + 1;
-P.Output_Path = [P.data P.f 'modSNP' P.f 'RUN9_PLO' P.f 'MAT'];
+P.Output_Path = [P.data P.f 'modSNP' P.f 'RUN10_PLO_NOAPOE' P.f 'MAT'];
 P.TargetSNP_Path = [P.data P.f 'CSVSNP' P.f 'PLO.csv'];
-
-
 
 
 clearvars -except P ADSP INFO
@@ -350,26 +348,14 @@ close all; clc; fprintf('\n\n | GENE LOOP: %.0f  \n | SUBSET LOOP: %.0f \n\n',kk
 %         VCTRL(x) = [];
 %         VUSNP(x) = [];
 %     end
-
-
-
-    s = (kk*P.TargetSNPs-(P.TargetSNPs-1)):(kk*P.TargetSNPs);
-    CHRPOS = ADSP.SNP.CHRPOS(s);
-
-    % IF APOE IS NOT A TARGET GENE, MAKE APOE PVALUE = 1.0
-    if (~any(CHRPOS==190045412079)) && (~any(CHRPOS==190045411941))
-       x = strcmp(VLOCI.GENE,"APOE");
-       VLOCI.TRFISHP( x ) = 1;
-       VLOCI.TEFISHP( x ) = 1;
-       VLOCI.FISHP( x )   = 1;
-    end
     %}
 
-
-
-
-
-
+    
+    x = strcmp(VLOCI.GENE,"APOE");
+    VLOCI.TRFISHP( x ) = 1;
+    VLOCI.TEFISHP( x ) = 1;
+    VLOCI.FISHP( x )   = 1;
+    
 
     %==========================================================================
     % IDENTIFY TARGET SNPS AND MAKE THEIR P-VALUE = 0
